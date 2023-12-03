@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "apexcharts": "^3.44.1",
+    "bootstrap": "^5.3.2",
+    "bootstrap-daterangepicker": "^3.1.0",
+    "qrcode.react": "^3.1.0"
+  }
+}
