@@ -1,0 +1,243 @@
+
+a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    html {
+      color-scheme: dark;
+    }
+  }
+  .App {
+    text-align: center;
+  }
+  
+  .App-logo {
+    height: 40vmin;
+    pointer-events: none;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+      animation: App-logo-spin infinite 20s linear;
+    }
+  }
+  
+  .App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+  }
+  
+  .App-link {
+    color: #61dafb;
+  }
+  
+  @keyframes App-logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .superadmin-page, .admin-page, .customer-page {
+    height: 100%;
+    margin: 0;
+    background: #ededed;
+    background-size: 35%;    
+    background-image: url('/images/car-bg.png');
+    background-repeat: no-repeat;
+    background-position-x: right;
+    background-position-y: bottom;
+  }
+  
+  .superadmin-page::before, .admin-page::before, .customer-page::before, nav.sticky-top::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 85%;
+    background: #fff;
+    transform: skew(-30deg);
+    transform-origin: top;
+  }
+  
+  .login-page {
+    height: 100%;
+    background-image: url('/images/login-bg.png');
+  }
+  
+  nav.sticky-top {
+    margin: 0;
+    background: #000000 !important;
+  }
+  
+  .logout-btn {
+    color: white !important;
+  }
+  
+  .navbar .navbar-toggler {
+    top: .25rem;
+    right: 1rem;
+  }
+  
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+  
+  .navbar-nav {
+    flex-direction: unset;
+  }
+  
+  .notification {
+    background: unset;
+    box-shadow: unset;
+  }
+  
+  .sidebar {
+    background-color: #ffffff !important;
+    padding-top: 63px;
+  }
+  
+  .sidebar .sidebar-sticky {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+  
+  .sidebar ul li a {
+    background-color: #fae80c;
+    margin-bottom: 8px;
+    border-radius: 15px;
+    text-transform: uppercase;
+    height: 45px;
+  }
+  
+  .sidebar ul li a:hover, .sidebar ul li a.active {
+    background-color: #bbab00;
+  }
+  
+  .sidebar ul li a {
+    color: black;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .sidebar ul li a img {
+    margin-right: 10px;
+  }
+  
+  .container-fluid {
+    padding-top: 20px;
+    padding-bottom: 50px;
+  }
+  
+  .card {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    border-radius: 1rem;
+  }
+  
+  table {
+    background-color: #f2f2f2;
+    border-radius: 10px;
+  }
+  
+  table thead th {
+    border: none !important;
+    padding: 10px !important;
+  }
+  
+  table td {
+    padding: 10px !important;
+  }
+  
+  table thead th:first-child {
+    border-radius: 10px 0 0 10px;
+  }
+  
+  table thead th:last-child {
+    border-radius: 0 10px 10px 0;
+  }
+  
+  main [class*='col-'] {
+    margin-bottom: 15px;
+  }
+  
+  .reward-container {
+    background-color: #f2f2f2;
+    border: none;
+    box-shadow: none !important;
+  }
+  
+  .reward-content .card {
+    box-shadow: none !important;
+    border: none;
+    background-color: unset;
+  }
+  
+  .reward-content .card .card-body {
+    border: 1px solid;
+    border-radius: 10px;
+    background-color: white;
+    margin-bottom: 10px;
+  }
+  
+  .user-info.card, .user-rewards.card {
+    background-color: #f2f2f2;
+    border: none;
+    box-shadow: none !important;
+  }
+  
+  .user-rewards.card .list-group-item {
+    border: 1px solid;
+    border-radius: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .user-points-container {
+    background-color: yellow;
+    border-radius: 10px;
+  }
+  
+  .notification-section .popover {
+    width: 250px;
+  }
+  
+  .notification-info-panel .nodata {
+    font-size: 18px;
+    align-self: center;
+    display: inline-block;
+  }
+  
+  @media (min-width: 992px) {
+    main.col-lg-9 {
+      flex: 0 0 80%;
+      max-width: 75%;
+    }
+  
+    .sidebar.col-lg-3 {
+      max-width: 25%;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    main.col-lg-9 {
+      flex: 0 0 80%;
+      max-width: 80%;
+    }
+  
+    .sidebar.col-lg-3 {
+      max-width: 20%;
+    }
+  }
