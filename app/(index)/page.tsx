@@ -1,6 +1,7 @@
 "use client";
 import styles from "./page.module.css";
 import { Button, Form, Image } from "react-bootstrap";
+import "../css/signin.css";
 
 export default function Home() {
   return (
