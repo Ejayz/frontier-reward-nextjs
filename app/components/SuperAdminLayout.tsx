@@ -19,7 +19,6 @@ export const SuperAdminHeader = () => {
           className="d-inline-block align-top"
         />
       </Navbar.Brand>
-
       <button
         className="navbar-toggler position-absolute d-md-none collapsed"
         type="button"

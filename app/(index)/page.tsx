@@ -10,7 +10,8 @@ export default function Home() {
         <Image
           className="mb-4"
           src={"/images/logo.png"}
-          height="180"
+          
+          width={"180"}
           alt={""}
         />
 
