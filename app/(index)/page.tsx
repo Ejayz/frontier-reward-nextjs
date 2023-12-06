@@ -1,23 +1,33 @@
 "use client";
 
 import NormalInput from "@/components/NormalInput";
-import useAuthenticate from "@/hooks/useAuthenticate";
 import { Form, Formik } from "formik";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
-export default function page() {
+export default function Page() {
   const data = useSearchParams();
   useEffect(() => {
     async function init() {
-      console.log(data?.get("error"))
+      console.log(data?.get("error"));
       if (data?.get("error") == "401") {
         toast.error("To view previous page please login.");
       }
     }
     init();
   }, []);
+
+  const login = async (email: string, password: string) => {
+    const response = await fetch("/api/private/authentication/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    return response;
+  };
 
   const nav = useRouter();
   const validateLogin = yup.object({
@@ -47,12 +57,8 @@ export default function page() {
               }}
               validationSchema={validateLogin}
               onSubmit={async (values) => {
-                const isLoggedIn = await useAuthenticate(
-                  values.email,
-                  values.password
-                );
+                const isLoggedIn = await login(values.email, values.password);
                 const data = await isLoggedIn.json();
-
                 if (isLoggedIn.ok) {
                   toast.success(data.message);
                   nav.push("/dashboard");
