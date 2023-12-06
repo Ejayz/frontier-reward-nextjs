@@ -1,17 +1,29 @@
 "use client";
+import { useState } from "react";
 import "../globals.css";
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [isToggled, setToggled] = useState<boolean>(false);
+
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setToggled(!isToggled);
+  };
   return (
     <html lang="en">
       <body>
-        <main className="min-h-screen">
+        <main className="w-full" id="wrapper">
+
+          
             {/* navbar */}
-            <div className="navbar bg-white">
+            <div className="navbar bg-white fixed">
   <div className="flex-1">
+  <button id="sidebar-toggle" className="text-black" onClick={handleButtonClick}>
+        Toggle Sidebar
+      </button>
     <a className="btn btn-ghost text-xl"><img src="../images/logo-nav.png"></img></a>
   </div>
   <div className="flex-none">
@@ -52,7 +64,9 @@ export default function RootLayout({
   </div>
 </div>
             {/* sidebar */}
-            <ul className="menu w-80 h-screen p-0 [&_li>*]:rounded-none fixed bg-white text-slate-950">
+            <div className={`sidebar bg-white w-80 fixed mt-20 ${isToggled ? ' toggled' : ''}`} style={{marginTop:65}}>
+       
+            <ul className="menu h-screen p-0 [&_li>*]:rounded-none bg-white text-slate-950">
   <li className="bg-yellow-400">
     <a className="text-2xl font-bold">
       <img src="./icons/dashboard.svg" className="mr-2" alt="" width={30} height={30} />
@@ -90,8 +104,13 @@ export default function RootLayout({
     </a>
   </li>
 </ul>
-       <div> 
+</div>
+            {/* content */}
+            <div className="content w-screen h-auto bg-white border-4 border-sky-500">
+            <div className="container">
+
           {children}
+          </div>
         </div>
         </main>
       </body>
