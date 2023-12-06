@@ -1,6 +1,5 @@
 "use client";
-import "../css/App.css";
-
+import "../globals.css";
 export default function RootLayout({
   children,
 }: {
@@ -9,9 +8,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="login-page">
-          <span className="top-shape"></span>
-          <span className="bottom-shape"></span>
+       <div> 
           {children}
         </div>
       </body>

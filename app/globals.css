@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+.login-page{
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;  
+  background-image: url('/images/login-bg.png');
+}
+.login-page::before {
+  content: "";
+
+  background-color: rgb(255, 255, 255);
+  background-size: cover;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  opacity: 0.5;
+  position: absolute;
+
+}
+.login-page .bottom-shape, .login-page .top-shape {
+  display: block;
+  height: 100px;
+  position: absolute;
+  width: 50%;
+}
+
+.login-page .top-shape {
+  background: #000;
+  border-radius: 0 0 100px 0;
+}
+.login-page .bottom-shape {
+  background: #ff0;
+  bottom: 0;
+  right: 0;
+  border-radius: 100px 0 0 0;
+}
