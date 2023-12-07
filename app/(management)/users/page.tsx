@@ -99,9 +99,13 @@ export default function Page() {
                     <span className="label-text">Vin No.</span>
                     </label>
                     <input type="text" placeholder="Enter Vehicle Number" className="input input-bordered" />
-                    
+                    <br/>
                     <button className="btn btn-primary mt-4">Add Vehicle</button>
-
+                    <div className="relative "style={{marginTop:60}}>
+            <div className="absolute bottom-6 right-6">
+          <button className="btn btn-neutral mr-2">Cancel</button>
+    <button className="btn btn-primary">Submit</button>
+    </div></div>
               </div>
             )}
 
@@ -128,8 +132,14 @@ export default function Page() {
                 </label>
                 <input type="tel" placeholder="Enter Phone Number" className="input input-bordered" />
 
-               
+                <div className="m-8 "style={{marginTop:60}}>
+            <div className="absolute bottom-6 right-6">
+          <button className="btn btn-neutral mr-2">Cancel</button>
+    <button className="btn btn-primary">Submit</button>
+    </div></div>
               </div>
+
+              
             )}
           </div>
         </div>
@@ -316,6 +326,14 @@ export default function Page() {
       </tr>
     </tbody>
   </table>
+  <div className="join">
+  <button className="join-item btn btn-outline">Previous page</button>
+  <input className="join-item btn btn-square" type="radio" name="options" aria-label="1" checked />
+  <input className="join-item btn btn-square" type="radio" name="options" aria-label="2" />
+  <input className="join-item btn btn-square" type="radio" name="options" aria-label="3" />
+  <input className="join-item btn btn-square" type="radio" name="options" aria-label="4" />
+  <button className="join-item btn btn-outline">Next</button>
+</div>
 </div>
     </div>
     
