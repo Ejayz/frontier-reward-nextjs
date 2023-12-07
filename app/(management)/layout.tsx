@@ -108,7 +108,7 @@ export default function RootLayout({
 </div>
 </div>
             {/* content */}
-            <div className="content absolute bg-white border-4 ml-80  border-sky-500" style={{marginTop:65}}>
+            <div className="content absolute bg-white border-4 ml-80" style={{marginTop:65}}>
             <div className="container fixed mt-10">
           {children}
           </div>
