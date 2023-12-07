@@ -15,6 +15,8 @@ export default function page() {
             <a href="#slide1" className="btn btn-circle">❮</a> 
             <a href="#slide2" className="btn btn-circle">❯</a>
           </div>
+
+          
         </div> 
       </div>
     );

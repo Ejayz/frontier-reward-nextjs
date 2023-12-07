@@ -14,12 +14,11 @@ export default function RootLayout({
   };
   return (
     <html lang="en">
-      <body>
-        <main className="w-full" id="wrapper">
-
-          
+      <body className="bg-white">
+        <main className="w-full relative " id="wrapper">
             {/* navbar */}
-            <div className="navbar bg-white fixed">
+            <div className="fixed w-full z-40 border-b-4 border-gray-500">
+            <div className="navbar bg-white border-l-4 absolute border-indigo-500">
   <div className="flex-1">
   <button id="sidebar-toggle" className="text-black" onClick={handleButtonClick}>
         Toggle Sidebar
@@ -63,8 +62,10 @@ export default function RootLayout({
     </div>
   </div>
 </div>
+</div>
             {/* sidebar */}
-            <div className={`sidebar bg-white w-80 fixed mt-20 ${isToggled ? ' toggled' : ''}`} style={{marginTop:65}}>
+            <div className="sidebar absolute w-80">
+            <div className={`sidebar bg-white w-80 fixed mt-20${isToggled ? ' toggled' : ''}`} style={{marginTop:65}}>
        
             <ul className="menu h-screen p-0 [&_li>*]:rounded-none bg-white text-slate-950">
   <li className="bg-yellow-400">
@@ -105,10 +106,10 @@ export default function RootLayout({
   </li>
 </ul>
 </div>
+</div>
             {/* content */}
-            <div className="content w-screen h-auto bg-white border-4 border-sky-500">
-            <div className="container">
-
+            <div className="content absolute bg-white border-4 ml-80  border-sky-500" style={{marginTop:65}}>
+            <div className="container fixed mt-10">
           {children}
           </div>
         </div>
