@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <div className="pl-10">
 {/* You can open the modal using document.getElementById('ID').showModal() method */}
-<button className="btn btn-info" onClick={()=>document.getElementById('my_modal_3').showModal()}>Add User</button>
+<button className="btn btn-info" onClick={()=>document.getElementById('my_modal_3')?.showModal()}>Add User</button>
 <dialog id="my_modal_3" className="modal">
         <div className="modal-box">
           <form method="dialog">
