@@ -13,6 +13,7 @@ type vehicleType = {
 };
 
 export default function Page() {
+  const vihiclenumber=1;
   const [userType, setUserType] = useState("");
   const modal = useRef<HTMLDialogElement>(null);
   const handleUserTypeChange = (event: any) => {
@@ -55,7 +56,7 @@ export default function Page() {
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
               ✕
             </button>
-          </form>
+        
           <h3 className="font-bold text-lg">Add User</h3>
           <div className="form-control">
             <label className="label">
@@ -262,7 +263,9 @@ export default function Page() {
               </div>
             )}
           </div>
+          </form>
         </div>
+        
       </dialog>
       {/* filters */}
       <div className="form-control">
@@ -463,6 +466,36 @@ export default function Page() {
             </tr>
           </tbody>
         </table>
+        <div className="join">
+          <button className="join-item btn btn-outline">Previous page</button>
+          <input
+            className="join-item btn btn-square"
+            type="radio"
+            name="options"
+            aria-label="1"
+            checked
+          />
+          <input
+            className="join-item btn btn-square"
+            type="radio"
+            name="options"
+            aria-label="2"
+          />
+          <input
+            className="join-item btn btn-square"
+            type="radio"
+            name="options"
+            aria-label="3"
+          />
+          <input
+            className="join-item btn btn-square"
+            type="radio"
+            name="options"
+            aria-label="4"
+          />
+          <button className="join-item btn btn-outline">Next</button>
+
+        </div>
       </div>
     </div>
   );
