@@ -36,7 +36,7 @@ export default async function handler(
       expiresIn: "1h",
     });
     res
-      .setHeader("Set-Cookie", `auth=${token}; path=/; max-age=2592000;"`)
+      .setHeader("Set-Cookie", `auth=${token};max-age=2592000;"`)
       .status(200)
       .json({ message: "Login successful" });
   } catch (error: any) {

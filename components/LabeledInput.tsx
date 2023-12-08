@@ -9,10 +9,14 @@ export default function LabeledInput({
   errors,
   touched,
   classes,
+  label,
 }: any) {
   console.log(errors, touched);
   return (
     <div className="form-control">
+      <label className="label">
+        <span className="label-text">{label}</span>
+      </label>
       <Field
         name={field_name}
         type={type}
