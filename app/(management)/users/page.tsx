@@ -2,11 +2,12 @@
 import React, { useRef, useState } from "react";
 
 export default function Page() {
+  const vihiclenumber=1;
   const [userType, setUserType] = useState("");
   const modalButton = useRef<HTMLDialogElement>(null);
   const handleUserTypeChange = (event: any) => {
     setUserType(event.target.value);
-  };
+  };  
   return (
     <div className="pl-10">
       {/* You can open the modal using document.getElementById('ID').showModal() method */}
@@ -22,7 +23,7 @@ export default function Page() {
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
               ✕
             </button>
-          </form>
+        
           <h3 className="font-bold text-lg">Add User</h3>
           <div className="form-control">
             <label className="label">
@@ -97,7 +98,7 @@ export default function Page() {
                 </select>
 
                 <label className="label">
-                  <span className="label-text">Vihicle #</span>
+                  <span className="label-text">Vihicle # {vihiclenumber}</span>
                 </label>
                 <label className="label">
                   <span className="label-text">ID</span>
@@ -150,7 +151,7 @@ export default function Page() {
                   className="input input-bordered"
                 />
                 <br />
-                <button className="btn btn-primary mt-4">Add Vehicle</button>
+                <a className="btn btn-primary mt-4">Add Vehicle</a>
                 <div className="relative " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <button className="btn btn-neutral mr-2">Cancel</button>
@@ -212,7 +213,9 @@ export default function Page() {
               </div>
             )}
           </div>
+          </form>
         </div>
+        
       </dialog>
       {/* filters */}
       <div className="form-control">
@@ -441,6 +444,7 @@ export default function Page() {
             aria-label="4"
           />
           <button className="join-item btn btn-outline">Next</button>
+
         </div>
       </div>
     </div>
