@@ -1,6 +1,16 @@
 "use client";
+import LabeledInput from "@/components/LabeledInput";
 import { Form, Formik, FormikHelpers, FormikValues } from "formik";
 import React, { useState, useRef } from "react";
+import * as yup from "yup";
+type vehicleType = {
+  vehicle_id: string;
+  year: string;
+  model: string;
+  trim: string;
+  color: string;
+  vin_no: string;
+};
 
 export default function Page() {
   const [userType, setUserType] = useState("");
@@ -8,9 +18,24 @@ export default function Page() {
   const handleUserTypeChange = (event: any) => {
     setUserType(event.target.value);
   };
+  const [vehiclelist, setVehicleList] = useState<vehicleType>();
+  const customerValidation = yup.object().shape({
+    costumer_id: yup.string().required("Required"),
+    first_name: yup.string().required("Required"),
+    last_name: yup.string().required("Required"),
+    email: yup.string().required("Required"),
+    phone_number: yup.string().required("Required"),
+    points: yup.string().required("Required"),
+    package: yup.string().required("Required"),
+    vehicle_id: yup.string().required("Required"),
+    year: yup.string().required("Required"),
+    model: yup.string().required("Required"),
+    trim: yup.string().required("Required"),
+    color: yup.string().required("Required"),
+    vin_no: yup.string().required("Required"),
+  });
   return (
     <div className="pl-10">
-      {/* You can open the modal using document.getElementById('ID').showModal() method */}
       <button
         className="btn btn-info"
         onClick={() => modal.current?.showModal()}
@@ -63,6 +88,7 @@ export default function Page() {
                   color: "",
                   vin_no: "",
                 }}
+                validationSchema={customerValidation}
                 onSubmit={(values: any) => {
                   console.log(values);
                 }}
@@ -70,13 +96,15 @@ export default function Page() {
                 {({ errors, touched }) => (
                   <Form>
                     <div className="customer">
-                      <label className="label">
-                        <span className="label-text">Customer ID</span>
-                      </label>
-                      <input
+                      <LabeledInput
+                        field_name="costumer_id"
                         type="text"
                         placeholder="Enter Customer ID"
                         className="input input-bordered"
+                        errors={errors}
+                        touched={touched}
+                        classes="text-base"
+                        label="Customer ID"
                       />
                       <label className="label">
                         <span className="label-text">First Name</span>
