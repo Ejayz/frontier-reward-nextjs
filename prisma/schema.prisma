@@ -181,6 +181,7 @@ model packages {
   multiplier      Decimal           @default(0.00) @db.Decimal(8, 2)
   created_at      DateTime?         @db.Timestamp(0)
   updated_at      DateTime?         @db.Timestamp(0)
+  is_exist        Boolean           @default(true)
   package_rewards package_rewards[]
   user_infos      user_infos[]
 }
@@ -330,6 +331,8 @@ model users {
   remember_token                                     String?         @db.VarChar(100)
   user_type_id                                       Int?            @db.UnsignedInt
   points                                             Decimal         @default(0.00) @db.Decimal(8, 2)
+  iso2                                               String?         @db.VarChar(15)
+  dial_code                                          String?         @db.VarChar(15)
   created_at                                         DateTime?       @db.Timestamp(0)
   updated_at                                         DateTime?       @db.Timestamp(0)
   deleted_at                                         DateTime?       @db.Timestamp(0)

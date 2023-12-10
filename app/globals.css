@@ -68,3 +68,12 @@ body {
 .row:hover{
   background: #8a8787;
 }
+
+
+
+  .Toastify{
+    z-index: 99999 !important;
+  }
+  #my_modal_3{
+    z-index: 30 !important;
+  }
