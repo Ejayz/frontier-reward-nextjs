@@ -1,7 +1,8 @@
 "use client";
 import { ErrorMessage, Field } from "formik";
+import { PhoneInput } from "react-international-phone";
 
-export default function LabeledInput({
+export default function LabeledInputPhone({
   field_name,
   type,
   placeholder,
@@ -10,20 +11,28 @@ export default function LabeledInput({
   touched,
   classes,
   label,
+  value,
+  setFieldValue,
+  setPhoneInfo,
+  customerValidation,
 }: any) {
-  
+  console.log(errors, touched);
   return (
     <div className="form-control">
       <label className="label">
         <span className="label-text">{label}</span>
       </label>
-      <Field
+      <PhoneInput
         name={field_name}
-        type={type}
-        placeholder={placeholder}
-        className={className}
+        defaultCountry="ca"
+        value={value}
+        onChange={(phone, { country }) => {
+          console.log(country)
+          setPhoneInfo(country);
+          setFieldValue("phone_number", phone);
+        }}
       />
-      {errors && touched ? (
+      {errors ? (
         <div className="alert bg-transparent border-none text-error p-[1px] h-auto my-2 ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -38,11 +47,7 @@ export default function LabeledInput({
               d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <ErrorMessage
-            name={field_name}
-            component="div"
-            className={`${classes} text-base`}
-          />
+          <span className="text-base">{errors}</span>
         </div>
       ) : null}
     </div>

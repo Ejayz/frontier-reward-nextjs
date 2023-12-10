@@ -10,7 +10,6 @@ export default function NormalInput({
   touched,
   classes,
 }: any) {
-  console.log(errors, touched);
   return (
     <div className="form-control">
       <Field
