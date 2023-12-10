@@ -285,11 +285,9 @@ export default function Page() {
                           touched={touched.package}
                           classes="text-base"
                           label="Package"
-                          SelectOptions={[
-                            { text: "Gold Membership", value: "1" },
-                            { text: "Premium Membership", value: "2" },
-                            { text: "Something Membership", value: "3" },
-                          ]}
+                          SelectOptions={
+                            isFetching || isLoading ? [] : data.data
+                          }
                           setFieldValue={setFieldValue}
                           values={values.package}
                         />
