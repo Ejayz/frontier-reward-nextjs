@@ -77,7 +77,6 @@ export default function Page() {
       return data;
     },
   });
-  console.log(data);
   const [vehiclelist, setVehicleList] = useState<vehicleType[]>([]);
   const customerValidation = yup.object({
     first_name: yup.string().required("First Name is required."),
@@ -109,15 +108,12 @@ export default function Page() {
       .required("VIN number is required"),
   });
 
-  useEffect(() => {
-    console.log(vehiclelist);
-  }, [vehiclelist]);
   const [dataToRemove, setDataToRemove] = useState<{
     id: string;
     table_uuid: string;
   }>();
   const confirmModal = useRef<HTMLDialogElement>(null);
-
+  const modalAddUser = useRef<HTMLInputElement>(null);
   return (
     <div className="pl-10 z-10">
       <dialog
@@ -176,6 +172,7 @@ export default function Page() {
           VehicleDetail.current?.resetForm();
           setVehicleList([]);
         }}
+        ref={modalAddUser}
         className="modal-toggle"
       />
       <div id="add_user_modal" className="modal" role="dialog">
@@ -215,9 +212,7 @@ export default function Page() {
                     package: "",
                   }}
                   validationSchema={customerValidation}
-                  onSubmit={(values: any) => {
-                    console.log(values);
-                  }}
+                  onSubmit={(values: any) => {}}
                 >
                   {({ errors, touched, setFieldValue, values }) => (
                     <Form>
@@ -444,6 +439,27 @@ export default function Page() {
                     </Form>
                   )}
                 </Formik>
+                <div className="modal-action">
+                  <button
+                    onClick={() => {
+                      console.log(
+                        CustomerAccountDetail.current?.isValid,
+                        vehiclelist.length
+                      );
+                    }}
+                    className="btn btn-info btn-md"
+                  >
+                    Create User
+                  </button>{" "}
+                  <button
+                    onClick={() => {
+                      modalAddUser.current?.click();
+                    }}
+                    className="btn btn-md"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </>
             )}
 
