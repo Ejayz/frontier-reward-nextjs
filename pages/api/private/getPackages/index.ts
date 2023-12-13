@@ -28,7 +28,7 @@ export default async function handler(
       value: packages.id,
       text: packages.name,
     }));
-    console.log(modifiedPackagesList)
+
     return res.status(200).json({ data: modifiedPackagesList });
   } catch (err: any) {
     if (err.name === "TokenExpiredError") {
