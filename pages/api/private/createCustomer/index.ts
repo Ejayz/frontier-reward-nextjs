@@ -79,23 +79,21 @@ export default async function handler(
         },
       });
     }
-    if(customerAddress){
-      
-
-    const data = await resend.emails.send({
-      from: "Register@PointsAndPerks <register.noreply@sledgedevsteam.lol>",
-      to: [email],
-      subject: "Welcome to Perks and Points",
-      react: EmailTemplate({
-        firstName: firstName,
-        last_name: lastName,
-        password: password,
-        email: email,
-        base_url: BASE_URL,
-      }),
-      text: `Welcome to Perks and Points!`,
-    });
-  }
+    if (customerAddress) {
+      const data = await resend.emails.send({
+        from: "Register@PointsAndPerks <register.noreply@sledgedevsteam.lol>",
+        to: [email],
+        subject: "Welcome to Perks and Points",
+        react: EmailTemplate({
+          firstName: firstName,
+          last_name: lastName,
+          password: password,
+          email: email,
+          base_url: BASE_URL,
+        }),
+        text: `Welcome to Perks and Points!`,
+      });
+    }
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token Expired" });
