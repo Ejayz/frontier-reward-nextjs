@@ -1,7 +1,7 @@
 "use client";
 import { ErrorMessage, Field } from "formik";
 
-export default function NormalInput({
+export default function LabeledInputYear({
   field_name,
   type,
   placeholder,
@@ -9,9 +9,16 @@ export default function NormalInput({
   errors,
   touched,
   classes,
+  label,
+  min,
+  max,
 }: any) {
+ 
   return (
     <div className="form-control">
+      <label className="label">
+        <span className="label-text">{label}</span>
+      </label>
       <Field
         name={field_name}
         type={type}

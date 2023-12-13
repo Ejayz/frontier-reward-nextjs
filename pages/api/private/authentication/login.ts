@@ -32,11 +32,15 @@ export default async function handler(
       res.status(401).json({ message: "Invalid credentials used." });
       return;
     }
-    const token = jwt.sign({ id: user.id }, jwt_secret, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user.id, role: user.user_type_id },
+      jwt_secret,
+      {
+        expiresIn: "1h",
+      }
+    );
     res
-      .setHeader("Set-Cookie", `auth=${token}; path=/; max-age=2592000;"`)
+      .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
       .status(200)
       .json({ message: "Login successful" });
   } catch (error: any) {

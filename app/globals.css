@@ -17,13 +17,7 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: white;
 }
 .login-page{
   position: relative;
@@ -62,3 +56,24 @@ body {
   right: 0;
   border-radius: 100px 0 0 0;
 }
+.content {
+  width: calc(100% - 320px);
+  height: 92.9vh
+}
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+.row:hover{
+  background: #8a8787;
+}
+
+
+
+  .Toastify{
+    z-index: 99999 !important;
+  }
+  #my_modal_3{
+    z-index: 30 !important;
+  }

@@ -1,23 +1,43 @@
-"use client";
 import { ErrorMessage, Field } from "formik";
 
-export default function NormalInput({
+export default function LabeledSelectInput({
   field_name,
-  type,
   placeholder,
   className,
   errors,
   touched,
   classes,
+  label,
+  SelectOptions,
+  setFieldValue,
+  values,
 }: any) {
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    setFieldValue(field_name, selectedValue);
+  };
+
   return (
     <div className="form-control">
+      <label className="label">
+        <span className="label-text">{label}</span>
+      </label>
       <Field
         name={field_name}
-        type={type}
-        placeholder={placeholder}
+        as={"select"}
         className={className}
-      />
+        onChange={handleSelectChange}
+        value={values}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {SelectOptions.map((element: any) => (
+          <option key={element.value} value={element.value}>
+            {element.text}
+          </option>
+        ))}
+      </Field>
       {errors && touched ? (
         <div className="alert bg-transparent border-none text-error p-[1px] h-auto my-2 ">
           <svg
