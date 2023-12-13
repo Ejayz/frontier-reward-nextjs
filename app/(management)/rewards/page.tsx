@@ -1,83 +1,324 @@
 "use client";
 import React, { useRef, useState } from "react";
-
+import { ErrorMessage, Field, Form, Formik, FormikHelpers, FormikValues } from "formik";
+import * as yup from "yup";
 export default function Page() {
-  const [userType, setUserType] = useState("");
+  const [rewardType, setrewardType] = useState("");
   const modal = useRef<HTMLDialogElement>(null);
   const handleUserTypeChange = (event: any) => {
-    setUserType(event.target.value);
+    setrewardType(event.target.value);
   };
+
+  const initialValues = {
+    type: "",
+    quantity: "",
+    cost: "",
+    name: "",
+    description : "",
+    percentage: "",
+    points : "",
+
+  };
+
+  const rewardsValidation = yup.object().shape({
+    type: yup.string().required("Type is required"),
+    quantity: yup.number().required("Quantity is required"),
+    cost: yup.number().required("Cost is required"),
+    name: yup.string().required("Name is required").matches(/^[^\d]+$/, 'Name must not include numbers'),
+    description: yup.string().required("Description is required") .matches(/^[^\d]+$/, 'Name must not include numbers'),
+    percentage: yup.string().required("Percentage is required"),
+    points: yup.number().required("Points is required"),
+  });
+
   return (
     <div className="pl-10">
       {/* You can open the modal using document.getElementById('ID').showModal() method */}
-      <button
-        className="btn btn-info"
-        onClick={() => modal.current?.showModal()}
-      >
-        Add Rewards
-      </button>
-      <dialog id="my_modal_3" ref={modal} className="modal">
-        <div className="modal-box">
-          <form method="dialog">
-            <button
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={() => modal.current?.close()}
-            >
-              ✕
-            </button>
-          </form>
-          <h3 className="font-bold text-lg">Add Rewards</h3>
-          <div className="form-control bg-white">
-            <label className="label">
-              <span className="label-text">Name</span>
-            </label>
-            <select>
-              <option>Type</option>
-              <option>Option 1</option>
-              <option>Option 2</option>
-            </select>
-            <label className="label">
-              <span className="label-text">Quantity</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Quantity"
-              className="input input-bordered"
-            />
-            <label className="label">
-              <span className="label-text">Cost</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Cost"
-              className="input input-bordered"
-            />
-            <label className="label">
-              <span className="label-text">Name</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Action Name"
-              className="input input-bordered"
-            />
-            <label className="label">
-              <span className="label-text">Description</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Action Description"
-              className="input input-bordered"
-            />
-          </div>
+      <label htmlFor="my_modal_6" className="btn btn-primary ">Add Reward</label>
+      {/* The button to open modal */}
+      <input type="checkbox" id="my_modal_6" className="modal-toggle" />
+<div className="modal" role="dialog">
+  <div className="modal-box">
+  <form method="dialog">
+  <label htmlFor="my_modal_6"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
+          
+  </form>
+  <h3 className="font-bold text-lg">Add Reward</h3>
+  <label className="label">
+    <span className="label-text text-base font-semibold">Type</span>
+  </label>
+  <select className="select select-bordered w-full max-w-xs"   value={rewardType} onChange={handleUserTypeChange}>
+    <option disabled selected>
+      Select Type
+    </option>
+    <option value="Item">Item</option>
+    <option value="Discount">Discount</option>
+    <option value="Points">Points</option>
+  </select>
+
+  {rewardType === "Item" && (
+              <Formik
+                initialValues={{
+                  quantity: "",
+                  cost: "",
+                  name: "",
+                  description: "",
+                }}
+                validationSchema={rewardsValidation}
+                onSubmit={(values: any) => {
+                  console.log(values);
+                }}
+              >
+                {({ errors, touched }) => (
+                  <Form>
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Quantity</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Quantity"
+                      className="input input-bordered"
+                      name="quantity"
+                    />
+                    <ErrorMessage name="quantity" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Cost</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Cost"
+                      className="input input-bordered"
+                      name="cost"
+                    />
+                    <ErrorMessage name="cost" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Name</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Name"
+                      className="input input-bordered"
+                      name="name"
+                    />
+                    <ErrorMessage name="name" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Description</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Description"
+                      className="input input-bordered"
+                      name="description"
+                    />
+                    <ErrorMessage name="description" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+                  </Form>
+                )}
+              </Formik>
+            )}
+
+{rewardType === "Discount" && (
+              <Formik
+                initialValues={{
+                  percentage: "",
+                  quantity: "",
+                  cost: "",
+                  name: "",
+                  description: "",
+                }}
+                validationSchema={rewardsValidation}
+                onSubmit={(values: any) => {
+                  console.log(values);
+                }}
+              >
+                {({ errors, touched }) => (
+                  <Form>
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Percentage</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Percentage"
+                      className="input input-bordered"
+                      name="quantity"
+                    />
+                    <ErrorMessage name="quantity" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Cost</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Cost"
+                      className="input input-bordered"
+                      name="cost"
+                    />
+                    <ErrorMessage name="cost" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Name</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Name"
+                      className="input input-bordered"
+                      name="name"
+                    />
+                    <ErrorMessage name="name" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                  
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Description</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Description"
+                      className="input input-bordered"
+                      name="description"
+                    />
+                    <ErrorMessage name="description" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+                  </Form>
+                )}
+              </Formik>
+            )}
+
+{rewardType === "Points" && (
+              <Formik
+                initialValues={{
+                  points: "",
+                  name: "",
+                  description: "",
+                }}
+                validationSchema={rewardsValidation}
+                onSubmit={(values: any) => {
+                  console.log(values);
+                }}
+              >
+                {({ errors, touched }) => (
+                  <Form>
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Points</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Points"
+                      className="input input-bordered"
+                      name="quantity"
+                    />
+                    <ErrorMessage name="quantity" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Name</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Name"
+                      className="input input-bordered"
+                      name="name"
+                    />
+                    <ErrorMessage name="name" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+
+                  
+                    <label className="label">
+                      <span className="label-text text-base font-semibold">Description</span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Reward Description"
+                      className="input input-bordered"
+                      name="description"
+                    />
+                    <ErrorMessage name="description" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+                  </Form>
+                )}
+              </Formik>
+            )}
           <div className="m-8 " style={{ marginTop: 60 }}>
             <div className="absolute bottom-6 right-6">
-              <button className="btn btn-neutral mr-2">Cancel</button>
+              <label  htmlFor="my_modal_6" className="btn btn-neutral mr-2" >Cancel</label>
               <button className="btn btn-primary">Submit</button>
             </div>
           </div>
-        </div>
-      </dialog>
-
+  </div>
+</div>
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table text-base font-semibold">
           {/* head */}
