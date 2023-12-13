@@ -95,6 +95,7 @@ export default async function handler(
       }),
       text: `Welcome to Perks and Points!`,
     });
+  }
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token Expired" });
