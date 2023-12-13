@@ -3,11 +3,8 @@ import LabeledInput from "@/components/LabeledInput";
 import LabeledInputPhone from "@/components/LabeledInputPhone";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
 import { useQuery } from "@tanstack/react-query";
-import { randomUUID } from "crypto";
-import { Form, Formik, FormikHelpers, FormikProps, FormikValues } from "formik";
-import Link from "next/link";
-import React, { useState, useRef, useEffect, createElement } from "react";
-import { PhoneInput } from "react-international-phone";
+import { Form, Formik, FormikProps } from "formik";
+import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import "yup-phone-lite";
@@ -34,6 +31,784 @@ export default function Page() {
   const handleUserTypeChange = (event: any) => {
     setUserType(event.target.value);
   };
+  const countries = [
+    {
+      value: "Afghanistan",
+      text: "Afghanistan",
+    },
+    {
+      value: "Albania",
+      text: "Albania",
+    },
+    {
+      value: "Algeria",
+      text: "Algeria",
+    },
+    {
+      value: "Andorra",
+      text: "Andorra",
+    },
+    {
+      value: "Angola",
+      text: "Angola",
+    },
+    {
+      value: "Antigua and Barbuda",
+      text: "Antigua and Barbuda",
+    },
+    {
+      value: "Argentina",
+      text: "Argentina",
+    },
+    {
+      value: "Armenia",
+      text: "Armenia",
+    },
+    {
+      value: "Australia",
+      text: "Australia",
+    },
+    {
+      value: "Austria",
+      text: "Austria",
+    },
+    {
+      value: "Azerbaijan",
+      text: "Azerbaijan",
+    },
+    {
+      value: "Bahamas",
+      text: "Bahamas",
+    },
+    {
+      value: "Bahrain",
+      text: "Bahrain",
+    },
+    {
+      value: "Bangladesh",
+      text: "Bangladesh",
+    },
+    {
+      value: "Barbados",
+      text: "Barbados",
+    },
+    {
+      value: "Belarus",
+      text: "Belarus",
+    },
+    {
+      value: "Belgium",
+      text: "Belgium",
+    },
+    {
+      value: "Belize",
+      text: "Belize",
+    },
+    {
+      value: "Benin",
+      text: "Benin",
+    },
+    {
+      value: "Bhutan",
+      text: "Bhutan",
+    },
+    {
+      value: "Bolivia",
+      text: "Bolivia",
+    },
+    {
+      value: "Bosnia and Herzegovina",
+      text: "Bosnia and Herzegovina",
+    },
+    {
+      value: "Botswana",
+      text: "Botswana",
+    },
+    {
+      value: "Brazil",
+      text: "Brazil",
+    },
+    {
+      value: "Brunei",
+      text: "Brunei",
+    },
+    {
+      value: "Bulgaria",
+      text: "Bulgaria",
+    },
+    {
+      value: "Burkina Faso",
+      text: "Burkina Faso",
+    },
+    {
+      value: "Burundi",
+      text: "Burundi",
+    },
+    {
+      value: "Cabo Verde",
+      text: "Cabo Verde",
+    },
+    {
+      value: "Cambodia",
+      text: "Cambodia",
+    },
+    {
+      value: "Cameroon",
+      text: "Cameroon",
+    },
+    {
+      value: "Canada",
+      text: "Canada",
+    },
+    {
+      value: "Central African Republic",
+      text: "Central African Republic",
+    },
+    {
+      value: "Chad",
+      text: "Chad",
+    },
+    {
+      value: "Chile",
+      text: "Chile",
+    },
+    {
+      value: "China",
+      text: "China",
+    },
+    {
+      value: "Colombia",
+      text: "Colombia",
+    },
+    {
+      value: "Comoros",
+      text: "Comoros",
+    },
+    {
+      value: "Congo (Congo-Brazzaville)",
+      text: "Congo (Congo-Brazzaville)",
+    },
+    {
+      value: "Costa Rica",
+      text: "Costa Rica",
+    },
+    {
+      value: "Croatia",
+      text: "Croatia",
+    },
+    {
+      value: "Cuba",
+      text: "Cuba",
+    },
+    {
+      value: "Cyprus",
+      text: "Cyprus",
+    },
+    {
+      value: "Czechia (Czech Republic)",
+      text: "Czechia (Czech Republic)",
+    },
+    {
+      value: "Democratic Republic of the Congo",
+      text: "Democratic Republic of the Congo",
+    },
+    {
+      value: "Denmark",
+      text: "Denmark",
+    },
+    {
+      value: "Djibouti",
+      text: "Djibouti",
+    },
+    {
+      value: "Dominica",
+      text: "Dominica",
+    },
+    {
+      value: "Dominican Republic",
+      text: "Dominican Republic",
+    },
+    {
+      value: "Ecuador",
+      text: "Ecuador",
+    },
+    {
+      value: "Egypt",
+      text: "Egypt",
+    },
+    {
+      value: "El Salvador",
+      text: "El Salvador",
+    },
+    {
+      value: "Equatorial Guinea",
+      text: "Equatorial Guinea",
+    },
+    {
+      value: "Eritrea",
+      text: "Eritrea",
+    },
+    {
+      value: "Estonia",
+      text: "Estonia",
+    },
+    {
+      value: "Eswatini (fmr. Swaziland)",
+      text: "Eswatini (fmr. Swaziland)",
+    },
+    {
+      value: "Ethiopia",
+      text: "Ethiopia",
+    },
+    {
+      value: "Fiji",
+      text: "Fiji",
+    },
+    {
+      value: "Finland",
+      text: "Finland",
+    },
+    {
+      value: "France",
+      text: "France",
+    },
+    {
+      value: "Gabon",
+      text: "Gabon",
+    },
+    {
+      value: "Gambia",
+      text: "Gambia",
+    },
+    {
+      value: "Georgia",
+      text: "Georgia",
+    },
+    {
+      value: "Germany",
+      text: "Germany",
+    },
+    {
+      value: "Ghana",
+      text: "Ghana",
+    },
+    {
+      value: "Greece",
+      text: "Greece",
+    },
+    {
+      value: "Grenada",
+      text: "Grenada",
+    },
+    {
+      value: "Guatemala",
+      text: "Guatemala",
+    },
+    {
+      value: "Guinea",
+      text: "Guinea",
+    },
+    {
+      value: "Guinea-Bissau",
+      text: "Guinea-Bissau",
+    },
+    {
+      value: "Guyana",
+      text: "Guyana",
+    },
+    {
+      value: "Haiti",
+      text: "Haiti",
+    },
+    {
+      value: "Holy See",
+      text: "Holy See",
+    },
+    {
+      value: "Honduras",
+      text: "Honduras",
+    },
+    {
+      value: "Hungary",
+      text: "Hungary",
+    },
+    {
+      value: "Iceland",
+      text: "Iceland",
+    },
+    {
+      value: "India",
+      text: "India",
+    },
+    {
+      value: "Indonesia",
+      text: "Indonesia",
+    },
+    {
+      value: "Iran",
+      text: "Iran",
+    },
+    {
+      value: "Iraq",
+      text: "Iraq",
+    },
+    {
+      value: "Ireland",
+      text: "Ireland",
+    },
+    {
+      value: "Israel",
+      text: "Israel",
+    },
+    {
+      value: "Italy",
+      text: "Italy",
+    },
+    {
+      value: "Jamaica",
+      text: "Jamaica",
+    },
+    {
+      value: "Japan",
+      text: "Japan",
+    },
+    {
+      value: "Jordan",
+      text: "Jordan",
+    },
+    {
+      value: "Kazakhstan",
+      text: "Kazakhstan",
+    },
+    {
+      value: "Kenya",
+      text: "Kenya",
+    },
+    {
+      value: "Kiribati",
+      text: "Kiribati",
+    },
+    {
+      value: "Kuwait",
+      text: "Kuwait",
+    },
+    {
+      value: "Kyrgyzstan",
+      text: "Kyrgyzstan",
+    },
+    {
+      value: "Laos",
+      text: "Laos",
+    },
+    {
+      value: "Latvia",
+      text: "Latvia",
+    },
+    {
+      value: "Lebanon",
+      text: "Lebanon",
+    },
+    {
+      value: "Lesotho",
+      text: "Lesotho",
+    },
+    {
+      value: "Liberia",
+      text: "Liberia",
+    },
+    {
+      value: "Libya",
+      text: "Libya",
+    },
+    {
+      value: "Liechtenstein",
+      text: "Liechtenstein",
+    },
+    {
+      value: "Lithuania",
+      text: "Lithuania",
+    },
+    {
+      value: "Luxembourg",
+      text: "Luxembourg",
+    },
+    {
+      value: "Madagascar",
+      text: "Madagascar",
+    },
+    {
+      value: "Malawi",
+      text: "Malawi",
+    },
+    {
+      value: "Malaysia",
+      text: "Malaysia",
+    },
+    {
+      value: "Maldives",
+      text: "Maldives",
+    },
+    {
+      value: "Mali",
+      text: "Mali",
+    },
+    {
+      value: "Malta",
+      text: "Malta",
+    },
+    {
+      value: "Marshall Islands",
+      text: "Marshall Islands",
+    },
+    {
+      value: "Mauritania",
+      text: "Mauritania",
+    },
+    {
+      value: "Mauritius",
+      text: "Mauritius",
+    },
+    {
+      value: "Mexico",
+      text: "Mexico",
+    },
+    {
+      value: "Micronesia",
+      text: "Micronesia",
+    },
+    {
+      value: "Moldova",
+      text: "Moldova",
+    },
+    {
+      value: "Monaco",
+      text: "Monaco",
+    },
+    {
+      value: "Mongolia",
+      text: "Mongolia",
+    },
+    {
+      value: "Montenegro",
+      text: "Montenegro",
+    },
+    {
+      value: "Morocco",
+      text: "Morocco",
+    },
+    {
+      value: "Mozambique",
+      text: "Mozambique",
+    },
+    {
+      value: "Myanmar (formerly Burma)",
+      text: "Myanmar (formerly Burma)",
+    },
+    {
+      value: "Namibia",
+      text: "Namibia",
+    },
+    {
+      value: "Nauru",
+      text: "Nauru",
+    },
+    {
+      value: "Nepal",
+      text: "Nepal",
+    },
+    {
+      value: "Netherlands",
+      text: "Netherlands",
+    },
+    {
+      value: "New Zealand",
+      text: "New Zealand",
+    },
+    {
+      value: "Nicaragua",
+      text: "Nicaragua",
+    },
+    {
+      value: "Niger",
+      text: "Niger",
+    },
+    {
+      value: "Nigeria",
+      text: "Nigeria",
+    },
+    {
+      value: "North Korea",
+      text: "North Korea",
+    },
+    {
+      value: "North Macedonia (formerly Macedonia)",
+      text: "North Macedonia (formerly Macedonia)",
+    },
+    {
+      value: "Norway",
+      text: "Norway",
+    },
+    {
+      value: "Oman",
+      text: "Oman",
+    },
+    {
+      value: "Pakistan",
+      text: "Pakistan",
+    },
+    {
+      value: "Palau",
+      text: "Palau",
+    },
+    {
+      value: "Palestine State",
+      text: "Palestine State",
+    },
+    {
+      value: "Panama",
+      text: "Panama",
+    },
+    {
+      value: "Papua New Guinea",
+      text: "Papua New Guinea",
+    },
+    {
+      value: "Paraguay",
+      text: "Paraguay",
+    },
+    {
+      value: "Peru",
+      text: "Peru",
+    },
+    {
+      value: "Philippines",
+      text: "Philippines",
+    },
+    {
+      value: "Poland",
+      text: "Poland",
+    },
+    {
+      value: "Portugal",
+      text: "Portugal",
+    },
+    {
+      value: "Qatar",
+      text: "Qatar",
+    },
+    {
+      value: "Romania",
+      text: "Romania",
+    },
+    {
+      value: "Russia",
+      text: "Russia",
+    },
+    {
+      value: "Rwanda",
+      text: "Rwanda",
+    },
+    {
+      value: "Saint Kitts and Nevis",
+      text: "Saint Kitts and Nevis",
+    },
+    {
+      value: "Saint Lucia",
+      text: "Saint Lucia",
+    },
+    {
+      value: "Saint Vincent and the Grenadines",
+      text: "Saint Vincent and the Grenadines",
+    },
+    {
+      value: "Samoa",
+      text: "Samoa",
+    },
+    {
+      value: "San Marino",
+      text: "San Marino",
+    },
+    {
+      value: "Sao Tome and Principe",
+      text: "Sao Tome and Principe",
+    },
+    {
+      value: "Saudi Arabia",
+      text: "Saudi Arabia",
+    },
+    {
+      value: "Senegal",
+      text: "Senegal",
+    },
+    {
+      value: "Serbia",
+      text: "Serbia",
+    },
+    {
+      value: "Seychelles",
+      text: "Seychelles",
+    },
+    {
+      value: "Sierra Leone",
+      text: "Sierra Leone",
+    },
+    {
+      value: "Singapore",
+      text: "Singapore",
+    },
+    {
+      value: "Slovakia",
+      text: "Slovakia",
+    },
+    {
+      value: "Slovenia",
+      text: "Slovenia",
+    },
+    {
+      value: "Solomon Islands",
+      text: "Solomon Islands",
+    },
+    {
+      value: "Somalia",
+      text: "Somalia",
+    },
+    {
+      value: "South Africa",
+      text: "South Africa",
+    },
+    {
+      value: "South Korea",
+      text: "South Korea",
+    },
+    {
+      value: "South Sudan",
+      text: "South Sudan",
+    },
+    {
+      value: "Spain",
+      text: "Spain",
+    },
+    {
+      value: "Sri Lanka",
+      text: "Sri Lanka",
+    },
+    {
+      value: "Sudan",
+      text: "Sudan",
+    },
+    {
+      value: "Suriname",
+      text: "Suriname",
+    },
+    {
+      value: "Sweden",
+      text: "Sweden",
+    },
+    {
+      value: "Switzerland",
+      text: "Switzerland",
+    },
+    {
+      value: "Syria",
+      text: "Syria",
+    },
+    {
+      value: "Tajikistan",
+      text: "Tajikistan",
+    },
+    {
+      value: "Tanzania",
+      text: "Tanzania",
+    },
+    {
+      value: "Thailand",
+      text: "Thailand",
+    },
+    {
+      value: "Timor-Leste",
+      text: "Timor-Leste",
+    },
+    {
+      value: "Togo",
+      text: "Togo",
+    },
+    {
+      value: "Tonga",
+      text: "Tonga",
+    },
+    {
+      value: "Trinidad and Tobago",
+      text: "Trinidad and Tobago",
+    },
+    {
+      value: "Tunisia",
+      text: "Tunisia",
+    },
+    {
+      value: "Turkey",
+      text: "Turkey",
+    },
+    {
+      value: "Turkmenistan",
+      text: "Turkmenistan",
+    },
+    {
+      value: "Tuvalu",
+      text: "Tuvalu",
+    },
+    {
+      value: "Uganda",
+      text: "Uganda",
+    },
+    {
+      value: "Ukraine",
+      text: "Ukraine",
+    },
+    {
+      value: "United Arab Emirates",
+      text: "United Arab Emirates",
+    },
+    {
+      value: "United Kingdom",
+      text: "United Kingdom",
+    },
+    {
+      value: "United States of America",
+      text: "United States of America",
+    },
+    {
+      value: "Uruguay",
+      text: "Uruguay",
+    },
+    {
+      value: "Uzbekistan",
+      text: "Uzbekistan",
+    },
+    {
+      value: "Vanuatu",
+      text: "Vanuatu",
+    },
+    {
+      value: "Venezuela",
+      text: "Venezuela",
+    },
+    {
+      value: "Vietnam",
+      text: "Vietnam",
+    },
+    {
+      value: "Yemen",
+      text: "Yemen",
+    },
+    {
+      value: "Zambia",
+      text: "Zambia",
+    },
+    {
+      value: "Zimbabwe",
+      text: "Zimbabwe",
+    },
+  ];
   const confirmBox = useRef<HTMLInputElement>(null);
   const CustomerAccountDetail = useRef<FormikProps<any>>(null);
   const VehicleDetail = useRef<FormikProps<any>>(null);
@@ -76,6 +851,7 @@ export default function Page() {
       }
       return data;
     },
+    refetchOnWindowFocus: false,
   });
   const [vehiclelist, setVehicleList] = useState<vehicleType[]>([]);
   const customerValidation = yup.object({
@@ -91,6 +867,14 @@ export default function Page() {
       .required("Phone Number is required."),
     points: yup.number().min(0).required("Starting points is required"),
     package: yup.string().required("Package is required"),
+    address_line: yup.string().required("Address Line is required"),
+    address_line2: yup.string(),
+    city: yup.string().required("City is required"),
+    state_province_region: yup
+      .string()
+      .required("State/Province/Region is required"),
+    zip_code: yup.string().required("Zip/Postal Code is required"),
+    country: yup.string().required("Country is required"),
   });
   const vehicleSchema = yup.object().shape({
     vehicle_id: yup.string().required("Vehicle ID is required"),
@@ -210,6 +994,12 @@ export default function Page() {
                     phone_number: "",
                     points: "",
                     package: "",
+                    address_line: "",
+                    address_line2: "",
+                    city: "",
+                    state_province_region: "",
+                    zip_code: "",
+                    country: "",
                   }}
                   validationSchema={customerValidation}
                   onSubmit={(values: any) => {}}
@@ -247,7 +1037,6 @@ export default function Page() {
                           classes="text-base"
                           label="Email"
                         />
-
                         <LabeledInputPhone
                           field_name="phone_number"
                           placeholder="Enter Phone Number"
@@ -285,6 +1074,69 @@ export default function Page() {
                           }
                           setFieldValue={setFieldValue}
                           values={values.package}
+                        />{" "}
+                        <LabeledSelectInput
+                          field_name="country"
+                          type="text"
+                          placeholder="Select Country"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.country}
+                          touched={touched.country}
+                          classes="text-base"
+                          label="Country"
+                          SelectOptions={countries}
+                          setFieldValue={setFieldValue}
+                          values={values.country}
+                        />
+                        <LabeledInput
+                          field_name="address_line"
+                          type="text"
+                          placeholder="Enter Address Line"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.address_line}
+                          touched={touched.address_line}
+                          classes="text-base"
+                          label="Address Line"
+                        />
+                        <LabeledInput
+                          field_name="address_line2"
+                          type="text"
+                          placeholder="Enter Address Line 2"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.address_line2}
+                          touched={touched.address_line2}
+                          classes="text-base"
+                          label="Address Line 2"
+                        />
+                        <LabeledInput
+                          field_name="city"
+                          type="text"
+                          placeholder="Enter City"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.city}
+                          touched={touched.city}
+                          classes="text-base"
+                          label="City"
+                        />
+                        <LabeledInput
+                          field_name="state_province_region"
+                          type="text"
+                          placeholder="Enter State/Province/Region"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.state_province_region}
+                          touched={touched.state_province_region}
+                          classes="text-base"
+                          label="State/Province/Region"
+                        />
+                        <LabeledInput
+                          field_name="zip_code"
+                          type="text"
+                          placeholder="Enter Zip Code"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.zip_code}
+                          touched={touched.zip_code}
+                          classes="text-base"
+                          label="Zip/Postal Code"
                         />
                       </div>
                     </Form>
@@ -441,11 +1293,58 @@ export default function Page() {
                 </Formik>
                 <div className="modal-action">
                   <button
-                    onClick={() => {
-                      console.log(
-                        CustomerAccountDetail.current?.isValid,
-                        vehiclelist.length
-                      );
+                    onClick={async () => {
+                      if (
+                        CustomerAccountDetail.current?.isValid &&
+                        vehiclelist.length != 0
+                      ) {
+                        let headersList = {
+                          Accept: "*/*",
+                          "User-Agent":
+                            "Thunder Client (https://www.thunderclient.com)",
+                          "Content-Type": "application/json",
+                        };
+
+                        let bodyContent = JSON.stringify({
+                          firstName:
+                            CustomerAccountDetail.current?.values.first_name,
+                          lastName:
+                            CustomerAccountDetail.current?.values.last_name,
+                          phoneNumber:
+                            CustomerAccountDetail.current?.values.phone_number,
+                          email: CustomerAccountDetail.current?.values.email,
+                          packageId:
+                            CustomerAccountDetail.current?.values.package,
+                          middleName:
+                            CustomerAccountDetail.current?.values.middle_name,
+                          vehicles: vehiclelist,
+                          country:
+                            CustomerAccountDetail.current?.values.country,
+                          city: CustomerAccountDetail.current?.values.city,
+                          zipCode:
+                            CustomerAccountDetail.current?.values.zip_code,
+                          address:
+                            CustomerAccountDetail.current?.values.address_line,
+                          address2:
+                            CustomerAccountDetail.current?.values.address_line2,
+                          state_province:
+                            CustomerAccountDetail.current?.values
+                              .state_province_region,
+                          points: CustomerAccountDetail.current?.values.points,
+                        });
+
+                        let response = await fetch(
+                          "/api/private/createCustomer/",
+                          {
+                            method: "POST",
+                            body: bodyContent,
+                            headers: headersList,
+                          }
+                        );
+
+                        let data = await response.text();
+                        console.log(data);
+                      }
                     }}
                     className="btn btn-info btn-md"
                   >

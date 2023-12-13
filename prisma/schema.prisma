@@ -335,6 +335,7 @@ model users {
   updated_at                                         DateTime?       @db.Timestamp(0)
   deleted_at                                         DateTime?       @db.Timestamp(0)
   is_exsit                                           Boolean         @default(false)
+  addresses                                          addresses[]
   transactions_transactions_salesperson_idTousers    transactions[]  @relation("transactions_salesperson_idTousers")
   transactions_transactions_status_updated_byTousers transactions[]  @relation("transactions_status_updated_byTousers")
   transactions_transactions_user_idTousers           transactions[]  @relation("transactions_user_idTousers")
@@ -356,6 +357,22 @@ model websockets_statistics_entries {
   api_message_count       Int
   created_at              DateTime? @db.Timestamp(0)
   updated_at              DateTime? @db.Timestamp(0)
+}
+
+model addresses {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id        Int      @db.UnsignedInt
+  address        String   @db.Text
+  address2       String   @db.Text
+  country        String   @db.Text
+  city           String   @db.Text
+  zipcode        String   @db.Text
+  state_province String   @db.Text
+  date_created   DateTime @default(now()) @db.Timestamp(0)
+  is_exist       Boolean  @default(true)
+  users          users    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "addresses_ibfk_1")
+
+  @@index([user_id], map: "user_id")
 }
 
 enum transactions_type {

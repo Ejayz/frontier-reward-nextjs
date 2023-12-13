@@ -5,20 +5,19 @@ interface EmailTemplateProps {
   last_name: string;
   password: string;
   email: string;
-  vehicle_id: string;
+  base_url: string;
 }
 
-export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
+const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
   firstName,
   last_name,
   password,
   email,
-  vehicle_id,
+  base_url,
 }) => (
-  <div>
-    <img src="/images/logo.png" alt="Auto Insurance" />
+  <div style={{ color: "black" }}>
     <h1>Points and Perks</h1>
-    <h1>Welcome, {last_name}!</h1>
+    <h3>Welcome, {last_name}!</h3>
     <p>
       Your account has been created. Please use the following credentials to
       login:
@@ -29,46 +28,71 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
     <p>
       <strong>Password:</strong> {password}
     </p>
+    <br />
     <p>
-      <strong>
-        The following information that is registered in your account :
-      </strong>
-    </p>
-    <p>
-      <strong>First Name:</strong> {firstName}
-    </p>
-    <p>
-      <strong>Last Name:</strong> {last_name}
-    </p>
-    <p>
-      <strong>Vehicle ID:</strong> {vehicle_id}
-    </p>
-    <p>
-      <strong>Thank you for registering!</strong>
+      To login click <a href={`${base_url}`}>here</a>{" "}
     </p>
     <p>
       <strong>Best Regards,</strong>
     </p>
     <p>
-      <strong>Team</strong>
+      <strong>Perks and Points Team</strong>
+    </p>
+    If you have any questions, please contact us at the following contacts:
+    <p>
+      Email us at:
+      <a href={`mailto:ask@pointsandperks.com`}>
+        <strong>
+          <em>
+            <u>
+              <span style={{ color: "#0000ff" }}>ask@pointsandperks.com</span>
+            </u>
+          </em>
+        </strong>
+      </a>
     </p>
     <p>
-      <strong>Auto Insurance</strong>
-    </p>
-    If you have any questions, please contact us at{" "}
-    <a
-      href="mailto:
-    "
-    >
-      {" "}
+      Call us at:
       <strong>
         <em>
           <u>
-            <span style={{ color: "#0000ff" }}>Auto Insurance</span>
+            <span style={{ color: "#0000ff" }}>1-800-123-4567</span>
           </u>
         </em>
       </strong>
-    </a>
-    . If you did not register for an account, please disregard this email.
+    </p>
+    <p>
+      Visit our website:
+      <strong>
+        <em>
+          <u>
+            <span style={{ color: "#0000ff" }}>www.pointsandperks.com</span>
+          </u>
+        </em>
+      </strong>
+    </p>
+    <p>
+      Visit our delearship:
+      <strong>
+        <em>
+          <u>
+            <span style={{ color: "#0000ff" }}>1234 Main St.</span>
+          </u>
+        </em>
+      </strong>
+    </p>
+    <br />
+    <h4>
+      {" "}
+      If you did not register for an account, please disregard or delete this
+      email.
+    </h4>
+    <p>
+      Do not reply to this email. This mailbox is not monitored and you will not
+      receive a response. For assistance, log in to your account and click Help
+      in the top right corner of any page.
+    </p>
   </div>
 );
+
+export { EmailTemplate };
