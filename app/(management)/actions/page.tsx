@@ -37,6 +37,23 @@ export default function Page() {
       .required("Description is required")
       .matches(/^[^\d]+$/, "Name must not include numbers"),
   });
+  const { isLoading, data, isFetching } = useQuery("getActions", async () => {
+    let headersList = {
+      Accept: "*/*",
+      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+    };
+
+    let response = await fetch("/api/private/getActions/", {
+      method: "GET",
+      headers: headersList,
+    });
+
+    let data = await response.json();
+    console.log(data);
+    return data;
+  });
+  
+
 
   return (
     <div className="pl-10">
@@ -52,7 +69,6 @@ export default function Page() {
         id="my_modal_6"
         onChange={() => {
           setUserType("");
-          CustomerAccountDetail.current?.resetForm();
         }}
         ref={modalAddUser}
         className="modal-toggle"
@@ -72,8 +88,8 @@ export default function Page() {
             initialValues={{
               name: "",
               description: "",
-              created_at: 11 / 11 / 2021,
-              updated_at: 11 / 11 / 2021,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             }}
             validationSchema={actionValidation}
             onSubmit={async (values, { resetForm }) => {
@@ -87,6 +103,8 @@ export default function Page() {
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
+                created_at: values.created_at,
+                updated_at: values.updated_at,
               });
               let response = await fetch("/api/private/createActions/", {
                 method: "POST",
@@ -189,6 +207,8 @@ export default function Page() {
 
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table text-base font-semibold">
+
+
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -200,95 +220,43 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {/* row 1 */}
-            <tr className="row">
-              <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 2 */}
-            <tr className="row">
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-          </tbody>
+            {isLoading || isFetching ? (
+              <tr>
+                <td>Loading...</td>
+              </tr>
+            ) : (
+              data.data.map((element: any) => {
+                return (
+                  <tr key={element.id}>
+                    <td>{element.name}</td>
+                    <td>{element.description}</td>
+                    <td>{element.created_at}</td>
+                    <td>{element.updated_at}</td>
+                    <td>
+                      <div className="flex">
+                        <button className="btn btn-sm btn-circle btn-primary mr-2">
+                          <img
+                            src="../icons/edit.svg"
+                            width={20}
+                            height={20}
+                            alt="Edit Icon"
+                          />
+                        </button>
+                        <button className="btn btn-sm btn-circle btn-secondary">
+                          <img
+                            src="../icons/delete.svg"
+                            width={20}
+                            height={20}
+                            alt="Delete Icon"
+                          />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+            </tbody>
         </table>
         <div className="join">
           <button className="join-item btn btn-outline">Previous page</button>
@@ -323,3 +291,7 @@ export default function Page() {
     </div>
   );
 }
+function useQuery(arg0: string, arg1: () => Promise<any>): { isLoading: any; data: any; isFetching: any; } {
+  throw new Error("Function not implemented.");
+}
+

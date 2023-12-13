@@ -12,7 +12,8 @@ export default async function handler(
   if (req.method === 'POST') {
     const { name, description,created_at,updated_at } = req.body;
     try {
-      const createAction = await prisma.actions.create({
+      const createAction = await prisma.actions.update({
+        where: { id: Number(req.query.id) },
         data: {
           name,
           description,
