@@ -21,10 +21,10 @@ export default async function handler(
   if (!req.body) {
     return res.status(400).json({ message: "No body provided" });
   }
+  console.log(req.body);
   const prisma = new PrismaClient();
   const resend = new Resend(RESEND_API);
   const auth = new Cookies(req, res).get("auth") || "";
-
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     const password = generator.generate({
@@ -51,49 +51,67 @@ export default async function handler(
       points,
     } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
+    const transaction = await prisma.$transaction(async (tx) => {
+      try {
+        const getUsers = await tx.users.findMany({
+          where: { email: email, is_exsit: true },
+        });
 
-    const customer = await prisma.users.create({
-      data: {
-        name: firstName + " " + middleName + "" + lastName,
-        firstname: firstName,
-        lastname: lastName,
-        middlename: middleName,
-        phone_number: phoneNumber,
-        email: email,
-        password: hashedPassword,
-        user_type_id: 1,
-        points: points,
-      },
+        if (getUsers.length > 0) {
+          return res.status(400).json({ message: "Email already exist" });
+        }
+
+        const customer = await tx.users.create({
+          data: {
+            name: firstName + " " + middleName + "" + lastName,
+            firstname: firstName,
+            lastname: lastName,
+            middlename: middleName,
+            phone_number: phoneNumber,
+            email: email,
+            password: hashedPassword,
+            user_type_id: 1,
+            points: points,
+          },
+        });
+
+        const processedVehicles = await formatVehicle(vehicles, customer.id);
+
+        const customerAddress = await tx.addresses.create({
+          data: {
+            user_id: customer.id,
+            country: country,
+            city: city,
+            zipcode: zipCode,
+            address: address,
+            address2: address2,
+            state_province: state_province,
+          },
+        });
+        console.log("processedVehicles:", processedVehicles);
+        const user_vehicle = await tx.user_vehicles.createMany({
+          data: processedVehicles,
+        });
+        const data = await resend.emails.send({
+          from: "Register@PointsAndPerks <register.noreply@sledgedevsteam.lol>",
+          to: [email],
+          subject: "Welcome to Perks and Points",
+          react: EmailTemplate({
+            firstName: firstName,
+            last_name: lastName,
+            password: password,
+            email: email,
+            base_url: BASE_URL,
+          }),
+          text: `Welcome to Perks and Points!`,
+        });
+
+        return res.status(200).json({ message: "Successfully created" });
+      } catch (err: any) {
+        console.log(err);
+      }
     });
-    let customerAddress = undefined;
-    if (customer) {
-      customerAddress = await prisma.addresses.create({
-        data: {
-          user_id: customer.id,
-          country: country,
-          city: city,
-          zipcode: zipCode,
-          address: address,
-          address2: address2,
-          state_province: state_province,
-        },
-      });
-    }
-    if (customerAddress) {
-      const data = await resend.emails.send({
-        from: "Register@PointsAndPerks <register.noreply@sledgedevsteam.lol>",
-        to: [email],
-        subject: "Welcome to Perks and Points",
-        react: EmailTemplate({
-          firstName: firstName,
-          last_name: lastName,
-          password: password,
-          email: email,
-          base_url: BASE_URL,
-        }),
-        text: `Welcome to Perks and Points!`,
-      });
-    }
+    console.log("transactions:", transaction);
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token Expired" });
@@ -107,4 +125,24 @@ export default async function handler(
   } finally {
     await prisma.$disconnect();
   }
+}
+
+function formatVehicle(data: any, user_id: any) {
+  const newArray = data.map((vehicle: any) => {
+    const { vehicle_id, year, model, trim, color, vin_no } = vehicle;
+    const vehicleInfo = {
+      year,
+      model,
+      trim,
+      color,
+      vin_no,
+    };
+    return {
+      user_id: user_id,
+      vehicle_id,
+      vehicle_info: JSON.stringify(vehicleInfo),
+    };
+  });
+
+  return newArray;
 }

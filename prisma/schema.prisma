@@ -11,7 +11,7 @@ model actions {
   id                      Int                       @id @default(autoincrement()) @db.UnsignedInt
   name                    String
   description             String
-  created_at              DateTime?                 @db.Timestamp(0)
+  created_at              DateTime?                 @default(now()) @db.Timestamp(0)
   updated_at              DateTime?                 @db.Timestamp(0)
   campaign_action_rewards campaign_action_rewards[]
   transaction_items       transaction_items[]
@@ -311,7 +311,7 @@ model user_vehicles {
   user_id      Int       @db.UnsignedInt
   vehicle_id   String    @unique(map: "user_vehicles_vehicle_id_unique")
   vehicle_info String    @db.LongText
-  created_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
   updated_at   DateTime? @db.Timestamp(0)
   users        users     @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "user_vehicles_user_id_foreign")
 
@@ -334,7 +334,7 @@ model users {
   created_at                                         DateTime?       @db.Timestamp(0)
   updated_at                                         DateTime?       @db.Timestamp(0)
   deleted_at                                         DateTime?       @db.Timestamp(0)
-  is_exsit                                           Boolean         @default(false)
+  is_exsit                                           Boolean         @default(true)
   addresses                                          addresses[]
   transactions_transactions_salesperson_idTousers    transactions[]  @relation("transactions_salesperson_idTousers")
   transactions_transactions_status_updated_byTousers transactions[]  @relation("transactions_status_updated_byTousers")
