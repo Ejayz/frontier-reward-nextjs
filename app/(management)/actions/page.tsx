@@ -14,6 +14,14 @@ import LabeledInput from "@/components/LabeledInput";
 import { Span } from "next/dist/trace";
 
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+
+type actionslist = {
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
 export default function Page() {
   const [userType, setUserType] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -37,24 +45,28 @@ export default function Page() {
       .required("Description is required")
       .matches(/^[^\d]+$/, "Name must not include numbers"),
   });
-  const { isLoading, data, isFetching } = useQuery("getActions", async () => {
-    let headersList = {
-      Accept: "*/*",
-      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-    };
 
-    let response = await fetch("/api/private/getActions/", {
-      method: "GET",
-      headers: headersList,
-    });
+  const { data, error, isLoading, isFetching } = useQuery({
+    queryKey: ["getPackages"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
 
-    let data = await response.json();
-    console.log(data);
-    return data;
+      let response = await fetch("/api/private/getActions", {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message);
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
   });
-  
-
-
   return (
     <div className="pl-10">
       {/* You can open the modal using document.getElementById('ID').showModal() method */}
@@ -220,7 +232,7 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {isLoading || isFetching ? (
+            {/* {isLoading || isFetching ? (
               <tr>
                 <td>Loading...</td>
               </tr>
@@ -255,7 +267,7 @@ export default function Page() {
                   </tr>
                 );
               })
-            )}
+            )} */}
             </tbody>
         </table>
         <div className="join">
