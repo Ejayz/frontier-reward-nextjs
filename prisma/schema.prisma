@@ -198,7 +198,7 @@ model rewards {
   id                      Int                       @id @default(autoincrement()) @db.UnsignedInt
   name                    String
   description             String
-  type                    rewards_type
+  type                    String
   value                   Decimal                   @default(0.00) @db.Decimal(8, 2)
   cost                    Decimal                   @default(0.00) @db.Decimal(8, 2)
   created_at              DateTime?                 @db.Timestamp(0)

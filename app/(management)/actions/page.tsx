@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ErrorMessage,
   Field,
@@ -12,9 +12,8 @@ import {
 import * as yup from "yup";
 import LabeledInput from "@/components/LabeledInput";
 import { Span } from "next/dist/trace";
-
-import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type actionslist = {
   name: string;
@@ -67,6 +66,9 @@ export default function Page() {
     },
     refetchOnWindowFocus: false,
   });
+
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [refreshTable, setRefreshTable] = useState(false);
   return (
     <div className="pl-10">
       {/* You can open the modal using document.getElementById('ID').showModal() method */}
@@ -79,11 +81,9 @@ export default function Page() {
       <input
         type="checkbox"
         id="my_modal_6"
-        onChange={() => {
-          setUserType("");
-        }}
-        ref={modalAddUser}
         className="modal-toggle"
+        checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}
       />
       <div className="modal" role="dialog">
         <div className="modal-box">
@@ -97,6 +97,8 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Add Action</h3>
           <Formik
+           refreshTable={refreshTable}
+          enableReinitialize={true}
             initialValues={{
               name: "",
               description: "",
@@ -124,20 +126,17 @@ export default function Page() {
                 headers: headersList,
               });
 
-              console.log("Response:", response);
-              if (response.ok) {
-                alert("triggered and ok");
-              } else {
-                alert("triggered and not ok");
-              }
               let data = await response.json();
               if (data.code == 200) {
                 setProcessing(false);
-                toast.success(data.message);
+               
+                setModalOpen(false);
                 resetForm();
+                 toast.success("Successfully Added Action");
               } else {
                 setProcessing(false);
                 toast.error(data.message);
+                setModalOpen(false);
               }
             }}
           >
@@ -218,8 +217,8 @@ export default function Page() {
       </div>
 
       <div className="overflow-x-auto mt-5 text-black">
-        <table className="table text-base font-semibold">
 
+        <table className="table text-base font-semibold">
 
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
@@ -232,7 +231,7 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {/* {isLoading || isFetching ? (
+            {isLoading || isFetching ? (
               <tr>
                 <td>Loading...</td>
               </tr>
@@ -246,28 +245,29 @@ export default function Page() {
                     <td>{element.updated_at}</td>
                     <td>
                       <div className="flex">
-                        <button className="btn btn-sm btn-circle btn-primary mr-2">
+                        <button className="btn btn-sm btn-info mr-2">
                           <img
-                            src="../icons/edit.svg"
+                            src="../icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
-                          />
+                          />Edit
                         </button>
-                        <button className="btn btn-sm btn-circle btn-secondary">
+                        <button className="btn btn-sm btn-error">
                           <img
-                            src="../icons/delete.svg"
+                            src="../icons/deleteicon.svg"
                             width={20}
                             height={20}
                             alt="Delete Icon"
                           />
+                          Delete
                         </button>
                       </div>
                     </td>
                   </tr>
                 );
               })
-            )} */}
+            )}
             </tbody>
         </table>
         <div className="join">
@@ -303,7 +303,3 @@ export default function Page() {
     </div>
   );
 }
-function useQuery(arg0: string, arg1: () => Promise<any>): { isLoading: any; data: any; isFetching: any; } {
-  throw new Error("Function not implemented.");
-}
-

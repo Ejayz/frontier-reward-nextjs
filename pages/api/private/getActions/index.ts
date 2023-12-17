@@ -15,7 +15,7 @@ export default async function handler(
 
   try {
     const transactions = await prisma.actions.findMany()
-    console.log("prisma", transactions);
+    console.log("prisma", transactions);//display all data in console
     return res.status(200).json({ code: 200, data: transactions });
   } catch (e) {
     console.log(e)
