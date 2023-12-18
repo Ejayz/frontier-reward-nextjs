@@ -14,6 +14,7 @@ import LabeledInput from "@/components/LabeledInput";
 import { Span } from "next/dist/trace";
 
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
 export default function Page() {
   const [userType, setUserType] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -27,6 +28,29 @@ export default function Page() {
     name: "",
     description: "",
   };
+
+  const { data, error, isLoading, isFetching } = useQuery({
+    queryKey: ["getPackages"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch("/api/private/getPackages", {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message);
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  console.log(data);
   const actionValidation = yup.object().shape({
     name: yup
       .string()

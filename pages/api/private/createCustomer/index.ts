@@ -51,16 +51,16 @@ export default async function handler(
       points,
     } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const transaction = await prisma.$transaction(async (tx) => {
-      try {
+    const transaction = await prisma
+      .$transaction(async (tx) => {
         const getUsers = await tx.users.findMany({
           where: { email: email, is_exsit: true },
         });
-
-        if (getUsers.length > 0) {
+        console.log("getUsers:", getUsers);
+        if (getUsers.length !== 0) {
           return res.status(400).json({ message: "Email already exist" });
         }
-
+        console.log("Checked getUsers lenght:", getUsers.length);
         const customer = await tx.users.create({
           data: {
             name: firstName + " " + middleName + "" + lastName,
@@ -72,11 +72,12 @@ export default async function handler(
             password: hashedPassword,
             user_type_id: 1,
             points: points,
+            is_exsit: true,
           },
         });
-
+        console.log("customer INSERTED", customer);
         const processedVehicles = await formatVehicle(vehicles, customer.id);
-
+        console.log("processedVehicles:", processedVehicles);
         const customerAddress = await tx.addresses.create({
           data: {
             user_id: customer.id,
@@ -88,10 +89,26 @@ export default async function handler(
             state_province: state_province,
           },
         });
-        console.log("processedVehicles:", processedVehicles);
-        const user_vehicle = await tx.user_vehicles.createMany({
-          data: processedVehicles,
-        });
+
+        for (const vehicle of processedVehicles) {
+          const getvehicle = await tx.user_vehicles.findMany({
+            where: { vehicle_id: vehicle.vehicle_id },
+          });
+          if (getvehicle.length > 0) {
+            return res.status(400).json({ message: "Vehicle already exist" });
+            break;
+          }
+          console.log("Checked getvehicle lenght:", getvehicle.length);
+
+          await tx.user_vehicles.create({
+            data: {
+              user_id: vehicle.user_id,
+              vehicle_id: vehicle.vehicle_id,
+              vehicle_info: vehicle.vehicle_info,
+            },
+          });
+        }
+        console.log("Inserting ");
         const data = await resend.emails.send({
           from: "Register@PointsAndPerks <register.noreply@sledgedevsteam.lol>",
           to: [email],
@@ -105,12 +122,12 @@ export default async function handler(
           }),
           text: `Welcome to Perks and Points!`,
         });
-
-        return res.status(200).json({ message: "Successfully created" });
-      } catch (err: any) {
-        console.log(err);
-      }
-    });
+        return res.status(200).json({
+          message:
+            "New customer was added . Please tell the customer to check their email for login credentials . Thank you.",
+        });
+      })
+      .then(console.log);
     console.log("transactions:", transaction);
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {

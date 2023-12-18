@@ -826,9 +826,7 @@ export default function Page() {
     priority: 1,
   });
   useEffect(() => {
-    async function init() {
-      await new Promise((r) => setTimeout(r, 6000));
-    }
+    async function init() {}
     init();
   }, []);
 
@@ -896,10 +894,38 @@ export default function Page() {
     id: string;
     table_uuid: string;
   }>();
+  const [createUserMessage, setCreateUserMessage] = useState<string>("");
   const confirmModal = useRef<HTMLDialogElement>(null);
   const modalAddUser = useRef<HTMLInputElement>(null);
+  const notifModal = useRef<HTMLDialogElement>(null);
   return (
     <div className="pl-10 z-10">
+      {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
+
+      <dialog id="my_modal_1" ref={notifModal} className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">New {userType} Account </h3>
+          <p className="py-4">{createUserMessage}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button
+                onClick={() => {
+                  notifModal.current?.close();
+                  CustomerAccountDetail.current?.resetForm();
+                  VehicleDetail.current?.resetForm();
+                  setVehicleList([]);
+                }}
+                className="btn"
+              >
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Dialog for removal of car on the list */}
       <dialog
         id="my_modal_1"
         ref={confirmModal}
@@ -1342,8 +1368,22 @@ export default function Page() {
                           }
                         );
 
-                        let data = await response.text();
-                        console.log(data);
+                        let data = await response.json();
+                        if (response.ok) {
+                          setCreateUserMessage(data.message);
+                          notifModal.current?.showModal();
+                        } else {
+                          toast.error(data.message);
+                        }
+                      } else {
+                        toast.error("Please fill up the form correctly");
+                        CustomerAccountDetail.current?.validateForm();
+                        if (vehiclelist.length === 0) {
+                          toast.error("Please add at least one vehicle");
+                          VehicleDetail.current?.validateForm();
+                        } else {
+                          VehicleDetail.current?.validateForm();
+                        }
                       }
                     }}
                     className="btn btn-info btn-md"
