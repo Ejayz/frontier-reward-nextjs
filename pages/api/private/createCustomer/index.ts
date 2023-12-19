@@ -27,6 +27,18 @@ export default async function handler(
   const auth = new Cookies(req, res).get("auth") || "";
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
+    let current_user = 0;
+    if (typeof verify === "string") {
+      // Handle the case where verify is a string (no access to id)
+      console.log("User is not authenticated");
+    } else if (verify?.id) {
+      // Access the id property only if it exists in the JwtPayload
+      current_user = verify.id;
+      console.log(`Current user ID: ${current_user}`);
+    } else {
+      // Handle any other unexpected verification result
+      console.error("Invalid token format");
+    }
     const password = generator.generate({
       length: 10,
       numbers: true,
@@ -36,11 +48,11 @@ export default async function handler(
     });
     const {
       firstName,
+      middleName,
       lastName,
       phoneNumber,
       email,
       packageId,
-      middleName,
       vehicles,
       country,
       city,
@@ -61,6 +73,17 @@ export default async function handler(
           return res.status(400).json({ message: "Email already exist" });
         }
         console.log("Checked getUsers lenght:", getUsers.length);
+        for (const vehicle of vehicles) {
+          const getvehicle = await tx.user_vehicles.findMany({
+            where: { vehicle_id: vehicle.vehicle_id },
+          });
+          if (getvehicle.length > 0) {
+            return res.status(400).json({ message: "Vehicle already exist" });
+            break;
+          }
+          console.log("Checked getvehicle lenght:", getvehicle.length);
+        }
+
         const customer = await tx.users.create({
           data: {
             name: firstName + " " + middleName + "" + lastName,
@@ -91,20 +114,19 @@ export default async function handler(
         });
 
         for (const vehicle of processedVehicles) {
-          const getvehicle = await tx.user_vehicles.findMany({
-            where: { vehicle_id: vehicle.vehicle_id },
-          });
-          if (getvehicle.length > 0) {
-            return res.status(400).json({ message: "Vehicle already exist" });
-            break;
-          }
-          console.log("Checked getvehicle lenght:", getvehicle.length);
-
           await tx.user_vehicles.create({
             data: {
               user_id: vehicle.user_id,
               vehicle_id: vehicle.vehicle_id,
               vehicle_info: vehicle.vehicle_info,
+            },
+          });
+
+          await tx.customer_infos.create({
+            data: {
+              package_id: parseInt(packageId),
+              customer_id: customer.id,
+              salesperson_id: current_user,
             },
           });
         }
@@ -124,7 +146,7 @@ export default async function handler(
         });
         return res.status(200).json({
           message:
-            "New customer was added . Please tell the customer to check their email for login credentials . Thank you.",
+            "Kindly remind the newly created account holder to check their email for login credentials.",
         });
       })
       .then(console.log);
