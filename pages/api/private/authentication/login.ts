@@ -20,7 +20,7 @@ export default async function handler(
   const { email, password } = req.body;
   const prisma = new PrismaClient();
   try {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { email },
     });
     if (!user) {

@@ -14,7 +14,13 @@ export default async function handler(
   const prisma = new PrismaClient();
 
   try {
-    const transactions = await prisma.actions.findMany()
+    const transactions = await prisma.actions.findMany({
+     where: {
+        is_exist: true,
+      },
+    }
+      
+    )
     console.log("prisma", transactions);//display all data in console
     return res.status(200).json({ code: 200, data: transactions });
   } catch (e) {
