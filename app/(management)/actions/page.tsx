@@ -12,19 +12,27 @@ import {
 import * as yup from "yup";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { ref } from "yup";
 
-type actionslist = {
-  name: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-};
 
 export default function Page() {
+  const router = useRouter();
+  const refresdatatable = () => {
+    router.push('/actions');
+  };
+  const refetchData = async () => {
+    await refetch();
+  };
+
+  const myDiv = document.getElementById('mydiv');
+
+// Set the refresh interval in milliseconds (e.g., 1000 milliseconds = 1 second)
+const refreshInterval = 5000; // Refresh every 5 seconds
   const [userType, setUserType] = useState("");
   const [processing, setProcessing] = useState(false);
   const { data, error, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ["getPackages"],
+    queryKey: ["getActions"],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -106,22 +114,20 @@ export default function Page() {
             updated_at: values.updated_at,
             is_exist: values.is_exist,
           });
-          console.log("the content",bodyContent);
           let response = await fetch("/api/private/createActions/", {
             method: "POST",
             body: bodyContent,
             headers: headersList,
+            
           });
-s
           let data = await response.json();
           if (data.code === 200) {
+            refetchData();
+            refetch();
+            resetForm();
             setProcessing(false);
             setModalOpen(false);
-            
-            resetForm();
             toast.success("Successfully Added Action");
-            // Refetch the data to update the table
-            refetch();
           } else {
             setProcessing(false);
             toast.error(data.message);
@@ -187,10 +193,10 @@ s
             </div>
             <div className="m-8 " style={{ marginTop: 60 }}>
               <div className="absolute bottom-6 right-6">
-                <label htmlFor="modaladdaction" className="btn btn-neutral mr-2">
+                <label htmlFor="my_modal_6" className="btn btn-neutral mr-2">
                   Cancel
                 </label>
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" onClick={() => router.push('/actions')} className="btn btn-primary">
                   Submit
                 </button>
               </div>
@@ -201,7 +207,113 @@ s
 </div></div>
 
 
-      <div className="overflow-x-auto mt-5 text-black">
+{/* <input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+        checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_7"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Edit Action</h3>
+      <Formik
+        enableReinitialize={true}
+        initialValues={{
+          name: "",
+          description: "",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          is_exist: true,
+        }}
+        validationSchema={actionValidation}
+        onSubmit={async (values, { resetForm }) => {
+          console.log("Form submitted with values:", values);
+          setProcessing(true);
+          
+        }}
+      >
+        {({ errors, touched }) => (
+          <Form>
+            <div className="form-control bg-white">
+            <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Name"
+                    className="input input-bordered"
+                    name="name"
+                  />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+            
+            </div>
+            <div className="m-8 " style={{ marginTop: 60 }}>
+              <div className="absolute bottom-6 right-6">
+                <label htmlFor="my_modal_7" className="btn btn-neutral mr-2">
+                  Cancel
+                </label>
+                <button type="submit" className="btn btn-primary">
+                  Submit
+                </button>
+              </div>
+            </div>
+          </Form>
+        )}
+      </Formik>
+</div></div> */}
+
+
+      <div id="mydiv" className="overflow-x-auto mt-5 text-black">
         <table className="table text-base font-semibold">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
@@ -228,15 +340,15 @@ s
                     <td>{element.updated_at}</td>
                     <td>
                       <div className="flex">
-                        <button className="btn btn-sm btn-info mr-2">
-                          <img
-                            src="../icons/editicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Edit Icon"
-                          />
-                          Edit
-                        </button>
+                      <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2">
+                        <img
+                          src="../icons/editicon.svg"
+                          width={20}
+                          height={20}
+                          alt="Edit Icon"
+                        />Edit
+                      </label>
+                      
                         <button className="btn btn-sm btn-error">
                           <img
                             src="../icons/deleteicon.svg"
@@ -254,140 +366,7 @@ s
             )}
           </tbody>
         </table>
-        <input
-        type="checkbox"
-        id="modaleditaction"
-        className="modal-toggle"
-        checked={isModalOpen}
-        onChange={() => setModalOpen(!isModalOpen)}
-      />
-      <div className="modal" role="dialog">
-        <div className="modal-box">
-          <form method="dialog">
-            <label
-              htmlFor="modaleditaction"
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
-            >
-              ✕
-            </label>
-          </form>
-          <h3 className="font-bold text-lg">Update Action</h3>
-      <Formik
-        enableReinitialize={true}
-        initialValues={{
-          name: "",
-          description: "",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          is_exist: true,
-        }}
-        validationSchema={actionValidation}
-        onSubmit={async (values, { resetForm }) => {
-          console.log("Form submitted with values:", values);
-          setProcessing(true);
-          let headersList = {
-            Accept: "*/*",
-            "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-            "Content-Type": "application/json",
-          };
-          let bodyContent = JSON.stringify({
-            name: values.name,
-            description: values.description,
-            created_at: values.created_at,
-            updated_at: values.updated_at,
-            is_exist: values.is_exist,
-          });
-          let response = await fetch("/api/private/createActions/", {
-            method: "POST",
-            body: bodyContent,
-            headers: headersList,
-          });
-
-          let data = await response.json();
-          if (data.code === 200) {
-            setProcessing(false);
-            setModalOpen(false);
-            resetForm();
-            toast.success("Successfully Added Action");
-            // Refetch the data to update the table
-            refetch();
-          } else {
-            setProcessing(false);
-            toast.error(data.message);
-            setModalOpen(false);
-          }
-        }}
-      >
-        {({ errors, touched }) => (
-          <Form>
-            <div className="form-control bg-white">
-            <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Name
-                    </span>
-                  </label>
-                  <Field
-                    type="text"
-                    placeholder="Enter Action Name"
-                    className="input input-bordered"
-                    name="name"
-                  />
-                  <ErrorMessage name="name" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <img
-                          src="../icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Description
-                    </span>
-                  </label>
-                  <Field
-                    type="text"
-                    placeholder="Enter Action Description"
-                    className="input input-bordered"
-                    name="description"
-                  />
-                  <ErrorMessage name="description" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <img
-                          src="../icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-            </div>
-            <div className="m-8 " style={{ marginTop: 60 }}>
-              <div className="absolute bottom-6 right-6">
-                <label htmlFor="modaleditaction" className="btn btn-neutral mr-2">
-                  Cancel
-                </label>
-                <button type="submit" className="btn btn-primary">
-                  Edit
-                </button>
-              </div>
-            </div>
-          </Form>
-        )}
-      </Formik>
-</div></div>
+  
         <div className="join">
           <button className="join-item btn btn-outline">Previous page</button>
           <input
