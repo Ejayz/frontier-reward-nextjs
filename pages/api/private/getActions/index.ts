@@ -14,17 +14,28 @@ export default async function handler(
   const prisma = new PrismaClient();
 
   try {
+    const reqQuery = parseInt(req.query.page as string) || 1;
+    const skip = (reqQuery - 1) * 7;
+    const take = 7;
     const transactions = await prisma.actions.findMany({
-     where: {
+      where: {
         is_exist: true,
       },
-    }
-      
-    )
-    console.log("prisma", transactions);//display all data in console
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+      skip: skip,
+      take: take,
+      orderBy: {
+        id: "desc",
+      },
+    });
+    console.log(transactions);
     return res.status(200).json({ code: 200, data: transactions });
   } catch (e) {
-    console.log(e)
+    console.log(e);
     return res.status(400).json({ code: 400, message: "Something went wrong" });
   } finally {
     prisma.$disconnect();
