@@ -364,7 +364,7 @@ model customer_infos {
   package_id                                 Int       @db.UnsignedInt
   customer_id                                Int       @unique(map: "user_infos_customer_id_unique") @db.UnsignedInt
   salesperson_id                             Int       @db.UnsignedInt
-  created_at                                 DateTime? @db.Timestamp(0)
+  created_at                                 DateTime? @default(now()) @db.Timestamp(0)
   updated_at                                 DateTime? @db.Timestamp(0)
   deleted_at                                 DateTime? @db.Timestamp(0)
   users_customer_infos_customer_idTousers    users     @relation("customer_infos_customer_idTousers", fields: [customer_id], references: [id], onUpdate: Restrict, map: "user_infos_customer_id")
