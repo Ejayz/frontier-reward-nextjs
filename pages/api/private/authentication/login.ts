@@ -18,11 +18,13 @@ export default async function handler(
     return;
   }
   const { email, password } = req.body;
+  console.log(email, password);
   const prisma = new PrismaClient();
   try {
     const user = await prisma.users.findFirst({
-      where: { email },
+      where: { email: email, is_exsit: true },
     });
+    console.log(user);
     if (!user) {
       res.status(404).json({ message: "Invalid credentials used." });
       return;

@@ -825,10 +825,21 @@ export default function Page() {
     name: "Canada",
     priority: 1,
   });
+  const [adminPhone, setAdminPhone] = useState<phoneType>({
+    areaCodes: [
+      204, 226, 236, 249, 250, 289, 306, 343, 365, 387, 403, 416, 418, 431, 437,
+      438, 450, 506, 514, 519, 548, 579, 581, 587, 604, 613, 639, 647, 672, 705,
+      709, 742, 778, 780, 782, 807, 819, 825, 867, 873, 902, 905,
+    ],
+    dialCode: "1",
+    format: "(...) ...-....",
+    iso2: "ca",
+    name: "Canada",
+    priority: 1,
+  });
+
   useEffect(() => {
-    async function init() {
-      await new Promise((r) => setTimeout(r, 6000));
-    }
+    async function init() {}
     init();
   }, []);
 
@@ -856,6 +867,7 @@ export default function Page() {
   const [vehiclelist, setVehicleList] = useState<vehicleType[]>([]);
   const customerValidation = yup.object({
     first_name: yup.string().required("First Name is required."),
+    middle_name: yup.string(),
     last_name: yup.string().required("Last Name is required."),
     email: yup.string().email().required("Email is required."),
     phone_number: yup
@@ -892,14 +904,57 @@ export default function Page() {
       .required("VIN number is required"),
   });
 
+  const adminSchema = yup.object().shape({
+    phone_number: yup
+      .string()
+      .phone(
+        adminPhone?.iso2.toUpperCase(),
+        `Enter a valid phone number for ${adminPhone?.name}`
+      )
+      .required("Phone Number is required."),
+    first_name: yup.string().required("First Name is required."),
+    middle_name: yup.string(),
+    last_name: yup.string().required("Last Name is required."),
+    email: yup.string().email().required("Email is required."),
+  });
+
   const [dataToRemove, setDataToRemove] = useState<{
     id: string;
     table_uuid: string;
   }>();
+  const [createUserMessage, setCreateUserMessage] = useState<string>("");
   const confirmModal = useRef<HTMLDialogElement>(null);
   const modalAddUser = useRef<HTMLInputElement>(null);
+  const notifModal = useRef<HTMLDialogElement>(null);
+  const AdminForm = useRef<FormikProps<any>>(null);
   return (
     <div className="pl-10 z-10">
+      {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
+
+      <dialog id="my_modal_1" ref={notifModal} className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">New {userType} Account </h3>
+          <p className="py-4">{createUserMessage}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button
+                onClick={() => {
+                  notifModal.current?.close();
+                  CustomerAccountDetail.current?.resetForm();
+                  VehicleDetail.current?.resetForm();
+                  setVehicleList([]);
+                }}
+                className="btn"
+              >
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Dialog for removal of car on the list */}
       <dialog
         id="my_modal_1"
         ref={confirmModal}
@@ -911,7 +966,7 @@ export default function Page() {
         <div className="modal-box">
           <h3 className="font-bold text-lg">Confirm Action</h3>
           <p className="py-4">
-            Are you sure you want to remove {dataToRemove?.id} ?
+            Are you sure you want to remove <b>{dataToRemove?.id}</b> ?
           </p>
           <div className="modal-action">
             <button
@@ -989,6 +1044,7 @@ export default function Page() {
                   innerRef={CustomerAccountDetail}
                   initialValues={{
                     first_name: "",
+                    middle_name: "",
                     last_name: "",
                     email: "",
                     phone_number: "",
@@ -1016,6 +1072,16 @@ export default function Page() {
                           touched={touched.first_name}
                           classes="text-base"
                           label="First Name"
+                        />
+                        <LabeledInput
+                          field_name="middle_name"
+                          type="text"
+                          placeholder="Enter Middle Name"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          errors={errors.middle_name}
+                          touched={touched.middle_name}
+                          classes="text-base"
+                          label="Middle Name"
                         />
                         <LabeledInput
                           field_name="last_name"
@@ -1308,6 +1374,8 @@ export default function Page() {
                         let bodyContent = JSON.stringify({
                           firstName:
                             CustomerAccountDetail.current?.values.first_name,
+                          middleName:
+                            CustomerAccountDetail.current?.values.middle_name,
                           lastName:
                             CustomerAccountDetail.current?.values.last_name,
                           phoneNumber:
@@ -1315,8 +1383,6 @@ export default function Page() {
                           email: CustomerAccountDetail.current?.values.email,
                           packageId:
                             CustomerAccountDetail.current?.values.package,
-                          middleName:
-                            CustomerAccountDetail.current?.values.middle_name,
                           vehicles: vehiclelist,
                           country:
                             CustomerAccountDetail.current?.values.country,
@@ -1342,8 +1408,22 @@ export default function Page() {
                           }
                         );
 
-                        let data = await response.text();
-                        console.log(data);
+                        let data = await response.json();
+                        if (response.ok) {
+                          setCreateUserMessage(data.message);
+                          notifModal.current?.showModal();
+                        } else {
+                          toast.error(data.message);
+                        }
+                      } else {
+                        toast.error("Please fill up the form correctly");
+                        CustomerAccountDetail.current?.validateForm();
+                        if (vehiclelist.length === 0) {
+                          toast.error("Please add at least one vehicle");
+                          VehicleDetail.current?.validateForm();
+                        } else {
+                          VehicleDetail.current?.validateForm();
+                        }
                       }
                     }}
                     className="btn btn-info btn-md"
@@ -1364,46 +1444,83 @@ export default function Page() {
 
             {userType === "Admin" && (
               <div className="admin">
-                <label className="label">
-                  <span className="label-text">Firs Name</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter First Name"
-                  className="input input-bordered"
-                />
-                <label className="label">
-                  <span className="label-text">Middle Name</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter First Name"
-                  className="input input-bordered"
-                />
-                <label className="label">
-                  <span className="label-text">Last Name</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter Last Name"
-                  className="input input-bordered"
-                />
-                <label className="label">
-                  <span className="label-text">Email</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="Enter Email"
-                  className="input input-bordered"
-                />
-                <label className="label">
-                  <span className="label-text">Phone Number</span>
-                </label>
-                <input
-                  type="tel"
-                  placeholder="Enter Phone Number"
-                  className="input input-bordered"
-                />
+                <Formik
+                  initialValues={{
+                    firstName: "",
+                    middleName: "",
+                    lastName: "",
+                    email: "",
+                    phone_nuber: "",
+                  }}
+                  onSubmit={(values: any) => {}}
+                  validationSchema={adminSchema}
+                >
+                  {({ errors, touched, setFieldValue, values }) => (
+                    <Form>
+                      <div className=" grid grid-cols-3 gap-2">
+                        <LabeledInput
+                          field_name="firstName"
+                          type="text"
+                          placeholder="Enter First Name"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.firstName}
+                          touched={touched.firstName}
+                          classes="text-base"
+                          label="First Name"
+                        />
+                        <LabeledInput
+                          field_name="middleName"
+                          type="text"
+                          placeholder="Enter Middle Name"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.middleName}
+                          touched={touched.middleName}
+                          classes="text-base"
+                          label="Middle Name"
+                        />
+                        <LabeledInput
+                          field_name="lastName"
+                          type="text"
+                          placeholder="Enter Last Name"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.lastName}
+                          touched={touched.lastName}
+                          classes="text-base"
+                          label="Last Name"
+                        />
+                        <LabeledInput
+                          field_name="email"
+                          type="email"
+                          placeholder="Enter Email"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.email}
+                          touched={touched.email}
+                          classes="text-base"
+                          label="Email"
+                        />
+                        <LabeledInputPhone
+                          field_name="phone_number"
+                          placeholder="Enter Phone Number"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.phone_number}
+                          touched={touched.phone_number}
+                          classes="text-base"
+                          label="Phone Number"
+                          value={values.phone_number}
+                          setFieldValue={setFieldValue}
+                          setPhoneInfo={setAdminPhone}
+                          costumerValidation={customerValidation}
+                        />
+                      </div>
+                      <div className="modal-action">
+                        <button className="btn btn-primary">
+                          Create Admin
+                        </button>
+                        <button className="btn btn-ghost">Cancel</button>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
               </div>
             )}
           </div>
