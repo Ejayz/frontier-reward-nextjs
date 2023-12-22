@@ -10,23 +10,22 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const { name, description, type, cost, created_at, updated_at,quantity,points, percentage } = req.body;
+    const { name, description, start_date,end_date, created_at, updated_at,deleted_at, is_exist} = req.body;
     try {
-      const createRewards = await prisma.rewards.create({
+      const createAction = await prisma.campaigns.create({
         data: {
           name,
           description,
-          type,
-          cost,
-          quantity,
-          points,
-          percentage,
+          start_date,
+          end_date,
           created_at,
           updated_at,
+          deleted_at,
+          is_exist
         },
       });
 
-      res.status(201).json(createRewards);
+      res.status(201).json(createAction);
     } catch (error: any) {
       console.error(error);
       res.status(500).json({ error: error.message });

@@ -17,7 +17,7 @@ export default async function handler(
     const reqQuery = parseInt(req.query.page as string) || 1;
     const skip = (reqQuery - 1) * 10;
     const take = 10;
-    const transactions = await prisma.actions.findMany({
+    const transactions = await prisma.rewards.findMany({
       where: {
         is_exist: true,
       },
@@ -25,6 +25,11 @@ export default async function handler(
         id: true,
         name: true,
         description: true,
+        type: true,
+        cost: true,
+        quantity: true,
+        points: true,
+        percentage: true,
       },
       skip: skip,
       take: take,

@@ -45,6 +45,7 @@ model campaigns {
   created_at              DateTime?                 @db.Timestamp(0)
   updated_at              DateTime?                 @db.Timestamp(0)
   deleted_at              DateTime?                 @db.Timestamp(0)
+  is_exist                Boolean
   campaign_action_rewards campaign_action_rewards[]
   transaction_items       transaction_items[]
 }
@@ -199,13 +200,14 @@ model rewards {
   id                      Int                       @id @default(autoincrement()) @db.UnsignedInt
   name                    String
   description             String
-  type                    rewards_type
-  value                   Decimal                   @default(0.00) @db.Decimal(8, 2)
+  type                    String                    @db.VarChar(50)
   cost                    Decimal                   @default(0.00) @db.Decimal(8, 2)
   created_at              DateTime?                 @db.Timestamp(0)
   updated_at              DateTime?                 @db.Timestamp(0)
-  quantity                Float                     @db.Float
+  quantity                Int
   is_exist                Boolean?                  @default(true)
+  points                  Float                     @db.Float
+  percentage              Float                     @db.Float
   campaign_action_rewards campaign_action_rewards[]
   package_rewards         package_rewards[]
   user_rewards            user_rewards[]
@@ -393,10 +395,4 @@ enum transactions_status {
 enum user_rewards_status {
   incomplete
   completed
-}
-
-enum rewards_type {
-  item
-  discount
-  points
 }

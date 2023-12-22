@@ -85,7 +85,7 @@ export default function Page() {
 
       return response.json();
     },
-    onSuccess: async (data: any) => {
+    onSuccess: async (data:any) => {
       setPage(1);
       queryClient.invalidateQueries({
         queryKey: ["getActionsPagination"],
@@ -94,8 +94,9 @@ export default function Page() {
 
       showToast({
         status: "success",
-        message: data.message,
+        message: "Action Created Successfully",
       });
+      
       RefetchActionPagination();
       setProcessing(false);
       createActionRef.current?.resetForm();
@@ -164,7 +165,7 @@ export default function Page() {
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
-
+              resetForm();
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
@@ -234,7 +235,7 @@ export default function Page() {
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
-                      htmlFor="modaladdaction"
+                      htmlFor="my_modal_6"
                       className="btn btn-neutral mr-2"
                     >
                       Cancel
@@ -300,121 +301,7 @@ export default function Page() {
             )}
           </tbody>
         </table>
-        <input
-          type="checkbox"
-          id="modaleditaction"
-          className="modal-toggle"
-          checked={isModalOpen}
-          onChange={() => setModalOpen(!isModalOpen)}
-        />
-        <div className="modal" role="dialog">
-          <div className="modal-box">
-            <form method="dialog">
-              <label
-                htmlFor="modaleditaction"
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
-              >
-                ✕
-              </label>
-            </form>
-            <h3 className="font-bold text-lg">Update Action</h3>
-            <Formik
-              enableReinitialize={true}
-              initialValues={{
-                name: "",
-                description: "",
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-                is_exist: true,
-              }}
-              validationSchema={actionValidation}
-              onSubmit={async (values, { resetForm }) => {
-                console.log("This is from other forms");
-                setProcessing(true);
-                let bodyContent = JSON.stringify({
-                  name: values.name,
-                  description: values.description,
-                  created_at: values.created_at,
-                  updated_at: values.updated_at,
-                  is_exist: values.is_exist,
-                });
-                createActionMutation.mutate(bodyContent);
-              }}
-            >
-              {({ errors, touched }) => (
-                <Form>
-                  <div className="form-control bg-white">
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">
-                        Name
-                      </span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Action Name"
-                      className="input input-bordered"
-                      name="name"
-                    />
-                    <ErrorMessage name="name" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                          <img
-                            src="../icons/warning.svg"
-                            width={20}
-                            height={20}
-                            alt="Error Icon"
-                            className="error-icon pr-1"
-                          />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
 
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">
-                        Description
-                      </span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Action Description"
-                      className="input input-bordered"
-                      name="description"
-                    />
-                    <ErrorMessage name="description" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                          <img
-                            src="../icons/warning.svg"
-                            width={20}
-                            height={20}
-                            alt="Error Icon"
-                            className="error-icon pr-1"
-                          />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-                    {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-                  </div>
-                  <div className="m-8 " style={{ marginTop: 60 }}>
-                    <div className="absolute bottom-6 right-6">
-                      <label
-                        htmlFor="modaleditaction"
-                        className="btn btn-neutral mr-2"
-                      >
-                        Cancel
-                      </label>
-                      <button type="submit" className="btn btn-primary">
-                        Edit
-                      </button>
-                    </div>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </div>
         <div className="w-11/12 flex mx-auto">
           <div className="join mx-auto">
             <button
