@@ -1,6 +1,7 @@
 "use client";
 
 import NormalInput from "@/components/NormalInput";
+import NormalInputShowPassword from "@/components/NormalInputShowPassword";
 import { Form, Formik } from "formik";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -81,7 +82,7 @@ export default function Page() {
                     />
                   </div>
                   <div className="form-control">
-                    <NormalInput
+                    <NormalInputShowPassword
                       field_name="password"
                       type="password"
                       placeholder="Password"

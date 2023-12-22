@@ -1,8 +1,10 @@
+/*  To the person that would recode this or optimize this .... Good luck hahah */
 "use client";
 import LabeledInput from "@/components/LabeledInput";
 import LabeledInputPhone from "@/components/LabeledInputPhone";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
-import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/useToast";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Form, Formik, FormikProps } from "formik";
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -28,6 +30,7 @@ type phoneType = {
 export default function Page() {
   const [userType, setUserType] = useState("");
   const modalForm = useRef<HTMLDialogElement>(null);
+  const { showToast } = useToast();
   const handleUserTypeChange = (event: any) => {
     setUserType(event.target.value);
   };
@@ -843,7 +846,7 @@ export default function Page() {
     init();
   }, []);
 
-  const { data, error, isLoading, isFetching } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["getPackages"],
     queryFn: async () => {
       let headersList = {
@@ -863,6 +866,7 @@ export default function Page() {
       return data;
     },
     refetchOnWindowFocus: false,
+    staleTime: 0,
   });
   const [vehiclelist, setVehicleList] = useState<vehicleType[]>([]);
   const customerValidation = yup.object({
@@ -927,6 +931,46 @@ export default function Page() {
   const modalAddUser = useRef<HTMLInputElement>(null);
   const notifModal = useRef<HTMLDialogElement>(null);
   const AdminForm = useRef<FormikProps<any>>(null);
+
+  const CreateCustomerMutation = useMutation({
+    mutationFn: async (values: any) => {
+      console.log(values);
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+
+      let response = await fetch("/api/private/createCustomer/", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      new QueryClient().invalidateQueries({
+        queryKey: ["getPackages"],
+      });
+      console.log(data);
+      if (data.code == 200) {
+        setCreateUserMessage(data.message);
+        notifModal.current?.showModal();
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
+
   return (
     <div className="pl-10 z-10">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
@@ -1241,6 +1285,7 @@ export default function Page() {
                         ...oldList,
                         formatted_values,
                       ]);
+                      VehicleDetail.current?.resetForm();
                     }
                   }}
                 >
@@ -1364,14 +1409,7 @@ export default function Page() {
                         CustomerAccountDetail.current?.isValid &&
                         vehiclelist.length != 0
                       ) {
-                        let headersList = {
-                          Accept: "*/*",
-                          "User-Agent":
-                            "Thunder Client (https://www.thunderclient.com)",
-                          "Content-Type": "application/json",
-                        };
-
-                        let bodyContent = JSON.stringify({
+                        let bodyContent = {
                           firstName:
                             CustomerAccountDetail.current?.values.first_name,
                           middleName:
@@ -1397,33 +1435,11 @@ export default function Page() {
                             CustomerAccountDetail.current?.values
                               .state_province_region,
                           points: CustomerAccountDetail.current?.values.points,
-                        });
+                        };
 
-                        let response = await fetch(
-                          "/api/private/createCustomer/",
-                          {
-                            method: "POST",
-                            body: bodyContent,
-                            headers: headersList,
-                          }
-                        );
-
-                        let data = await response.json();
-                        if (response.ok) {
-                          setCreateUserMessage(data.message);
-                          notifModal.current?.showModal();
-                        } else {
-                          toast.error(data.message);
-                        }
+                        CreateCustomerMutation.mutate(bodyContent);
                       } else {
-                        toast.error("Please fill up the form correctly");
-                        CustomerAccountDetail.current?.validateForm();
-                        if (vehiclelist.length === 0) {
-                          toast.error("Please add at least one vehicle");
-                          VehicleDetail.current?.validateForm();
-                        } else {
-                          VehicleDetail.current?.validateForm();
-                        }
+                        toast.error("Please fill up all the required fields");
                       }
                     }}
                     className="btn btn-info btn-md"
@@ -1597,43 +1613,11 @@ export default function Page() {
               <th>Email</th>
               <th>Phone</th>
               <th>Package</th>
-              <th>Created</th>
-              <th>Updated</th>
+
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {/* row 1 */}
-            <tr className="row">
-              <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 2 */}
-            <tr className="row">
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
             <tr className="row">
               <th>3</th>
               <td>Brice Swyre</td>
@@ -1654,68 +1638,6 @@ export default function Page() {
               <td>Brice Swyre</td>
               <td>Tax Accountant</td>
               <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
               <td>Blue</td>
               <td>Blue</td>
               <td>
