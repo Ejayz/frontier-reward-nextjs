@@ -18,10 +18,23 @@ export default async function handler(
   if (req.method != "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
-  if (!req.body) {
-    return res.status(400).json({ message: "No body provided" });
-  }
-  console.log(req.body);
+  console.log("req.body:", req.body);
+  const {
+    firstName,
+    middleName,
+    lastName,
+    phoneNumber,
+    email,
+    packageId,
+    vehicles,
+    country,
+    city,
+    zipCode,
+    address,
+    address2,
+    state_province,
+    points,
+  } = req.body;
   const prisma = new PrismaClient();
   const resend = new Resend(RESEND_API);
   const auth = new Cookies(req, res).get("auth") || "";
@@ -46,7 +59,8 @@ export default async function handler(
       lowercase: true,
       symbols: true,
     });
-    const {
+
+    console.log(
       firstName,
       middleName,
       lastName,
@@ -60,25 +74,31 @@ export default async function handler(
       address,
       address2,
       state_province,
-      points,
-    } = req.body;
+      points
+    );
     const hashedPassword = await bcrypt.hash(password, 10);
     const transaction = await prisma
       .$transaction(async (tx) => {
+        console.log("Email", email);
         const getUsers = await tx.users.findMany({
           where: { email: email, is_exsit: true },
         });
         console.log("getUsers:", getUsers);
-        if (getUsers.length !== 0) {
-          return res.status(400).json({ message: "Email already exist" });
+        if (getUsers.length > 0) {
+          return res
+            .status(400)
+            .json({ code: 400, message: "Email already exist" });
         }
         console.log("Checked getUsers lenght:", getUsers.length);
         for (const vehicle of vehicles) {
           const getvehicle = await tx.user_vehicles.findMany({
             where: { vehicle_id: vehicle.vehicle_id },
           });
+          console.log(`Checking Vehicle ${vehicle.vehicle_id} :`, getvehicle);
           if (getvehicle.length > 0) {
-            return res.status(400).json({ message: "Vehicle already exist" });
+            return res
+              .status(400)
+              .json({ code: "400", message: "Vehicle already exist" });
             break;
           }
           console.log("Checked getvehicle lenght:", getvehicle.length);
@@ -145,6 +165,7 @@ export default async function handler(
           text: `Welcome to Perks and Points!`,
         });
         return res.status(200).json({
+          code: 200,
           message:
             "Kindly remind the newly created account holder to check their email for login credentials.",
         });
@@ -153,13 +174,13 @@ export default async function handler(
     console.log("transactions:", transaction);
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token Expired" });
+      return res.status(401).json({ code: 401, message: "Token Expired" });
     } else if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid Token" });
+      return res.status(401).json({ code: 401, message: "Invalid Token" });
     } else if (error.name === "NotBeforeError") {
-      return res.status(401).json({ message: "Token not active" });
+      return res.status(401).json({ code: 401, message: "Token not active" });
     } else {
-      return res.status(500).json({ message: error.message });
+      return res.status(500).json({ code: 500, message: error.message });
     }
   } finally {
     await prisma.$disconnect();

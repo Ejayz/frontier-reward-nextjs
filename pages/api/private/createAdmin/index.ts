@@ -22,6 +22,7 @@ export default async function handler(
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     
+    
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token Expired" });

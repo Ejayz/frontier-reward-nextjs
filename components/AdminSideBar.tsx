@@ -18,7 +18,7 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/actions"} className="text-2xl font-bold">
             <img
               src="./icons/actions.svg"
               className="mr-2"
@@ -27,10 +27,10 @@ export default function AdminSideBar() {
               height={30}
             />{" "}
             Actions
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/packages"} className="text-2xl font-bold">
             <img
               src="./icons/packages.svg"
               className="mr-2"
@@ -39,10 +39,10 @@ export default function AdminSideBar() {
               height={30}
             />
             Packages
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/rewards"} className="text-2xl font-bold">
             <img
               src="./icons/rewards.svg"
               className="mr-2"
@@ -51,10 +51,10 @@ export default function AdminSideBar() {
               height={30}
             />
             Rewards
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/campaigns"} className="text-2xl font-bold">
             <img
               src="./icons/campaigns.svg"
               className="mr-2"
@@ -63,7 +63,7 @@ export default function AdminSideBar() {
               height={30}
             />
             Campaigns
-          </a>
+          </Link>
         </li>
         <li>
           <Link className="text-2xl font-bold" href={"/users"}>
@@ -78,7 +78,7 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/transactions"} className="text-2xl font-bold">
             <img
               src="./icons/transactions.svg"
               className="mr-2"
@@ -87,7 +87,7 @@ export default function AdminSideBar() {
               height={30}
             />{" "}
             Transactions
-          </a>
+          </Link>
         </li>
       </ul>
     </div>
