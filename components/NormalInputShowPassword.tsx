@@ -12,13 +12,13 @@ export default function NormalInputShowPassword({
 }: any) {
   const [showPassword, setShowPassword] = useState("password");
   return (
-    <div className="form-control">
-      <div className="join">
+    <div className="form-control flex ">
+      <div className="join w-full flex flex-row">
         <Field
           name={field_name}
           type={showPassword}
           placeholder={placeholder}
-          className={`${className} join-item`}
+          className={`${className} join-item  w-3/4`}
         />
         <button
           type="button"
@@ -29,7 +29,7 @@ export default function NormalInputShowPassword({
               setShowPassword("text");
             }
           }}
-          className="btn join-item "
+          className="btn join-item w-1/4"
         >
           {
             showPassword == "text" ? <p>Hide Password</p> : <p>Show Password</p>

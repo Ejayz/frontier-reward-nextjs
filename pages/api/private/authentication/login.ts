@@ -22,7 +22,12 @@ export default async function handler(
   const prisma = new PrismaClient();
   try {
     const user = await prisma.users.findFirst({
-      where: { email: email, is_exsit: true },
+      where: { email: email, is_exist: 1 },
+      include: {
+        user_type_users_user_typeTouser_type: true,
+        customer_info: true,
+        employee_info: true,
+      },
     });
     console.log(user);
     if (!user) {
@@ -34,13 +39,25 @@ export default async function handler(
       res.status(401).json({ message: "Invalid credentials used." });
       return;
     }
+    console.log(user);
     const token = jwt.sign(
-      { id: user.id, role: user.user_type_id },
+      {
+        id: user.id,
+        role: user.user_type,
+        role_name: user.user_type_users_user_typeTouser_type.name,
+        main_id:
+          user.employee_info.length > 0
+            ? user.employee_info[0].id
+            : user.customer_info[0].id,
+        is_employee: user.employee_info.length > 0 ? true : false,
+        is_email_verified: user.email_verified_at ? true : false,
+      },
       jwt_secret,
       {
         expiresIn: "1h",
       }
     );
+    console.log(token);
     res
       .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
       .status(200)

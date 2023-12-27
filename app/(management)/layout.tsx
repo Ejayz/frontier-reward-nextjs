@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../globals.css";
 import cookie_processor from "@/hooks/useCookieProcessor";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { pages } from "next/dist/build/templates/app-page";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,17 @@ export default function RootLayout({
   const route = useRouter();
 
   const [pageState, setPageState] = useState(false);
-  const [init, setInit] = useState(false);
+  const [inits, setInit] = useState(false);
+  const [cookiesDetails, setCookieDetails] = useState<{
+    exp: number;
+    iat: number;
+    id: number;
+    is_email_verified: boolean;
+    is_employee: boolean;
+    main_id: number;
+    role: number;
+    role_name: string;
+  }>();
   useEffect(() => {
     async function init() {
       if (document.readyState === "complete") {
@@ -32,11 +43,14 @@ export default function RootLayout({
       if (data == null) {
         route.push("/?error=401");
       } else {
+        const request = window.indexedDB.open("point_and_perks", 1);
         setPageState(true);
       }
     }
     init();
   }, []);
+
+  const [resendEmail, setResendEmail] = useState(false);
 
   return (
     <html lang="en" data-theme="light">
@@ -54,7 +68,7 @@ export default function RootLayout({
           pauseOnHover
           theme="light"
         />
-        {pageState && init ? (
+        {pageState && inits ? (
           <main className="min-h-screen">
             <div>
               <AdminNavBar></AdminNavBar>
