@@ -110,8 +110,8 @@ export default function Page() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const campaignValidation = yup.object().shape({
-    name: yup.string().required("Name is required").matches(/^[^\d]+$/, 'Name must not include numbers'),
-    description: yup.string().required("Description is required").matches(/^[^\d]+$/, 'Name must not include numbers'),
+    name: yup.string().required("Name is required"),
+    description: yup.string().required("Description is required"),
     start_date: yup.date().required("Start Date is required"),
     end_date: yup.date().required("End Date is required"),
   });

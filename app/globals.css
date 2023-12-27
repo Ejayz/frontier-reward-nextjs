@@ -29,7 +29,7 @@ body {
 .login-page::before {
   content: "";
 
-  background-color: rgb(255, 255, 255);
+  /* background-color: rgb(255, 255, 255); */
   background-size: cover;
   top: 0px;
   right: 0px;

@@ -32,24 +32,10 @@ export default function NormalInputShowPassword({
           className="btn join-item w-1/4"
         >
           {
-            showPassword == "text" ? <p>Hide Password</p> : <p>Show Password</p>
-            //  (
-            //   <Image
-            //     src={"/images/view.png"}
-            //     width={500}
-            //     height={500}
-            //     className="h-12 w-12"
-            //     alt={""}
-            //   />
-            // ) : (
-            //   <Image
-            //     src={"/images/hidden.png"}
-            //     width={500}
-            //     height={500}
-            //     className="h-12 w-12"
-            //     alt={""}
-            //   />
-            // )
+            showPassword == "text" ? 
+            <img src="../icons/showpasseye.svg" width={40} height={40} alt="Error Icon" className="error-icon pr-1" />  : 
+               <img src="../icons/hidepasseye.svg" width={40} height={40} alt="Error Icon" className="error-icon pr-1" />
+           
           }
         </button>
       </div>
