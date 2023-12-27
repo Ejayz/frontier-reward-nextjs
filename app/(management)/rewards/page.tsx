@@ -1,9 +1,17 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers, FormikProps, FormikValues } from "formik";
+import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
+import {
+  QueryClient,
+  dataTagSymbol,
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { act } from "react-dom/test-utils";
 
 type rewardslist = {
   name: string;
@@ -19,7 +27,6 @@ type rewardslist = {
 
 export default function Page() {
   const [rewardType, setrewardType] = useState("");
-  const modal = useRef<HTMLDialogElement>(null);
   const handleUserTypeChange = (event: any) => {
     setrewardType(event.target.value);
   };
@@ -31,16 +38,16 @@ export default function Page() {
 
   const { showToast } = useToast();
   useEffect(() => {
-    RefetchRewardsPagination();
+    RefetchActionPagination();
   }, [page]);
 
   const {
-    data: DataRewardsPagination,
+    data: DataActionPagination,
     isFetching,
     isLoading,
-    refetch: RefetchRewardsPagination,
+    refetch: RefetchActionPagination,
   } = useQuery({
-    queryKey: ["getRewardsPagination", page],
+    queryKey: ["getActionsPagination", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -65,15 +72,14 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
-  
-  
-  const createRewardMutation = useMutation({
+
+  const createActionMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
         "Content-Type": "application/json",
-      };
+      };  
 
       let response = await fetch(`/api/private/createRewards/`, {
         method: "POST",
@@ -86,16 +92,16 @@ export default function Page() {
     onSuccess: async (data:any) => {
       setPage(1);
       queryClient.invalidateQueries({
-        queryKey: ["getRewardsPagination"],
+        queryKey: ["getActionsPagination"],
       });
       console.log(data);
 
       showToast({
         status: "success",
-        message: "Rewards Created Successfully",
+        message: "Action Created Successfully",
       });
       
-      RefetchRewardsPagination();
+      RefetchActionPagination();
       setProcessing(false);
       createActionRef.current?.resetForm();
       setModalOpen(false);
@@ -111,34 +117,46 @@ export default function Page() {
       setModalOpen(false);
     },
   });
+
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const rewardsValidation = yup.object().shape({
+  const actionValidation = yup.object().shape({
     type: yup.string().required("Type is required"),
     quantity: yup.number().required("Quantity is required"),
     cost: yup.number().required("Cost is required"),
-    name: yup.string().required("Name is required").matches(/^[^\d]+$/, 'Name must not include numbers'),
-    description: yup.string().required("Description is required") .matches(/^[^\d]+$/, 'Name must not include numbers'),
-    percentage: yup.string().required("Percentage is required"),
+    name: yup.string().required("Name is required"),
+    description: yup.string().required("Description is required"),
+    percentage: yup.number().required("Percentage is required"),
     points: yup.number().required("Points is required"),
   });
 
   return (
     <div className="pl-10">
-      {/* You can open the modal using document.getElementById('ID').showModal() method */}
-      <label htmlFor="my_modal_6" className="btn btn-primary ">Add Reward</label>
-      {/* The button to open modal */}
-      <input type="checkbox" id="my_modal_6" className="modal-toggle"  checked={isModalOpen}
-        onChange={() => setModalOpen(!isModalOpen)} />
-<div className="modal" role="dialog">
-  <div className="modal-box">
-  <form method="dialog">
-  <label htmlFor="my_modal_6"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
-          
-  </form>
-  <h3 className="font-bold text-lg">Add Reward</h3>
-  <label className="label">
+      <label htmlFor="my_modal_6" className="btn btn-primary ">
+        Add Action
+      </label>
+
+      <input
+        type="checkbox"
+        id="my_modal_6"
+        className="modal-toggle"
+        checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_6"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Add Action</h3>
+        
+          <label className="label">
     <span className="label-text text-base font-semibold">Type</span>
   </label>
   <select className="select select-bordered w-full max-w-xs"   value={rewardType} onChange={handleUserTypeChange}>
@@ -153,34 +171,43 @@ export default function Page() {
   {rewardType === "Item" && (
               <Formik
                 initialValues={{
-                  type: "Item",
                   quantity: "",
                   cost: "",
+                  percentage: 0,
+                  points: 0,
                   name: "",
                   description: "",
-                  created_at: new Date().toUTCString(),
-                  updated_at: new Date().toUTCString(),
                   is_exist: true,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                  
+                  type: rewardType,
+                  
                 }}
+                
                 ref={createActionRef}
-                validationSchema={rewardsValidation}
+                validationSchema={actionValidation}
                 onSubmit={async (values, { resetForm }) => {
                   console.log("Form submitted with values:", values);
                   setProcessing(true);
                   resetForm();
+                  const quantityAsInt = parseInt(values.quantity, 10);
+                  const costAsFloat = parseFloat(values.cost);
+                  
                   let bodyContent = JSON.stringify({
+                    quantity: quantityAsInt,
+                    cost: costAsFloat,
+                    percentage: values.percentage,
+                    points: values.points,
+                    type: values.type,
                     name: values.name,
                     description: values.description,
                     created_at: values.created_at,
                     updated_at: values.updated_at,
                     is_exist: values.is_exist,
-                    cost: values.cost,
-                    quantity: values.quantity,
-                    type: values.type,
-
                   });
-                  createRewardMutation.mutate(bodyContent);
-                }}
+                    createActionMutation.mutate(bodyContent);
+                  }}
               >
                 {({ errors, touched }) => (
                   <Form>
@@ -273,196 +300,247 @@ export default function Page() {
               </Formik>
             )}
 
+   
 {rewardType === "Discount" && (
-              <Formik
-                initialValues={{
-                  percentage: "",
-                  quantity: "",
-                  cost: "",
-                  name: "",
-                  description: "",
-                }}
-                validationSchema={rewardsValidation}
-                onSubmit={(values: any) => {
-                  console.log(values);
-                }}
-              >
-                {({ errors, touched }) => (
-                  <Form>
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Percentage</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Percentage"
-                      className="input input-bordered"
-                      name="quantity"
-                    />
-                    <ErrorMessage name="quantity" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Cost</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Cost"
-                      className="input input-bordered"
-                      name="cost"
-                    />
-                    <ErrorMessage name="cost" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Name</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Name"
-                      className="input input-bordered"
-                      name="name"
-                    />
-                    <ErrorMessage name="name" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-
-                  
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Description</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Description"
-                      className="input input-bordered"
-                      name="description"
-                    />
-                    <ErrorMessage name="description" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-                    <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
-                    <label
-                      htmlFor="my_modal_6"
-                      className="btn btn-neutral mr-2"
-                    >
-                      Cancel
-                    </label>
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                  </div>
-                </div>
-                  </Form>
-                )}
-              </Formik>
+                       <Formik
+                       initialValues={{
+                         quantity: 0,
+                         cost: 0,
+                         percentage:"",
+                         points: 0,
+                         name: "",
+                         description: "",
+                         created_at: new Date().toISOString(),
+                         updated_at: new Date().toISOString(),
+                         is_exist: true,
+                         type: rewardType,
+                         
+                       }}
+                       
+                       ref={createActionRef}
+                       validationSchema={actionValidation}
+                       onSubmit={async (values, { resetForm }) => {
+                         console.log("Form submitted with values:", values);
+                         setProcessing(true);
+                         resetForm();
+                         const percentageAsFloat = parseFloat(values.percentage);
+                         
+                         let bodyContent = JSON.stringify({
+                           quantity: values.quantity,
+                           cost: values.cost,
+                           percentage: percentageAsFloat,
+                           points: values.points,
+                           type: values.type,
+                           name: values.name,
+                           description: values.description,
+                           created_at: values.created_at,
+                           updated_at: values.updated_at,
+                           is_exist: values.is_exist,
+                         });
+                           createActionMutation.mutate(bodyContent);
+                         }}
+                     >
+                       {({ errors, touched }) => (
+                         <Form>
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Percentage</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Percentage"
+                             className="input input-bordered"
+                             name="percentage"
+                           />
+                           <ErrorMessage name="percentage" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                 <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage>
+{/*        
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Cost</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Cost"
+                             className="input input-bordered"
+                             name="cost"
+                           />
+                           <ErrorMessage name="cost" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                  <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage> */}
+       
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Name</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Name"
+                             className="input input-bordered"
+                             name="name"
+                           />
+                           <ErrorMessage name="name" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                  <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage>
+       
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Description</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Description"
+                             className="input input-bordered"
+                             name="description"
+                           />
+                           <ErrorMessage name="description" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                  <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage>
+                           <div className="m-8 " style={{ marginTop: 60 }}>
+                         <div className="absolute bottom-6 right-6">
+                           <label
+                             htmlFor="my_modal_6"
+                             className="btn btn-neutral mr-2"
+                           >
+                             Cancel
+                           </label>
+                           <button type="submit" className="btn btn-primary">
+                             Submit
+                           </button>
+                         </div>
+                       </div>
+                         </Form>
+                       )}
+                     </Formik>
             )}
 
 {rewardType === "Points" && (
-              <Formik
-                initialValues={{
-                  points: "",
-                  name: "",
-                  description: "",
-                }}
-                validationSchema={rewardsValidation}
-                onSubmit={(values: any) => {
-                  console.log(values);
-                }}
-              >
-                {({ errors, touched }) => (
-                  <Form>
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Points</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Points"
-                      className="input input-bordered"
-                      name="quantity"
-                    />
-                    <ErrorMessage name="quantity" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Name</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Name"
-                      className="input input-bordered"
-                      name="name"
-                    />
-                    <ErrorMessage name="name" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-
-                  
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Description</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Description"
-                      className="input input-bordered"
-                      name="description"
-                    />
-                    <ErrorMessage name="description" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-                    <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
-                    <label
-                      htmlFor="my_modal_6"
-                      className="btn btn-neutral mr-2"
-                    >
-                      Cancel
-                    </label>
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                  </div>
-                </div>
-                  </Form>
-                )}
-              </Formik>
+                                  <Formik
+                       initialValues={{
+                         quantity: 0,
+                         cost: 0,
+                         percentage:0,
+                         points: "",
+                         name: "",
+                         description: "",
+                         created_at: new Date().toISOString(),
+                         updated_at: new Date().toISOString(),
+                         is_exist: true,
+                         type: rewardType,
+                         
+                       }}
+                       
+                       ref={createActionRef}
+                       validationSchema={actionValidation}
+                       onSubmit={async (values, { resetForm }) => {
+                         console.log("Form submitted with values:", values);
+                         setProcessing(true);
+                         resetForm();
+                         const pointsgeAsFloat = parseFloat(values.points);
+                         
+                         let bodyContent = JSON.stringify({
+                           quantity: values.quantity,
+                           cost: values.cost,
+                           percentage: values.percentage,
+                           points: pointsgeAsFloat,
+                           type: values.type,
+                           name: values.name,
+                           description: values.description,
+                           created_at: values.created_at,
+                           updated_at: values.updated_at,
+                           is_exist: values.is_exist,
+                         });
+                           createActionMutation.mutate(bodyContent);
+                         }}
+                     >
+                       {({ errors, touched }) => (
+                         <Form>
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Points</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Points"
+                             className="input input-bordered"
+                             name="points"
+                           />
+                           <ErrorMessage name="points" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                 <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage>
+       
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Name</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Name"
+                             className="input input-bordered"
+                             name="name"
+                           />
+                           <ErrorMessage name="name" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                  <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage>
+       
+                           <label className="label">
+                             <span className="label-text text-base font-semibold">Description</span>
+                           </label>
+                           <Field
+                             type="text"
+                             placeholder="Enter Reward Description"
+                             className="input input-bordered"
+                             name="description"
+                           />
+                           <ErrorMessage name="description" className="flex">
+                             {(msg) => (
+                               <div className="text-red-600 flex">
+                                  <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+                                 {msg}
+                               </div>
+                             )}
+                           </ErrorMessage>
+                           <div className="m-8 " style={{ marginTop: 60 }}>
+                         <div className="absolute bottom-6 right-6">
+                           <label
+                             htmlFor="my_modal_6"
+                             className="btn btn-neutral mr-2"
+                           >
+                             Cancel
+                           </label>
+                           <button type="submit" className="btn btn-primary">
+                             Submit
+                           </button>
+                         </div>
+                       </div>
+                         </Form>
+                       )}
+                     </Formik>
             )}
 
   </div>
@@ -489,7 +567,7 @@ export default function Page() {
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataRewardsPagination.data.map((element: any) => {
+              DataActionPagination.data.map((element: any) => {
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
@@ -497,9 +575,9 @@ export default function Page() {
                     <td>{element.type}</td>
                     <td>{element.quantity}</td>
                     <td>{element.cost}</td>
-<td>{new Date(element.created_at).toLocaleDateString()}</td>
-<td>{new Date(element.updated_at).toLocaleDateString()}</td>
-
+                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
+                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
+                    
                     <td className="flex">
                       <div className="flex mx-auto">
                         <button className="btn btn-sm btn-info mr-2">
@@ -550,7 +628,7 @@ export default function Page() {
             </button>
             <button
               onClick={() => {
-                if (DataRewardsPagination.data.length >= 7) {
+                if (DataActionPagination.data.length >= 7) {
                   const newPage = page + 1;
                   setPage(newPage);
                 }

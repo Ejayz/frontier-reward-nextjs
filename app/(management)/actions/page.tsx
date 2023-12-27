@@ -120,12 +120,10 @@ export default function Page() {
   const actionValidation = yup.object().shape({
     name: yup
       .string()
-      .required("Name is required")
-      .matches(/^[^\d]+$/, "Name must not include numbers"),
+      .required("Name is required"),
     description: yup
       .string()
-      .required("Description is required")
-      .matches(/^[^\d]+$/, "Name must not include numbers"),
+      .required("Description is required"),
   });
 
   return (

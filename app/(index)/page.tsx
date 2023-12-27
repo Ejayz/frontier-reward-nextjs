@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
+import Background from "../login-bg.png";
 export default function Page() {
   const data = useSearchParams();
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function Page() {
   });
 
   return (
-    <div className="login-page">
+    <div className="login-page" style={{backgroundImage:"url(" + Background + ")"}}>
       <span className="top-shape"></span>
       <span className="bottom-shape"></span>
       <div className="hero min-h-screen">
