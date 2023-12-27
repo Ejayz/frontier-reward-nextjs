@@ -43,14 +43,11 @@ export default function RootLayout({
       if (data == null) {
         route.push("/?error=401");
       } else {
-        const request = window.indexedDB.open("point_and_perks", 1);
         setPageState(true);
       }
     }
     init();
   }, []);
-
-  const [resendEmail, setResendEmail] = useState(false);
 
   return (
     <html lang="en" data-theme="light">

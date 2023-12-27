@@ -93,7 +93,7 @@ export default function Page() {
                       classes="text-error"
                     />
                     <label className="label">
-                      <a href="#" className="label-text-alt link link-hover">
+                      <a href="/forgot_password" className="label-text-alt link link-hover">
                         Forgot password?
                       </a>
                     </label>

@@ -20,24 +20,42 @@ export default function NormalInputShowPassword({
           placeholder={placeholder}
           className={`${className} join-item  w-3/4`}
         />
-        <button
-          type="button"
-          onClick={() => {
-            if (showPassword == "text") {
-              setShowPassword("password");
-            } else {
-              setShowPassword("text");
-            }
-          }}
-          className="btn join-item w-1/4"
-        >
-          {
-            showPassword == "text" ? 
-            <img src="../icons/showpasseye.svg" width={40} height={40} alt="Error Icon" className="error-icon pr-1" />  : 
-               <img src="../icons/hidepasseye.svg" width={40} height={40} alt="Error Icon" className="error-icon pr-1" />
-           
+        <div
+          className="tooltip  w-auto"
+          data-tip={
+            showPassword == "text" ? "Password Shown" : "Password Hidden"
           }
-        </button>
+        >
+          <button
+            type="button"
+            onClick={() => {
+              if (showPassword == "text") {
+                setShowPassword("password");
+              } else {
+                setShowPassword("text");
+              }
+            }}
+            className="btn join-item"
+          >
+            {showPassword == "text" ? (
+              <img
+                src="../images/seen.png"
+                width={40}
+                height={40}
+                alt="Error Icon"
+                className="error-icon pr-1"
+              />
+            ) : (
+              <img
+                src="../images/hide.png"
+                width={40}
+                height={40}
+                alt="Error Icon"
+                className="error-icon pr-1"
+              />
+            )}
+          </button>
+        </div>
       </div>
 
       {errors && touched ? (
