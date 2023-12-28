@@ -26,12 +26,18 @@ export default async function handler(
     const take = 10;
     const transactions = await prisma.actions.findMany({
       where: {
-        is_exist: true,
+        is_exist: 1,
       },
       select: {
         id: true,
         name: true,
         description: true,
+        created_at: true,
+        updated_at: true,
+        removed_at: true,
+        employee_id: true,
+        is_exist: true,
+        
       },
       skip: skip,
       take: take,

@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
 import { act } from "react-dom/test-utils";
+import LabeledSelectInput from "@/components/LabeledSelectInput";
 
 type rewardslist = {
   name: string;
@@ -72,6 +73,33 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ["getRewardType"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch("/api/private/getRewardType", {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    
+  });
+
 
   const createActionMutation = useMutation({
     mutationFn: async (values: any) => {
@@ -134,7 +162,7 @@ export default function Page() {
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
-        Add Action
+        Add Rewards
       </label>
 
       <input
@@ -159,15 +187,19 @@ export default function Page() {
           <label className="label">
     <span className="label-text text-base font-semibold">Type</span>
   </label>
-  <select className="select select-bordered w-full max-w-xs"   value={rewardType} onChange={handleUserTypeChange}>
-    <option value="select type" selected>
-      Select Type
-    </option>
-    <option value="Item">Item</option>
-    <option value="Discount">Discount</option>
-    <option value="Points">Points</option>
-  </select>
-
+  <LabeledSelectInput
+                          field_name="Reward Type"
+                          type="text"
+                          placeholder="Enter Reward Type"
+                          className="input input-bordered  input-sm w-full max-w-xs"
+                          classes="text-base"
+                          label="Package"
+                          SelectOptions={
+                            isFetching || isLoading ? [] : data.data
+                          }
+                          setFieldValue={setFieldValue}
+                          values={values.package}
+                        />{" "}
   {rewardType === "Item" && (
               <Formik
                 initialValues={{

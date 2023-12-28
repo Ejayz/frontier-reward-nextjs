@@ -18,7 +18,7 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <Link href={"/actions"} className="text-2xl font-bold">
+          <Link href={"/superadmin/actions"} className="text-2xl font-bold">
             <img
               src="/icons/actions.svg"
               className="mr-2"
@@ -31,7 +31,7 @@ export default function AdminSideBar() {
         </li>
         
         <li>
-          <Link href={"/packages"} className="text-2xl font-bold">
+          <Link href={"/superadmin/packages"} className="text-2xl font-bold">
             <img
               src="/icons/packages.svg"
               className="mr-2"
@@ -43,7 +43,7 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <Link href={"/rewards"} className="text-2xl font-bold">
+          <Link href={"/superadmin/rewards"} className="text-2xl font-bold">
             <img
               src="/icons/rewards.svg"
               className="mr-2"
@@ -55,7 +55,7 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <Link href={"/campaigns"} className="text-2xl font-bold">
+          <Link href={"/superadmin/campaigns"} className="text-2xl font-bold">
             <img
               src="/icons/campaigns.svg"
               className="mr-2"
@@ -69,7 +69,7 @@ export default function AdminSideBar() {
         <li>
           <Link className="text-2xl font-bold" href={"/users"}>
             <img
-              src="/icons/users.svg"
+              src="/superadmin/icons/users.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -79,7 +79,7 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <Link href={"/transactions"} className="text-2xl font-bold">
+          <Link href={"/superadmin/transactions"} className="text-2xl font-bold">
             <img
               src="/icons/transactions.svg"
               className="mr-2"

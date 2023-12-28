@@ -156,7 +156,6 @@ export default function Page() {
               description: "",
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
-              is_exist: true,
             }}
             ref={createActionRef}
             validationSchema={actionValidation}
@@ -169,7 +168,6 @@ export default function Page() {
                 description: values.description,
                 created_at: values.created_at,
                 updated_at: values.updated_at,
-                is_exist: values.is_exist,
               });
               createActionMutation.mutate(bodyContent);
             }}
@@ -256,6 +254,8 @@ export default function Page() {
             <tr className="rounded-lg">
               <th>Name</th>
               <th>Description</th>
+              <th>Created At</th>
+              <th>Updated At</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -270,7 +270,9 @@ export default function Page() {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-
+                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
+                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
+                    
                     <td className="flex">
                       <div className="flex mx-auto">
                         <button className="btn btn-sm btn-info mr-2">
