@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import Background from "../login-bg.png";
+import cookie_processor from "@/hooks/useCookieProcessor";
 export default function Page() {
   const data = useSearchParams();
   useEffect(() => {
@@ -41,7 +42,10 @@ export default function Page() {
   });
 
   return (
-    <div className="login-page" style={{backgroundImage:"url(" + Background + ")"}}>
+    <div
+      className="login-page"
+      style={{ backgroundImage: "url(" + Background + ")" }}
+    >
       <span className="top-shape"></span>
       <span className="bottom-shape"></span>
       <div className="hero min-h-screen">
@@ -63,7 +67,22 @@ export default function Page() {
                 const data = await isLoggedIn.json();
                 if (isLoggedIn.ok) {
                   toast.success(data.message);
-                  nav.push("/dashboard");
+                  if (data.token.is_email_verified == false) {
+                    toast.error("Please verify your email first.");
+                    nav.push("/verifyemail");
+                  } else if (data.token.role == 1) {
+                    nav.push("/superadmin/dashboard");
+                  } else if (data.token.role == 2) {
+                    nav.push("/admin/dashboard");
+                  } else if (data.token.role == 3) {
+                    nav.push("/salesperson/dashboard");
+                  } else if (data.token.role == 4) {
+                    nav.push("/customer/dashboard");
+                  } else {
+                    toast.error(
+                      "It seems this account has invalid role. Please contact or visit our office about this matter."
+                    );
+                  }
                 } else {
                   toast.error(data.message);
                 }
@@ -93,7 +112,10 @@ export default function Page() {
                       classes="text-error"
                     />
                     <label className="label">
-                      <a href="/forgot_password" className="label-text-alt link link-hover">
+                      <a
+                        href="/forgot_password"
+                        className="label-text-alt link link-hover"
+                      >
                         Forgot password?
                       </a>
                     </label>

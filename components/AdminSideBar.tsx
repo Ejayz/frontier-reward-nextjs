@@ -8,7 +8,7 @@ export default function AdminSideBar() {
         <li className="bg-yellow-400">
           <Link href={"dashboard"} className="text-2xl font-bold">
             <img
-              src="./icons/dashboard.svg"
+              src="/icons/dashboard.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -20,7 +20,7 @@ export default function AdminSideBar() {
         <li>
           <Link href={"/actions"} className="text-2xl font-bold">
             <img
-              src="./icons/actions.svg"
+              src="/icons/actions.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -32,7 +32,7 @@ export default function AdminSideBar() {
         <li>
           <Link href={"/packages"} className="text-2xl font-bold">
             <img
-              src="./icons/packages.svg"
+              src="/icons/packages.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -44,7 +44,7 @@ export default function AdminSideBar() {
         <li>
           <Link href={"/rewards"} className="text-2xl font-bold">
             <img
-              src="./icons/rewards.svg"
+              src="/icons/rewards.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -56,7 +56,7 @@ export default function AdminSideBar() {
         <li>
           <Link href={"/campaigns"} className="text-2xl font-bold">
             <img
-              src="./icons/campaigns.svg"
+              src="/icons/campaigns.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -68,7 +68,7 @@ export default function AdminSideBar() {
         <li>
           <Link className="text-2xl font-bold" href={"/users"}>
             <img
-              src="./icons/users.svg"
+              src="/icons/users.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -80,7 +80,7 @@ export default function AdminSideBar() {
         <li>
           <Link href={"/transactions"} className="text-2xl font-bold">
             <img
-              src="./icons/transactions.svg"
+              src="/icons/transactions.svg"
               className="mr-2"
               alt=""
               width={30}

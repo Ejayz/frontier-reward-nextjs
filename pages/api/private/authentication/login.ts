@@ -10,11 +10,13 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    res.status(405).json({ message: "Method not allowed" });
+    res.status(405).json({ code: 405, message: "Method not allowed" });
     return;
   }
   if (req.body.email === "" || req.body.password === "") {
-    res.status(400).json({ message: "Email and password are required" });
+    res
+      .status(400)
+      .json({ code: 400, message: "Email and password are required" });
     return;
   }
   const { email, password } = req.body;
@@ -31,12 +33,12 @@ export default async function handler(
     });
     console.log(user);
     if (!user) {
-      res.status(404).json({ message: "Invalid credentials used." });
+      res.status(404).json({ code: 404, message: "Invalid credentials used." });
       return;
     }
     const passwordValid = await bcrypt.compare(password, user.password);
     if (!passwordValid) {
-      res.status(401).json({ message: "Invalid credentials used." });
+      res.status(401).json({ code: 401, message: "Invalid credentials used." });
       return;
     }
     console.log(user);
@@ -61,9 +63,23 @@ export default async function handler(
     res
       .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
       .status(200)
-      .json({ message: "Login successful" });
+      .json({
+        code: 200,
+        message: "Login successful",
+        token: {
+          id: user.id,
+          role: user.user_type,
+          role_name: user.user_type_users_user_typeTouser_type.name,
+          main_id:
+            user.employee_info.length > 0
+              ? user.employee_info[0].id
+              : user.customer_info[0].id,
+          is_employee: user.employee_info.length > 0 ? true : false,
+          is_email_verified: user.email_verified_at ? true : false,
+        },
+      });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ code: 500, message: error.message });
   } finally {
     await prisma.$disconnect();
   }

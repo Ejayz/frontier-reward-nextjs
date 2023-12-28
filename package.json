@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "email":"email dev"
   },
   "dependencies": {
     "@planetscale/database": "^1.11.0",
     "@prisma/client": "^5.7.1",
+    "@react-email/components": "^0.0.12",
     "@tanstack/react-query": "^5.13.4",
     "apexcharts": "^3.44.2",
     "bcrypt": "^5.1.1",
