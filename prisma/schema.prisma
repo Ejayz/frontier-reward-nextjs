@@ -307,6 +307,8 @@ model users {
   email                                String          @db.VarChar(50)
   password                             String
   phone_number                         String          @db.VarChar(50)
+  code                                 String          @db.VarChar(15)
+  expires_at                           DateTime        @default(now()) @db.Timestamp(0)
   user_type                            Int
   email_verified_at                    DateTime?       @db.Timestamp(0)
   created_at                           DateTime?       @default(now()) @db.Timestamp(0)
