@@ -44,9 +44,9 @@ export default async function handler(
     if (typeof verify === "string") {
       // Handle the case where verify is a string (no access to id)
       console.log("User is not authenticated");
-    } else if (verify?.id) {
+    } else if (verify?.main_id) {
       // Access the id property only if it exists in the JwtPayload
-      current_user = verify.id;
+      current_user = verify.main_id;
       console.log(`Current user ID: ${current_user}`);
     } else {
       // Handle any other unexpected verification result
