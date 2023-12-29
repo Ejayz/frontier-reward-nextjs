@@ -33,7 +33,8 @@ export default async function handler(
         id: "desc",
       },
     });
-    console.log(transactions);
+   
+    console.log("rewards: ",transactions);
     return res.status(200).json({ code: 200, data: transactions });
   } catch (e) {
     console.log(e);

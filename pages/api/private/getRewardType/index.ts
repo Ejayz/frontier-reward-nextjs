@@ -1,46 +1,43 @@
+import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../../lib/prisma";
-import Cookies from "cookies";
-import * as dotenv from "dotenv";
-import * as jwt from "jsonwebtoken";
-dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET || "";
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method != "GET") {
-    return res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== "GET") {
+    return res.status(405).json({
+      code: 405,
+      message: "Invalid method. This endpoint only accept GET method",
+    });
   }
-
-  const auth = new Cookies(req, res).get("auth") || "";
+  const prisma = new PrismaClient();
 
   try {
-    const verify = await jwt.verify(auth, JWT_SECRET);
-    const packagesList = await prisma.reward_type.findMany({
-      where: { is_exist: 1 },
+    const reqQuery = parseInt(req.query.page as string) || 1;
+    const skip = (reqQuery - 1) * 10;
+    const take = 10;
+
+    const transactionstype = await prisma.reward_type.findMany({
+      where: {
+        is_exist: 1,
+      },
       select: {
         id: true,
         name: true,
       },
+      skip: skip,
+      take: take,
+      orderBy: {
+        id: "desc",
+      },
     });
-    const modifiedPackagesList = packagesList.map((packages) => ({
-      value: packages.id,
-      text: packages.name,
-    }));
-
-    return res.status(200).json({ data: modifiedPackagesList });
-  } catch (err: any) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token Expired" });
-    } else if (err.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid Token" });
-    } else if (err.name === "NotBeforeError") {
-      return res.status(401).json({ message: "Token not active" });
-    } else {
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
+    console.log("rewardstype: ",transactionstype);
+    return res.status(200).json({ code: 200, data: transactionstype });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json({ code: 400, message: "Something went wrong" });
   } finally {
-    await prisma.$disconnect();
+    prisma.$disconnect();
   }
 }
