@@ -8,14 +8,15 @@ import {
   Text,
   Body,
   Section,
+  Button,
+  Link,
 } from "@react-email/components";
 import * as dotenv from "dotenv";
 dotenv.config();
 interface EmailTemplateProps {
   firstName: string;
   last_name: string;
-  password: string;
-  email: string;
+  verification_link: string;
   base_url: string;
 }
 const baseUrl = "https://sledgehammerdevelopmentteam.uk";
@@ -24,7 +25,7 @@ const ConfirmEmail = ({
   first_name = "April Jude",
   last_name = "Provido",
   password = "12345678",
-  email = "jude.thedreamteam@gmail.com",
+  verification_link = "jude.thedreamteam@gmail.com",
   base_url = "https://pointsandperks.com",
 }) => (
   <Html>
@@ -37,16 +38,6 @@ const ConfirmEmail = ({
           "./app/**/*.{js,ts,jsx,tsx,mdx}",
           "./src/**/*.{html,js}",
         ],
-        theme: {
-          extend: {
-            backgroundImage: {
-              "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-              "gradient-conic":
-                "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-            },
-          },
-        },
-        plugins: [require("daisyui")],
       }}
     >
       <Head />
@@ -61,31 +52,36 @@ const ConfirmEmail = ({
               height={48}
               className="mx-auto "
             />
-            <Text className="text-2xl mx-auto font-sans w-full font-bold">
+            <Text className="text-2xl mx-auto text-black font-sans w-full font-bold">
               Confirm email address
             </Text>
           </Section>
           <Text className="text-lg font-sans">
-            Below is your email confirmation link . Use this to confirm this
-            email addres:
+            Click the button bellow to confirm your email address.
           </Text>
-          <Text className="text-base font-sans">
-            <a href={"start/data"}>Verify Email</a>
-          </Text>
-          <Text className="text-lg font-sans">
-            If the link above doesn't work, copy and paste the following URL
+          <Section className=" text-center">
+            <Button
+              href={verification_link}
+              className="text-lg font-bold p-4 bg-yellow-500 text-black font-sans rounded-full "
+            >
+              Verify Email
+            </Button>
+          </Section>
+          <Text key="ins1" className="text-lg font-sans">
+            If the button above doesn't work, copy and paste the following URL
             into your browser:
           </Text>{" "}
-          <Text className="text-base font-sans underline">{"https://somelink.com/?verify=12yuaseqweqsdasd"}</Text>
+          <Section className="text-center">
+            <Text className="text-base font-sans ">{verification_link}</Text>
+          </Section>
           <Text className="text-lg font-sans ">
-            Please note that this verification link is valid for the next 24
-            hours.{" "}
+            Please note that this verification link is valid for the next 15
+            minutes.{" "}
           </Text>
           <hr />
           <Text className="text-sm font-sans">
-            If you didn't sign up for [Your Company/Platform Name], please
-            disregard this email. Thank you, The [Your Company/Platform Name]
-            Team{" "}
+            If you didn't sign up for Point and Perks, please disregard this
+            email. Thank you, The Perks and Points Team{" "}
           </Text>
         </Container>{" "}
       </Body>
