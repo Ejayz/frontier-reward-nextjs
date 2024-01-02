@@ -31,7 +31,7 @@ export default function Page() {
           <div className="card-body">
             {isLoading || isFetching ? (
               <>
-                <h2 className="card-title">Sending Email...</h2>
+                <h2 className="card-title">Sending Email ...</h2>
                 <p>
                   Please wait while we send the confirmation email. The
                   confirmation email will be valid for 15 minutes. You can
@@ -40,7 +40,7 @@ export default function Page() {
               </>
             ) : (
               <>
-                <h2 className="card-title">Confirm Email!</h2>
+                <h2 className="card-title">Confirmation Email Sent !</h2>
                 <p>
                   A confirmation email has been sent. Please check the email
                   address associated with your account. If you can't find it,

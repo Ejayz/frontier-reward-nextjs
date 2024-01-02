@@ -36,7 +36,7 @@ model campaign {
   removed_at                  DateTime?                     @db.Timestamp(0)
   is_exist                    Int?                          @default(1) @db.TinyInt
   employee_info               employee_info?                @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "campaign_ibfk_1")
-  Renamedpackage              Renamedpackage?               @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "campaign_ibfk_2")
+  Renamedpackage              packages?                     @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "campaign_ibfk_2")
   campaign_action_reward_list campaign_action_reward_list[]
   campaign_transaction        campaign_transaction[]
 
@@ -141,7 +141,7 @@ model customer_info {
   users                    users                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_1")
   customer_address         customer_address       @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_2")
   customer_vehicle_info    customer_vehicle_info  @relation(fields: [customer_vehicle_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_3")
-  Renamedpackage           Renamedpackage         @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_4")
+  Renamedpackage           packages               @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_4")
   employee_info            employee_info          @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_5")
   redeem_transaction       redeem_transaction[]
 
@@ -189,32 +189,14 @@ model employee_info {
   @@index([user_id], map: "user_id")
 }
 
-/// This model has been renamed to 'Renamedpackage' during introspection, because the original name 'package' is reserved.
-model Renamedpackage {
-  id                  Int                   @id @default(autoincrement())
-  name                String?               @db.VarChar(50)
-  description         String?               @db.VarChar(250)
-  multiplier          Float?                @db.Float
-  created_at          DateTime?             @default(now()) @db.Timestamp(0)
-  updated_at          DateTime?             @db.Timestamp(0)
-  removed_at          DateTime?             @db.Timestamp(0)
-  is_exist            Int?                  @db.TinyInt
-  campaign            campaign[]
-  customer_info       customer_info[]
-  package_reward_list package_reward_list[]
-  redeem              redeem[]
-
-  @@map("package")
-}
-
 model package_reward_list {
-  id             Int             @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   reward_id      Int?
-  created_at     DateTime?       @default(now()) @db.Timestamp(0)
-  updated_at     DateTime?       @db.Timestamp(0)
-  removed_at     DateTime?       @db.Timestamp(0)
-  is_exist       Int?            @default(1) @db.TinyInt
-  Renamedpackage Renamedpackage? @relation(fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "package_reward_list_ibfk_1")
+  created_at     DateTime? @default(now()) @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  removed_at     DateTime? @db.Timestamp(0)
+  is_exist       Int?      @default(1) @db.TinyInt
+  Renamedpackage packages? @relation(fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "package_reward_list_ibfk_1")
 
   @@index([reward_id], map: "reward_id")
 }
@@ -232,7 +214,7 @@ model redeem {
   is_exist           Int?                 @default(1) @db.TinyInt
   employee_info      employee_info?       @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_1")
   reward             reward?              @relation(fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_2")
-  Renamedpackage     Renamedpackage?      @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_3")
+  Renamedpackage     packages?            @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_3")
   redeem_transaction redeem_transaction[]
 
   @@index([employee_id], map: "employee_id")
@@ -315,9 +297,25 @@ model users {
   deleted_at                           DateTime?       @db.Timestamp(0)
   removed_at                           DateTime?       @db.Timestamp(0)
   is_exist                             Int?            @default(1) @db.TinyInt
+  password_change_at                   DateTime?       @db.Timestamp(0)
   customer_info                        customer_info[]
   employee_info                        employee_info[]
   user_type_users_user_typeTouser_type user_type       @relation("users_user_typeTouser_type", fields: [user_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_1")
 
   @@index([user_type], map: "user_type")
+}
+
+model packages {
+  id                  Int                   @id @default(autoincrement())
+  name                String?               @db.VarChar(50)
+  description         String?               @db.VarChar(250)
+  multiplier          Float?                @db.Float
+  created_at          DateTime?             @default(now()) @db.Timestamp(0)
+  updated_at          DateTime?             @db.Timestamp(0)
+  removed_at          DateTime?             @db.Timestamp(0)
+  is_exist            Int?                  @db.TinyInt
+  campaign            campaign[]
+  customer_info       customer_info[]
+  package_reward_list package_reward_list[]
+  redeem              redeem[]
 }
