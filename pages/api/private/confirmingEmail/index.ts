@@ -42,14 +42,50 @@ export default async function handler(
           employee_info: true,
         },
       });
-
+      console.log(user)
       let token;
-      if (
-        user?.code == "(NULL)" ||
-        user?.code != undefined ||
-        user?.code != null
-      ) {
-        token = jwt.sign(
+      if(user?.code=="(NULL)"  || user?.code==undefined || user?.code==null){
+        token=jwt.sign(
+          {
+            id: user?.id,
+            role: user?.user_type,
+            role_name: user?.user_type_users_user_typeTouser_type.name,
+            main_id:
+              user?.employee_info.length||0 > 0
+                ? user?.employee_info[0].id
+                : user?.customer_info[0].id,
+            is_employee: user?.employee_info.length ||0> 0 ? true : false,
+            is_email_verified: user?.email_verified_at ? true : false,
+            code:user?.code
+          },
+          JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        )
+   }else if( user.password_change_at==undefined || user.password_change_at==null){
+     token=jwt.sign(
+        {
+          id: user.id,
+          role: user.user_type,
+          role_name: user.user_type_users_user_typeTouser_type.name,
+          main_id:
+            user.employee_info.length > 0
+              ? user.employee_info[0].id
+              : user.customer_info[0].id,
+          is_employee: user.employee_info.length > 0 ? true : false,
+          is_email_verified: user.email_verified_at ? true : false,
+          code:user.code,
+          password_change_at:false
+        },
+        JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      )
+      }else{
+      
+        token=jwt.sign(
           {
             id: user.id,
             role: user.user_type,
@@ -65,31 +101,13 @@ export default async function handler(
           {
             expiresIn: "1h",
           }
-        );
-      } else {
-        token = jwt.sign(
-          {
-            id: user?.id,
-            role: user?.user_type,
-            role_name: user?.user_type_users_user_typeTouser_type.name,
-            main_id:
-              user?.employee_info.length || 0 > 0
-                ? user?.employee_info[0].id
-                : user?.customer_info[0].id,
-            is_employee: user?.employee_info.length || 0 > 0 ? true : false,
-            is_email_verified: user?.email_verified_at ? true : false,
-            code: user?.code,
-          },
-          JWT_SECRET,
-          {
-            expiresIn: "1h",
-          }
-        );
+        )
       }
+      console.log(token)
       return res
-        .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
+      .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
         .status(200)
-        .json({ code: 200, message: "Email Verified" });
+        .json({ code: 200, message: "Email Verified","passwordToken":token });
     }
   } catch (error: any) {
     console.log(error);

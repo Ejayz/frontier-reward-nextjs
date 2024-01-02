@@ -9,6 +9,9 @@ import { useEffect } from "react";
 import { Form, Formik } from "formik";
 import NormalInput from "@/components/NormalInput";
 import NormalInputShowPassword from "@/components/NormalInputShowPassword";
+import { toast } from "react-toastify";
+import LabeledInput from "@/components/LabeledInput";
+import LabeledInputShowPassword from "@/components/LabeledInputShowPassword";
 export default function Page() {
   const param = useSearchParams() as URLSearchParams;
   const SignupValidation = Yup.object().shape({
@@ -27,6 +30,30 @@ export default function Page() {
       .oneOf([Yup.ref("password")], "Passwords must match")
       .required("Repeat Password is required"),
   });
+
+  const updatePassword = async (values: any) => {
+    const body = JSON.stringify({ password: values.password });
+    const response = await fetch("/api/private/newaccountpasswordsetup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body,
+    });
+    const data = await response.json();
+    if (data.code == 200) {
+      toast.success(data.message);
+      setTimeout(() => {
+        open("/", "_blank");
+        setTimeout(() => {
+          window.close();
+        }, 200);
+      }, 1000);
+    } else {
+      toast.error(data.message);
+    }
+  };
+
   return (
     <div className="login-page">
       <NavBarGeneral />
@@ -41,21 +68,25 @@ export default function Page() {
               You need to change your password.
             </p>
             <Formik
+              validateOnBlur={true}
+              validateOnChange={true}
+              validateOnMount={true}
               initialValues={{
                 password: "",
                 confirmPassword: "",
               }}
               validationSchema={SignupValidation}
               onSubmit={(values) => {
-                console.log(values);
+                updatePassword(values);
               }}
             >
               {({ errors, touched }) => (
                 <Form className="card-body">
                   <div className="form-control">
-                    <NormalInput
+                    <LabeledInput
                       field_name="password"
                       type="password"
+                      label="Password"
                       placeholder="New Password"
                       className="input input-bordered text-black text-base text-center"
                       errors={errors.password}
@@ -64,9 +95,10 @@ export default function Page() {
                     />
                   </div>
                   <div className="form-control">
-                    <NormalInputShowPassword
+                    <LabeledInputShowPassword
                       field_name="confirmPassword"
                       type="password"
+                      label="Confirm Password"
                       placeholder="Confirm Password"
                       className="input input-bordered text-black text-base text-center"
                       errors={errors.confirmPassword}

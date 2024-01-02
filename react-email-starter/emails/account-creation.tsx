@@ -18,7 +18,7 @@ interface EmailTemplateProps {
   email: string;
   base_url: string;
 }
-const baseUrl = "https://sledgehammerdevelopmentteam.uk";
+const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
 
 const EmailTemplate = ({
   first_name = "April Jude",
@@ -126,7 +126,8 @@ const EmailTemplate = ({
           </Text>
           <Text className={"text-sm font-sans"}>
             Do not reply to this email. This mailbox is not monitored and you
-            will not receive a response. For assistance , use the above contact information.
+            will not receive a response. For assistance , use the above contact
+            information.
           </Text>
         </Container>{" "}
       </Body>

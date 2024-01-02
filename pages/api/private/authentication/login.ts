@@ -66,7 +66,7 @@ export default async function handler(
           expiresIn: "1h",
         }
       )
- }else if( user.password_change_at!=undefined || user.password_change_at!=null){
+ }else if( user.password_change_at==undefined || user.password_change_at==null){
    token=jwt.sign(
       {
         id: user.id,
@@ -79,7 +79,7 @@ export default async function handler(
         is_employee: user.employee_info.length > 0 ? true : false,
         is_email_verified: user.email_verified_at ? true : false,
         code:user.code,
-
+        password_change_at:false
       },
       jwt_secret,
       {
