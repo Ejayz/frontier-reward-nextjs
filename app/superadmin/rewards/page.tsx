@@ -178,13 +178,13 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">Add Action</h3>
-            {isLoadingRewardTypePagination ? (
+            {/* {isLoadingRewardTypePagination ? (
     <p>Loading...</p>
-  ) : (
+  ) : ( */}
           <Formik
                 initialValues={{
                   quantity: "",
-                  
+                  type: "",
                   name: "",
                   description: "",
                   created_at: new Date().toISOString(),
@@ -294,7 +294,7 @@ export default function Page() {
                   </Form>
                 )}
               </Formik>
-    )}
+    {/* )} */}
 
   </div>
 </div>

@@ -17,9 +17,9 @@ export default async function handler(
     const reqQuery = parseInt(req.query.page as string) || 1;
     const skip = (reqQuery - 1) * 10;
     const take = 10;
-    const transactions = await prisma.campaigns.findMany({
+    const transactions = await prisma.campaign.findMany({
       where: {
-        is_exist: true,
+        is_exist: 1,
       },
       select: {
         id: true,

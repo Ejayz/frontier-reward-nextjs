@@ -12,24 +12,22 @@ import {
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
 
-type actionslist = {
+interface Element {
+  id: number;
   name: string;
   description: string;
   created_at: string;
   updated_at: string;
-};
-type formValues = {
-  name: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-  is_exist: boolean;
-};
+  // Add other properties as needed
+}
 export default function Page() {
+
+
   const myDiv = document.getElementById("mydiv");
 
   const [processing, setProcessing] = useState(false);
   const createActionRef = useRef<FormikProps<any>>(null);
+  const editActionRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -116,7 +114,7 @@ export default function Page() {
 
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
-
+  const [editingElement, setEditingElement] = useState<Element | null>(null);
   const actionValidation = yup.object().shape({
     name: yup
       .string()
@@ -125,6 +123,14 @@ export default function Page() {
       .string()
       .required("Description is required"),
   });
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [editingElementData, setEditingElementData] = useState<Element | null>(null);
+  const handleEditClick = (rowData: Element) => {
+    console.log('Edit clicked for row:', rowData);
+    setEditingElementData(rowData);
+    console.log("editingdata",editingElementData);
+    setEditModalOpen(true);
+  };
 
   return (
     <div className="pl-10">
@@ -247,6 +253,121 @@ export default function Page() {
         </div>
       </div>
 
+      <input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+    
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_7"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Edit Action</h3>
+          <Formik
+             initialValues={{
+              name: editingElementData?.name,
+              description: editingElementData?.description,
+              created_at: editingElementData?.created_at || new Date().toISOString(),
+              updated_at: editingElementData?.updated_at || new Date().toISOString(),
+            }}
+            ref={editActionRef}
+            validationSchema={actionValidation}
+            onSubmit={async (values, { resetForm }) => {
+              console.log("Form submitted with values:", values);
+              setProcessing(true);
+              resetForm();
+              let bodyContent = JSON.stringify({
+                name: values.name,
+                description: values.description,
+                created_at: values.created_at,
+                updated_at: values.updated_at,
+              });
+              createActionMutation.mutate(bodyContent);
+            }}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div className="form-control bg-white">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+        type="text"
+        placeholder="Enter Action Name"
+        className="input input-bordered"
+        name="name"
+      />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
+                </div>
+                <div className="m-8 " style={{ marginTop: 60 }}>
+                  <div className="absolute bottom-6 right-6">
+                    <label
+                      htmlFor="my_modal_7"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+
+
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -275,7 +396,8 @@ export default function Page() {
                     
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <button className="btn btn-sm btn-info mr-2">
+                        <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
+                         onClick={() => handleEditClick(element)}>
                           <img
                             src="../icons/editicon.svg"
                             width={20}
@@ -283,7 +405,7 @@ export default function Page() {
                             alt="Edit Icon"
                           />
                           Edit
-                        </button>
+                        </label>
                         <button className="btn btn-sm btn-error">
                           <img
                             src="../icons/deleteicon.svg"

@@ -67,9 +67,9 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <Link className="text-2xl font-bold" href={"/users"}>
+          <Link className="text-2xl font-bold" href={"/superadmin/users"}>
             <img
-              src="/superadmin/icons/users.svg"
+              src="/icons/users.svg"
               className="mr-2"
               alt=""
               width={30}

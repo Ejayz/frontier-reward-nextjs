@@ -37,7 +37,7 @@ export default async function handler(
           name,
           description,
           quantity,
-          reward_type,
+          //reward_type,
           employee_id : current_user,
           created_at,
           updated_at,

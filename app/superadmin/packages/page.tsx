@@ -40,7 +40,7 @@ export default function Page() {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
-      let response = await fetch(`/api/private/getRewards/`, {
+      let response = await fetch(`/api/private/getPackages/`, {
         method: "GET",
         headers: headersList,
       });
@@ -68,7 +68,7 @@ export default function Page() {
         "Content-Type": "application/json",
       };
 
-      let response = await fetch(`/api/private/createCampaigns/`, {
+      let response = await fetch(`/api/private/createPackage/`, {
         method: "POST",
         body: values,
         headers: headersList,
@@ -110,12 +110,13 @@ export default function Page() {
   const campaignValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
+    multiplier: yup.number().required("Multiplier is required"),
 
   });
 
   return (
     <div className="pl-10">
-     <label htmlFor="my_modal_6" className="btn btn-primary ">Add Campaign</label>
+     <label htmlFor="my_modal_6" className="btn btn-primary ">Add Package</label>
      <input type="checkbox" id="my_modal_6" className="modal-toggle"    
      checked={isModalOpen}
         onChange={() => setModalOpen(!isModalOpen)} />
@@ -125,41 +126,31 @@ export default function Page() {
   <label htmlFor="my_modal_6"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
           
   </form>
-  <h3 className="font-bold text-lg">Add Campaign</h3>
-  <Formik
-  initialValues={
-    {
-      name: "",
-      description: "",
-      start_date: "",
-      end_date:"",
-      is_exist: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      deleted_at: new Date().toISOString(),
-
+  <h3 className="font-bold text-lg">Add Package</h3>
+    <Formik
+    initialValues={
+      {
+        name: "",
+        description: "",
+        multiplier: "",
+        created_at: new Date().toISOString(),
+      }
     }
-  }
-  ref={createCampaignRef}
-  validationSchema={campaignValidation}
-  onSubmit={async (values, { resetForm }) => {
-    console.log("Form submitted with values:", values);
-    setProcessing(true);
-    resetForm();
-    values.start_date = new Date(values.start_date).toISOString();
-    values.end_date = new Date(values.end_date).toISOString();
-    let bodyContent = JSON.stringify({
-      name: values.name,
-      description: values.description,
-      start_date: values.start_date,
-      end_date: values.end_date,
-      created_at: values.created_at,
-      updated_at: values.updated_at,
-      deleted_at: values.deleted_at,
-      is_exist: values.is_exist,
-    });
-    createCampaignMutation.mutate(bodyContent);
-  }}
+    ref={createCampaignRef}
+    validationSchema={campaignValidation}
+    onSubmit={async (values, { resetForm }) => {
+      console.log("Form submitted with values:", values);
+      setProcessing(true);
+      resetForm();
+const multiplierTofloat = parseFloat(values.multiplier);
+      let bodyContent = JSON.stringify({
+        name: values.name,
+        description: values.description,
+        multiplier: multiplierTofloat,
+        created_at: values.created_at,
+      });
+      createCampaignMutation.mutate(bodyContent);
+    }}
   >{({ errors, touched }) => (
     <Form>
           <div className="form-control bg-white">
@@ -169,7 +160,7 @@ export default function Page() {
             </label>
             <Field
               type="text"
-              placeholder="Enter Campaign Name"
+              placeholder="Enter Package Name"
               className="input input-bordered"
               name="name"
             /> 
@@ -187,11 +178,29 @@ export default function Page() {
             </label>
             <Field
               type="text"
-              placeholder="Enter Campaign Description"
+              placeholder="Enter Package Description"
               className="input input-bordered"
               name="description"
             /> 
              <ErrorMessage name="description" className="flex">
+      {(msg) => (
+        <div className="text-red-600 flex">
+          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+          {msg}
+        </div>
+      )}
+    </ErrorMessage>
+
+    <label className="label">
+              <span className="label-text text-base font-semibold">Multiplier</span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Multiplier"
+              className="input input-bordered"
+              name="multiplier"
+            /> 
+             <ErrorMessage name="multiplier" className="flex">
       {(msg) => (
         <div className="text-red-600 flex">
           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
@@ -205,7 +214,7 @@ export default function Page() {
             </label>
             <Field
               type="date"
-              placeholder="Enter Campaign Start Date"
+              placeholder="Enter Package Start Date"
               className="input input-bordered"
               name="start_date"
             
@@ -223,7 +232,7 @@ export default function Page() {
             </label>
             <Field
               type="date"
-              placeholder="Enter Campaign End Date"
+              placeholder="Enter Package End Date"
               className="input input-bordered"
               name="end_date"
             /> 
@@ -263,8 +272,7 @@ export default function Page() {
             <tr className="rounded-lg">
             <th>Name</th>
               <th>Description</th>
-              <th>Start Date</th>
-              <th>End Date</th>
+              <th>Multiplier</th>
               <th>Created</th>
               <th>Updated</th>
               <th>Actions</th>
@@ -281,22 +289,13 @@ export default function Page() {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td>{new Date(element.start_date).toLocaleDateString()}</td>
-<td>{new Date(element.end_date).toLocaleDateString()}</td>
+                    <td>{element.multiplier}</td>
 <td>{new Date(element.created_at).toLocaleDateString()}</td>
 <td>{new Date(element.updated_at).toLocaleDateString()}</td>
                     
                     <td className="flex">
                       <div className="flex mx-auto">
-                      <button className="btn btn-sm btn-accent mr-2">
-                          <img
-                            src="../icons/addrewards.svg"
-                            width={20}
-                            height={20}
-                            alt="Edit Icon"
-                          />
-                          Reward
-                        </button>
+                   
                         <button className="btn btn-sm btn-info mr-2">
                           <img
                             src="../icons/editicon.svg"

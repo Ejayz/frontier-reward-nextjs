@@ -32,20 +32,16 @@ export default async function handler(
       console.error("Invalid token format");
     }
 
-    const { name, description,start_date,end_date,status, package_id,employee_id, created_at, updated_at,removed_at, is_exist } = req.body;
+    const { name, description,multiplier, created_at, updated_at,removed_at, is_exist } = req.body;
     try {
-      const createAction = await prisma.campaign.create({
+      const createAction = await prisma.packages.create({
         data: {
           name,
           description,
-          start_date,
-          end_date,
-          status,
-          package_id,
+          multiplier,
           created_at,
           updated_at,
           removed_at,
-          employee_id : current_user,
           is_exist:1,
         },
       });
