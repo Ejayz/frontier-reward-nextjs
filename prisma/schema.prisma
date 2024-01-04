@@ -122,47 +122,48 @@ model customer_address {
 }
 
 model customer_info {
-  id                       Int                    @id @default(autoincrement())
-  first_name               String                 @db.VarChar(50)
-  middle_name              String?                @db.VarChar(50)
-  last_name                String                 @db.VarChar(50)
-  suffix                   String?                @db.VarChar(50)
-  points                   Float                  @db.Float
-  user_id                  Int
-  address_id               Int
-  customer_vehicle_info_id Int
-  package_id               Int
-  employee_id              Int
-  created_at               DateTime?              @default(now()) @db.Timestamp(0)
-  updated_at               DateTime?              @db.Timestamp(0)
-  removed_at               DateTime?              @db.Timestamp(0)
-  is_exist                 Int?                   @db.TinyInt
-  campaign_transaction     campaign_transaction[]
-  users                    users                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_1")
-  customer_address         customer_address       @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_2")
-  customer_vehicle_info    customer_vehicle_info  @relation(fields: [customer_vehicle_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_3")
-  Renamedpackage           packages               @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_4")
-  employee_info            employee_info          @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_5")
-  redeem_transaction       redeem_transaction[]
+  id                    Int                     @id @default(autoincrement())
+  first_name            String                  @db.VarChar(50)
+  middle_name           String?                 @db.VarChar(50)
+  last_name             String                  @db.VarChar(50)
+  suffix                String?                 @db.VarChar(50)
+  points                Float                   @db.Float
+  user_id               Int
+  address_id            Int
+  package_id            Int
+  employee_id           Int
+  created_at            DateTime?               @default(now()) @db.Timestamp(0)
+  updated_at            DateTime?               @db.Timestamp(0)
+  removed_at            DateTime?               @db.Timestamp(0)
+  is_exist              Int?                    @db.TinyInt
+  campaign_transaction  campaign_transaction[]
+  users                 users                   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_1")
+  customer_address      customer_address        @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_2")
+  Renamedpackage        packages                @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_4")
+  employee_info         employee_info           @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_5")
+  customer_vehicle_info customer_vehicle_info[]
+  redeem_transaction    redeem_transaction[]
 
   @@index([address_id], map: "address_id")
-  @@index([customer_vehicle_info_id], map: "customer_vehicle_info_id")
   @@index([employee_id], map: "employee_id")
   @@index([package_id], map: "package_id")
   @@index([user_id], map: "user_id")
 }
 
 model customer_vehicle_info {
-  id            Int             @id @default(autoincrement())
-  vin_id        String          @db.Text
-  year          String          @db.VarChar(10)
-  trim          String          @db.VarChar(96)
-  color         String          @db.VarChar(50)
-  created_at    DateTime?       @default(now()) @db.Timestamp(0)
-  updated_at    DateTime?       @db.Timestamp(0)
-  removed_at    DateTime?       @db.Timestamp(0)
-  is_exist      Int?            @default(1) @db.TinyInt
-  customer_info customer_info[]
+  id            Int            @id @default(autoincrement())
+  customer_id   Int?
+  vin_id        String         @db.Text
+  year          String         @db.VarChar(10)
+  trim          String         @db.VarChar(96)
+  color         String         @db.VarChar(50)
+  created_at    DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?      @db.Timestamp(0)
+  removed_at    DateTime?      @db.Timestamp(0)
+  is_exist      Int?           @default(1) @db.TinyInt
+  customer_info customer_info? @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_id_fk")
+
+  @@index([customer_id], map: "customer_id")
 }
 
 model employee_info {

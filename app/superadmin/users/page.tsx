@@ -12,7 +12,6 @@ import * as yup from "yup";
 import "yup-phone-lite";
 type vehicleType = {
   table_uuid: string;
-  vehicle_id: string;
   year: string;
   model: string;
   trim: string;
@@ -893,7 +892,6 @@ export default function Page() {
     country: yup.string().required("Country is required"),
   });
   const vehicleSchema = yup.object().shape({
-    vehicle_id: yup.string().required("Vehicle ID is required"),
     year: yup
       .number()
       .min(1981, "Year must be 1981 or later")
@@ -1256,7 +1254,6 @@ export default function Page() {
                 <Formik
                   innerRef={VehicleDetail}
                   initialValues={{
-                    vehicle_id: "",
                     year: "",
                     model: "",
                     trim: "",
@@ -1266,15 +1263,12 @@ export default function Page() {
                   validationSchema={vehicleSchema}
                   onSubmit={async (values: any) => {
                     if (
-                      vehiclelist.find(
-                        (item) => item.vehicle_id === values.vehicle_id
-                      )
+                      vehiclelist.find((item) => item.vin_no === values.vin_no)
                     ) {
                       toast.error("Vehicle ID already exists in the list");
                     } else {
                       const formatted_values = {
                         table_uuid: Math.random().toString(36).substring(7),
-                        vehicle_id: values.vehicle_id,
                         year: values.year,
                         model: values.model,
                         trim: values.trim,
@@ -1293,14 +1287,14 @@ export default function Page() {
                     <Form>
                       <div className="grid grid-cols-3 gap-x-2">
                         <LabeledInput
-                          field_name="vehicle_id"
+                          field_name="vin_no"
                           type="text"
-                          placeholder="Enter Vehicle ID"
+                          placeholder="Enter Vehicle VIN No"
                           className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.vehicle_id}
-                          touched={touched.vehicle_id}
+                          errors={errors.vin_no}
+                          touched={touched.vin_no}
                           classes="text-base"
-                          label="Vehicle ID"
+                          label="Vehicle VIN No"
                         />
 
                         <LabeledInput
@@ -1343,16 +1337,6 @@ export default function Page() {
                           classes="text-base"
                           label="Vehicle Color"
                         />
-                        <LabeledInput
-                          field_name="vin_no"
-                          type="text"
-                          placeholder="Enter Vehicle VIN No"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.vin_no}
-                          touched={touched.vin_no}
-                          classes="text-base"
-                          label="Vehicle VIN No"
-                        />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
                       <button className="btn btn-primary mt-4">
@@ -1362,31 +1346,29 @@ export default function Page() {
                       <table className="table mt-4">
                         <thead>
                           <tr>
-                            <th>Vehicle ID</th>
+                            <th>VIN No</th>
                             <th>Year</th>
                             <th>Model</th>
                             <th>Trim</th>
                             <th>Color</th>
-                            <th>VIN No</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {vehiclelist.map((vehicle) => (
                             <tr key={vehicle.table_uuid}>
-                              <td>{vehicle.vehicle_id}</td>
+                              <td>{vehicle.vin_no}</td>
                               <td>{vehicle.year}</td>
                               <td>{vehicle.model}</td>
                               <td>{vehicle.trim}</td>
                               <td>{vehicle.color}</td>
-                              <td>{vehicle.vin_no}</td>
                               <td>
                                 <button
                                   type="button"
                                   className="btn btn-sm btn-error"
                                   onClick={() => {
                                     setDataToRemove({
-                                      id: vehicle.vehicle_id,
+                                      id: vehicle.vin_no,
                                       table_uuid: vehicle.table_uuid,
                                     });
                                     confirmModal.current?.showModal();

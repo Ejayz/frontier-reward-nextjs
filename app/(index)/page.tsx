@@ -113,7 +113,7 @@ export default function Page() {
                     />
                     <label className="label">
                       <a
-                        href="/forgot_password"
+                        href="/forgotpassword"
                         className="label-text-alt link link-hover"
                       >
                         Forgot password?

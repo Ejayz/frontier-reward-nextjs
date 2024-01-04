@@ -18,7 +18,7 @@ export default async function handler(
   try {
     const verify = await jwt.verify(auth, JWT_SECRET);
     const packagesList = await prisma.packages.findMany({
-      where: { is_exist: true },
+      where: { is_exist: 1 },
       select: {
         id: true,
         name: true,

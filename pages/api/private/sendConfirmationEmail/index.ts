@@ -72,7 +72,7 @@ const transactionResult=await prisma.$transaction(async (tx)=>{
 })
 
     const {data,error}=await resend.emails.send({
-      from:"noreply@pointandperks <noreply@sledgedevsteam.lol>",
+      from:"noreply@pointandperks <noreply@sledgehammerdevelopmentteam.uk>",
       to:[email],
       subject:"Confirm Email",
       react:ConfirmEmail({

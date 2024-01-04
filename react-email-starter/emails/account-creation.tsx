@@ -20,11 +20,11 @@ interface EmailTemplateProps {
 }
 const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
 
-const EmailTemplate = ({
-  first_name = "April Jude",
-  last_name = "Provido",
-  password = "12345678",
-  email = "jude.thedreamteam@gmail.com",
+const AccountCreation = ({
+  first_name = "",
+  last_name = "",
+  password = "",
+  email = "",
   base_url = "https://pointsandperks.com",
 }) => (
   <Html>
@@ -135,7 +135,7 @@ const EmailTemplate = ({
   </Html>
 );
 
-export default EmailTemplate;
+export default AccountCreation;
 
 const main = {
   backgroundColor: "#ffffff",

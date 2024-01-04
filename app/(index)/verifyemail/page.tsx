@@ -43,8 +43,8 @@ export default function Page() {
                 <h2 className="card-title">Confirmation Email Sent !</h2>
                 <p>
                   A confirmation email has been sent. Please check the email
-                  address associated with your account. If you can't find it,
-                  please check your spam folder. You may now close this tab.
+                  address associated with your account. If you can`&apos;`t find
+                  it, please check your spam folder. You may now close this tab.
                 </p>
               </>
             )}
