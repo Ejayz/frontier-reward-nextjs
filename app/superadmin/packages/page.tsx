@@ -6,21 +6,17 @@ import { useToast } from "@/hooks/useToast";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { start } from "repl";
 
-type packages = {
+type Element = {
   name: string;
   description: string;
   multiplier: number;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string;
-  is_exist: boolean;
 };
 
 export default function Page() {
   const myDiv = document.getElementById("mydiv");
 
   const [processing, setProcessing] = useState(false);
-  const createCampaignRef = useRef<FormikProps<any>>(null);
+  const createPackageRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -90,7 +86,7 @@ export default function Page() {
       
       RefetchCampaignPagination();
       setProcessing(false);
-      createCampaignRef.current?.resetForm();
+      createPackageRef.current?.resetForm();
       setModalOpen(false);
     },
     onError: async (error: any) => {
@@ -114,6 +110,45 @@ export default function Page() {
 
   });
 
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+
+  // ... other functions ...
+  const initialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : '',
+    description: rowDataToEdit ? rowDataToEdit.description : '',
+    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : '',
+    // ... add other fields as needed ...
+  };
+  const handleEditClick = (rowData: Element) => {
+    console.log('Edit clicked for row:', rowData);
+    setRowDataToEdit(rowData);
+    setEditModalOpen(true);
+  };
+
+  useEffect(() => {
+    console.log('Row data updated:', rowDataToEdit);
+    if (rowDataToEdit) {
+      createPackageRef.current?.setValues({
+        name: rowDataToEdit.name,
+        description: rowDataToEdit.description,
+        multiplier: rowDataToEdit.multiplier,
+        // ... add other fields as needed ...
+      });
+    }
+  }, [rowDataToEdit]);
+
+
+  const onSubmit = async (values: any) => {
+    console.log('Edit Form submitted with values:', values);
+    // Add logic to update the table or perform other actions
+    // ...
+    setEditModalOpen(false);
+  };
+
+
+
+
   return (
     <div className="pl-10">
      <label htmlFor="my_modal_6" className="btn btn-primary ">Add Package</label>
@@ -136,7 +171,7 @@ export default function Page() {
         created_at: new Date().toISOString(),
       }
     }
-    ref={createCampaignRef}
+    ref={createPackageRef}
     validationSchema={campaignValidation}
     onSubmit={async (values, { resetForm }) => {
       console.log("Form submitted with values:", values);
@@ -208,42 +243,7 @@ const multiplierTofloat = parseFloat(values.multiplier);
         </div>
       )}
     </ErrorMessage>
-        {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-<label className="label">
-              <span className="label-text text-base font-semibold">Start Date</span>
-            </label>
-            <Field
-              type="date"
-              placeholder="Enter Package Start Date"
-              className="input input-bordered"
-              name="start_date"
-            
-            /> 
-             <ErrorMessage name="start_date" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-          </div>
-      )}
-    </ErrorMessage>
-<label className="label">
-              <span className="label-text text-base font-semibold">End Date</span>
-            </label>
-            <Field
-              type="date"
-              placeholder="Enter Package End Date"
-              className="input input-bordered"
-              name="end_date"
-            /> 
-             <ErrorMessage name="end_date" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-          </div>
-      )}
-    </ErrorMessage>
+
           </div>         
           <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
@@ -265,6 +265,102 @@ const multiplierTofloat = parseFloat(values.multiplier);
   </div>
 </div>
 
+
+<input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+    
+      />
+<div className="modal" role="dialog">
+  <div className="modal-box">
+  <form method="dialog">
+  <label htmlFor="my_modal_7"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
+          
+  </form>
+  <h3 className="font-bold text-lg">Add Package</h3>
+    <Formik
+    initialValues={initialValues}
+    enableReinitialize={true}
+    onSubmit={onSubmit}
+  >{({ errors, touched }) => (
+    <Form>
+          <div className="form-control bg-white">
+         
+<label className="label">
+              <span className="label-text text-base font-semibold">Name</span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Name"
+              className="input input-bordered"
+              name="name"
+            /> 
+             <ErrorMessage name="name" className="flex">
+      {(msg) => (
+        <div className="text-red-600 flex">
+          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+          {msg}
+        </div>
+      )}
+    </ErrorMessage>
+
+<label className="label">
+              <span className="label-text text-base font-semibold">Description</span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Description"
+              className="input input-bordered"
+              name="description"
+            /> 
+             <ErrorMessage name="description" className="flex">
+      {(msg) => (
+        <div className="text-red-600 flex">
+          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+          {msg}
+        </div>
+      )}
+    </ErrorMessage>
+
+    <label className="label">
+              <span className="label-text text-base font-semibold">Multiplier</span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Multiplier"
+              className="input input-bordered"
+              name="multiplier"
+            /> 
+             <ErrorMessage name="multiplier" className="flex">
+      {(msg) => (
+        <div className="text-red-600 flex">
+          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
+          {msg}
+        </div>
+      )}
+    </ErrorMessage>
+
+          </div>         
+          <div className="m-8 " style={{ marginTop: 60 }}>
+                  <div className="absolute bottom-6 right-6">
+                    <label
+                      htmlFor="my_modal_7"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+          </Form>
+  )}
+          </Formik>
+
+  </div>
+</div>
       <div className="overflow-x-auto mt-5 text-black">
       <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -296,7 +392,8 @@ const multiplierTofloat = parseFloat(values.multiplier);
                     <td className="flex">
                       <div className="flex mx-auto">
                    
-                        <button className="btn btn-sm btn-info mr-2">
+                      <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
+                         onClick={() => handleEditClick(element)}>
                           <img
                             src="../icons/editicon.svg"
                             width={20}
@@ -304,7 +401,7 @@ const multiplierTofloat = parseFloat(values.multiplier);
                             alt="Edit Icon"
                           />
                           Edit
-                        </button>
+                        </label>
                         <button className="btn btn-sm btn-error">
                           <img
                             src="../icons/deleteicon.svg"

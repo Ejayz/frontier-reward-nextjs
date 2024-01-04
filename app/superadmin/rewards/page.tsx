@@ -154,6 +154,41 @@ export default function Page() {
     description: yup.string().required("Description is required"),
   });
 
+
+   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+
+  // ... other functions ...
+  const initialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : '',
+    description: rowDataToEdit ? rowDataToEdit.description : '',
+    // ... add other fields as needed ...
+  };
+  const handleEditClick = (rowData: Element) => {
+    console.log('Edit clicked for row:', rowData);
+    setRowDataToEdit(rowData);
+    setEditModalOpen(true);
+  };
+
+  useEffect(() => {
+    console.log('Row data updated:', rowDataToEdit);
+    if (rowDataToEdit) {
+      createActionRef.current?.setValues({
+        name: rowDataToEdit.name,
+        description: rowDataToEdit.description,
+        // ... add other fields as needed ...
+      });
+    }
+  }, [rowDataToEdit]);
+
+
+  const onSubmit = async (values: any) => {
+    console.log('Edit Form submitted with values:', values);
+    // Add logic to update the table or perform other actions
+    // ...
+    setEditModalOpen(false);
+  };
+
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">

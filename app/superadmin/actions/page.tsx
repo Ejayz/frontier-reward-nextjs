@@ -12,12 +12,10 @@ import {
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
 
-interface Element {
+type Element ={
   id: number;
   name: string;
   description: string;
-  created_at: string;
-  updated_at: string;
   // Add other properties as needed
 }
 export default function Page() {
@@ -114,7 +112,6 @@ export default function Page() {
 
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [editingElement, setEditingElement] = useState<Element | null>(null);
   const actionValidation = yup.object().shape({
     name: yup
       .string()
@@ -124,13 +121,40 @@ export default function Page() {
       .required("Description is required"),
   });
   const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [editingElementData, setEditingElementData] = useState<Element | null>(null);
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+
+  // ... other functions ...
+  const initialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : '',
+    description: rowDataToEdit ? rowDataToEdit.description : '',
+    // ... add other fields as needed ...
+  };
   const handleEditClick = (rowData: Element) => {
     console.log('Edit clicked for row:', rowData);
-    setEditingElementData(rowData);
-    console.log("editingdata",editingElementData);
+    setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
+
+  useEffect(() => {
+    console.log('Row data updated:', rowDataToEdit);
+    if (rowDataToEdit) {
+      createActionRef.current?.setValues({
+        name: rowDataToEdit.name,
+        description: rowDataToEdit.description,
+        // ... add other fields as needed ...
+      });
+    }
+  }, [rowDataToEdit]);
+
+
+  const onSubmit = async (values: any) => {
+    console.log('Edit Form submitted with values:', values);
+    // Add logic to update the table or perform other actions
+    // ...
+    setEditModalOpen(false);
+  };
+
+
 
   return (
     <div className="pl-10">
@@ -270,100 +294,31 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">Edit Action</h3>
-          <Formik
-             initialValues={{
-              name: editingElementData?.name,
-              description: editingElementData?.description,
-              created_at: editingElementData?.created_at || new Date().toISOString(),
-              updated_at: editingElementData?.updated_at || new Date().toISOString(),
-            }}
-            ref={editActionRef}
-            validationSchema={actionValidation}
-            onSubmit={async (values, { resetForm }) => {
-              console.log("Form submitted with values:", values);
-              setProcessing(true);
-              resetForm();
-              let bodyContent = JSON.stringify({
-                name: values.name,
-                description: values.description,
-                created_at: values.created_at,
-                updated_at: values.updated_at,
-              });
-              createActionMutation.mutate(bodyContent);
-            }}
-          >
-            {({ errors, touched }) => (
-              <Form>
-                <div className="form-control bg-white">
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Name
-                    </span>
-                  </label>
-                  <Field
-        type="text"
-        placeholder="Enter Action Name"
-        className="input input-bordered"
-        name="name"
-      />
-                  <ErrorMessage name="name" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <img
-                          src="../icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Description
-                    </span>
-                  </label>
-                  <Field
-                    type="text"
-                    placeholder="Enter Action Description"
-                    className="input input-bordered"
-                    name="description"
-                  />
-                  <ErrorMessage name="description" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <img
-                          src="../icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-                </div>
-                <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
-                    <label
-                      htmlFor="my_modal_7"
-                      className="btn btn-neutral mr-2"
-                    >
-                      Cancel
-                    </label>
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                  </div>
-                </div>
-              </Form>
-            )}
-          </Formik>
+          <Formik  initialValues={initialValues}
+  enableReinitialize={true}
+  onSubmit={onSubmit}>
+  <Form>
+    <div className="form-control bg-white">
+      <label className="label">
+        <span className="label-text text-base font-semibold">Name</span>
+      </label>
+      <Field type="text" placeholder="Enter Action Name" className="input input-bordered" name="name" />
+      {/* ... add other form fields as needed ... */}
+      <label className="label">
+        <span className="label-text text-base font-semibold">Description</span>
+      </label>
+      <Field type="text" placeholder="Enter Action Description" className="input input-bordered" name="description" />
+      {/* ... add other form fields as needed ... */}
+    </div>
+    <div className="m-8 " style={{ marginTop: 60 }}>
+      <div className="absolute bottom-6 right-6">
+        <button type="submit" className="btn btn-primary">
+          Submit
+        </button>
+      </div>
+    </div>
+  </Form>
+</Formik>
         </div>
       </div>
 
