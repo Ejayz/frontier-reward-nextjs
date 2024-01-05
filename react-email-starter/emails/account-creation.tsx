@@ -16,16 +16,15 @@ interface EmailTemplateProps {
   last_name: string;
   password: string;
   email: string;
-  base_url: string;
 }
 const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
-
+const baseUrl = "https://sledgehammerdevelopmentteam.uk";
 const AccountCreation = ({
   first_name = "",
   last_name = "",
   password = "",
   email = "",
-  base_url = "https://pointsandperks.com",
+  base_url = "",
 }) => (
   <Html>
     {" "}

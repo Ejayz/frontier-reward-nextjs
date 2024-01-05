@@ -4,14 +4,12 @@ import Cookies from "cookies";
 import * as jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { Resend } from "resend";
-import { EmailTemplate } from "../../../../components/UserAccountEmail";
 import * as generator from "generate-password";
 import * as bcrypt from "bcrypt";
 import AccountCreation from "@/react-email-starter/emails/account-creation";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_API = process.env.RESEND_SECRET || "";
-const BASE_URL = process.env.BASE_URL || "";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -19,7 +17,7 @@ export default async function handler(
   if (req.method != "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
-  console.log("req.body:", req.body);
+
   const {
     firstName,
     middleName,
@@ -44,15 +42,10 @@ export default async function handler(
     const verify = jwt.verify(auth, JWT_SECRET);
     let current_user = 0;
     if (typeof verify === "string") {
-      // Handle the case where verify is a string (no access to id)
       console.log("User is not authenticated");
     } else if (verify?.main_id) {
-      // Access the id property only if it exists in the JwtPayload
       current_user = verify.main_id;
-      console.log(`Current user ID: ${current_user}`);
     } else {
-      // Handle any other unexpected verification result
-      console.error("Invalid token format");
     }
     const password = generator.generate({
       length: 10,
@@ -61,52 +54,28 @@ export default async function handler(
       lowercase: true,
       symbols: true,
     });
-
-    console.log(
-      firstName,
-      middleName,
-      lastName,
-      phoneNumber,
-      email,
-      packageId,
-      vehicles,
-      country,
-      city,
-      zipCode,
-      address,
-      address2,
-      state_province,
-      points,
-     suffix
-    );
     const hashedPassword = await bcrypt.hash(password, 10);
-    const transaction = await prisma
+    const transact = await prisma
       .$transaction(async (tx) => {
-        console.log("Email", email);
         const getUsers = await tx.users.findMany({
           where: { email: email, is_exist: 1 },
         });
-        console.log("getUsers:", getUsers);
         if (getUsers.length > 0) {
           return res
             .status(400)
             .json({ code: 400, message: "Email already exist" });
         }
-        console.log("Checked getUsers lenght:", getUsers.length);
         for (const vehicle of vehicles) {
           const getvehicle = await tx.customer_vehicle_info.findMany({
             where: {  vin_id:vehicle.vin_no, is_exist: 1 },
           });
-          console.log(`Checking Vehicle ${vehicle.vehicle_id} :`, getvehicle);
           if (getvehicle.length > 0) {
             return res
               .status(400)
               .json({ code: "400", message: "Vehicle already exist" });
             break;
           }
-          console.log("Checked getvehicle lenght:", getvehicle.length);
         }
-
         const customer = await tx.users.create({
           data: {
            email: email,
@@ -116,10 +85,7 @@ export default async function handler(
             is_exist: 1,
           },
         });
-        console.log("customer INSERTED", customer);
-        const processedVehicles = await formatVehicle(vehicles, customer.id);
-        console.log("processedVehicles:", processedVehicles);
-      
+        const processedVehicles = await formatVehicle(vehicles, customer.id);      
         const customerAddress = await tx.customer_address.create({
           data: {
             country: country,
@@ -130,9 +96,6 @@ export default async function handler(
             state_province: state_province,
           },
         });
-
-     
-
        const creationOfUserInfo =   await tx.customer_info.create({
             data: {
               first_name: firstName,
@@ -146,7 +109,6 @@ export default async function handler(
              employee_id: current_user,
             },
           });
-  
           for (const vehicle of processedVehicles) {
           await tx.customer_vehicle_info.create({
             data: {
@@ -155,12 +117,13 @@ export default async function handler(
               trim: vehicle.trim,
               year:`${ vehicle.year}`,
               vin_id: vehicle.vin_no,
-
             },
           });
         }
-        console.log("Inserting ");
-        const data = await resend.emails.send({
+       
+       
+      })
+       const data = await resend.emails.send({
           from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
           to: [email],
           subject: "Welcome to Perks and Points",
@@ -173,15 +136,22 @@ export default async function handler(
           }),
           text: `Welcome to Perks and Points!`,
         });
-        return res.status(200).json({
-          code: 200,
-          message:
-            "Kindly remind the newly created account holder to check their email for login credentials.",
-        });
-      })
-      .then(console.log);
-    console.log("transactions:", transaction);
+        
+        if(data){
+          return res.status(200).json({
+            code: 200,
+            message:
+              "Kindly remind the newly created account holder to check their email for login credentials.",
+          });
+        }else{
+          return res.status(400).json({
+            code: 400,
+            message:
+              "Something went wrong. Please try again later.",
+          });
+        }
   } catch (error: any) {
+    console.log("error",error)
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ code: 401, message: "Token Expired" });
     } else if (error.name === "JsonWebTokenError") {
