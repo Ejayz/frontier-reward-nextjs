@@ -6,7 +6,7 @@ export default function AdminSideBar() {
     <div className="w-1/4 h-screen bg-white">
       <ul className="menu w-80 h-screen [&_li>*]:rounded-none fixed bg-white text-slate-950">
         <li className="bg-yellow-400">
-          <Link href={"dashboard"} className="text-2xl font-bold">
+          <Link href={"/superadmin/dashboard"} className="text-2xl font-bold">
             <img
               src="/icons/dashboard.svg"
               className="mr-2"
@@ -29,7 +29,6 @@ export default function AdminSideBar() {
             Actions
           </Link>
         </li>
-        
         <li>
           <Link href={"/superadmin/packages"} className="text-2xl font-bold">
             <img
@@ -79,7 +78,10 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <Link href={"/superadmin/transactions"} className="text-2xl font-bold">
+          <Link
+            href={"/superadmin/transactions"}
+            className="text-2xl font-bold"
+          >
             <img
               src="/icons/transactions.svg"
               className="mr-2"

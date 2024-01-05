@@ -12,7 +12,6 @@ import * as yup from "yup";
 import "yup-phone-lite";
 type vehicleType = {
   table_uuid: string;
-  vehicle_id: string;
   year: string;
   model: string;
   trim: string;
@@ -31,9 +30,14 @@ export default function Page() {
   const [userType, setUserType] = useState("");
   const modalForm = useRef<HTMLDialogElement>(null);
   const { showToast } = useToast();
+  const [showUsersType, setShowUsersType] = useState<string>("");
   const handleUserTypeChange = (event: any) => {
     setUserType(event.target.value);
   };
+  const handleShowUserType = (event: any) => {
+    setShowUsersType(event.target.value);
+  };
+
   const countries = [
     {
       value: "Afghanistan",
@@ -816,6 +820,7 @@ export default function Page() {
   const CustomerAccountDetail = useRef<FormikProps<any>>(null);
   const VehicleDetail = useRef<FormikProps<any>>(null);
   const notificationContainer = useRef<HTMLDivElement>(null);
+  const EmployeeForm = useRef<FormikProps<any>>(null);
   const [phoneInfo, setPhoneInfo] = useState<phoneType>({
     areaCodes: [
       204, 226, 236, 249, 250, 289, 306, 343, 365, 387, 403, 416, 418, 431, 437,
@@ -893,7 +898,6 @@ export default function Page() {
     country: yup.string().required("Country is required"),
   });
   const vehicleSchema = yup.object().shape({
-    vehicle_id: yup.string().required("Vehicle ID is required"),
     year: yup
       .number()
       .min(1981, "Year must be 1981 or later")
@@ -931,7 +935,40 @@ export default function Page() {
   const modalAddUser = useRef<HTMLInputElement>(null);
   const notifModal = useRef<HTMLDialogElement>(null);
   const AdminForm = useRef<FormikProps<any>>(null);
-
+  const CreateEmployeeMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch("/api/private/createEmployee", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        setCreateUserMessage(data.message);
+        notifModal.current?.showModal();
+        EmployeeForm.current?.resetForm();
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
   const CreateCustomerMutation = useMutation({
     mutationFn: async (values: any) => {
       console.log(values);
@@ -941,7 +978,7 @@ export default function Page() {
         "Content-Type": "application/json",
       };
 
-      let response = await fetch("/api/private/createCustomer/", {
+      let response = await fetch("/api/private/createCustomer", {
         method: "POST",
         body: JSON.stringify(values),
         headers: headersList,
@@ -1079,7 +1116,7 @@ export default function Page() {
             >
               <option value="">Select an option</option>
               <option value="Customer">Customer</option>
-              <option value="Admin">Admin</option>
+              <option value="employee">Employee</option>
             </select>
             {userType === "Customer" && (
               <>
@@ -1100,6 +1137,7 @@ export default function Page() {
                     state_province_region: "",
                     zip_code: "",
                     country: "",
+                    suffix: "",
                   }}
                   validationSchema={customerValidation}
                   onSubmit={(values: any) => {}}
@@ -1136,6 +1174,16 @@ export default function Page() {
                           touched={touched.last_name}
                           classes="text-base"
                           label="Last Name"
+                        />
+                        <LabeledInput
+                          field_name="suffix"
+                          type="text"
+                          placeholder="Suffix"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.suffix}
+                          touched={touched.suffix}
+                          classes="text-base"
+                          label="Suffix"
                         />
                         <LabeledInput
                           field_name="email"
@@ -1256,7 +1304,6 @@ export default function Page() {
                 <Formik
                   innerRef={VehicleDetail}
                   initialValues={{
-                    vehicle_id: "",
                     year: "",
                     model: "",
                     trim: "",
@@ -1266,15 +1313,12 @@ export default function Page() {
                   validationSchema={vehicleSchema}
                   onSubmit={async (values: any) => {
                     if (
-                      vehiclelist.find(
-                        (item) => item.vehicle_id === values.vehicle_id
-                      )
+                      vehiclelist.find((item) => item.vin_no === values.vin_no)
                     ) {
                       toast.error("Vehicle ID already exists in the list");
                     } else {
                       const formatted_values = {
                         table_uuid: Math.random().toString(36).substring(7),
-                        vehicle_id: values.vehicle_id,
                         year: values.year,
                         model: values.model,
                         trim: values.trim,
@@ -1293,14 +1337,14 @@ export default function Page() {
                     <Form>
                       <div className="grid grid-cols-3 gap-x-2">
                         <LabeledInput
-                          field_name="vehicle_id"
+                          field_name="vin_no"
                           type="text"
-                          placeholder="Enter Vehicle ID"
+                          placeholder="Enter Vehicle VIN No"
                           className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.vehicle_id}
-                          touched={touched.vehicle_id}
+                          errors={errors.vin_no}
+                          touched={touched.vin_no}
                           classes="text-base"
-                          label="Vehicle ID"
+                          label="Vehicle VIN No"
                         />
 
                         <LabeledInput
@@ -1343,16 +1387,6 @@ export default function Page() {
                           classes="text-base"
                           label="Vehicle Color"
                         />
-                        <LabeledInput
-                          field_name="vin_no"
-                          type="text"
-                          placeholder="Enter Vehicle VIN No"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.vin_no}
-                          touched={touched.vin_no}
-                          classes="text-base"
-                          label="Vehicle VIN No"
-                        />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
                       <button className="btn btn-primary mt-4">
@@ -1362,31 +1396,29 @@ export default function Page() {
                       <table className="table mt-4">
                         <thead>
                           <tr>
-                            <th>Vehicle ID</th>
+                            <th>VIN No</th>
                             <th>Year</th>
                             <th>Model</th>
                             <th>Trim</th>
                             <th>Color</th>
-                            <th>VIN No</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {vehiclelist.map((vehicle) => (
                             <tr key={vehicle.table_uuid}>
-                              <td>{vehicle.vehicle_id}</td>
+                              <td>{vehicle.vin_no}</td>
                               <td>{vehicle.year}</td>
                               <td>{vehicle.model}</td>
                               <td>{vehicle.trim}</td>
                               <td>{vehicle.color}</td>
-                              <td>{vehicle.vin_no}</td>
                               <td>
                                 <button
                                   type="button"
                                   className="btn btn-sm btn-error"
                                   onClick={() => {
                                     setDataToRemove({
-                                      id: vehicle.vehicle_id,
+                                      id: vehicle.vin_no,
                                       table_uuid: vehicle.table_uuid,
                                     });
                                     confirmModal.current?.showModal();
@@ -1435,6 +1467,7 @@ export default function Page() {
                             CustomerAccountDetail.current?.values
                               .state_province_region,
                           points: CustomerAccountDetail.current?.values.points,
+                          suffix: CustomerAccountDetail.current?.values.suffix,
                         };
 
                         CreateCustomerMutation.mutate(bodyContent);
@@ -1444,7 +1477,7 @@ export default function Page() {
                     }}
                     className="btn btn-info btn-md"
                   >
-                    Create User
+                    Create Customer
                   </button>{" "}
                   <button
                     onClick={() => {
@@ -1458,22 +1491,47 @@ export default function Page() {
               </>
             )}
 
-            {userType === "Admin" && (
+            {userType === "employee" && (
               <div className="admin">
                 <Formik
+                  innerRef={EmployeeForm}
                   initialValues={{
                     firstName: "",
                     middleName: "",
                     lastName: "",
                     email: "",
                     phone_nuber: "",
+                    employee_type: "",
+                    suffix: "",
                   }}
-                  onSubmit={(values: any) => {}}
                   validationSchema={adminSchema}
+                  onSubmit={(values: any) => {}}
                 >
                   {({ errors, touched, setFieldValue, values }) => (
                     <Form>
                       <div className=" grid grid-cols-3 gap-2">
+                        <LabeledSelectInput
+                          field_name="employee_type"
+                          type="text"
+                          placeholder="Select Employee Type"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.employee_type}
+                          touched={touched.employee_type}
+                          classes="text-base"
+                          label="Employee Type"
+                          SelectOptions={[
+                            {
+                              value: "3",
+                              text: "Sales",
+                            },
+                            {
+                              value: "2",
+                              text: "Admin",
+                            },
+                          ]}
+                          setFieldValue={setFieldValue}
+                          values={values.employee_type}
+                        />
                         <LabeledInput
                           field_name="firstName"
                           type="text"
@@ -1505,6 +1563,16 @@ export default function Page() {
                           label="Last Name"
                         />
                         <LabeledInput
+                          field_name="suffix"
+                          type="text"
+                          placeholder="Suffix"
+                          className="input input-bordered input-sm w-full max-w-xs"
+                          errors={errors.suffix}
+                          touched={touched.suffix}
+                          classes="text-base"
+                          label="Suffix"
+                        />
+                        <LabeledInput
                           field_name="email"
                           type="email"
                           placeholder="Enter Email"
@@ -1529,10 +1597,34 @@ export default function Page() {
                         />
                       </div>
                       <div className="modal-action">
-                        <button className="btn btn-primary">
+                        <button
+                          onClick={() => {
+                            console.log(values);
+                            const bodyContent = {
+                              first_name: values.firstName,
+                              middle_name: values.middleName,
+                              last_name: values.lastName,
+                              email: values.email,
+                              phone_number: values.phone_number,
+                              employee_type: values.employee_type,
+                              suffix: values.suffix,
+                            };
+                            CreateEmployeeMutation.mutate(bodyContent);
+                          }}
+                          type="submit"
+                          className="btn btn-primary"
+                        >
                           Create Admin
                         </button>
-                        <button className="btn btn-ghost">Cancel</button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            modalAddUser.current?.click();
+                          }}
+                          className="btn btn-md"
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </Form>
                   )}
@@ -1544,109 +1636,151 @@ export default function Page() {
       </div>
 
       {/* filters */}
-      <div className="form-control">
+      <div className="form-control mt-4">
         <div className="flex">
           <div className="relative w-full">
-            <label className="label text-base font-semibold text-black">
-              <span className="label-text text-base font-semibold text-black">
-                Type
-              </span>
-            </label>
-            <select
-              className="select select-bordered w-full max-w-xs"
-              value={userType}
-              onChange={handleUserTypeChange}
-            >
-              <option value="">Select an option</option>
-              <option value="Customer">Customer</option>
-              <option value="Admin">Admin</option>
-            </select>
-          </div>
-          <div className="relative w-full">
-            <label className="label">
-              <span className="label-text text-base font-semibold text-black">
-                Customer ID
-              </span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Customer ID"
-              className="input input-bordered"
-            />
-          </div>
-
-          <div className="relative w-full">
-            <label className="label">
-              <span className="label-text text-base font-semibold text-black">
-                Name
-              </span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter Name"
-              className="input input-bordered"
-            />
-          </div>
-          <div className="relative w-full">
-            <label className="label">
-              <span className="label-text text-base font-semibold text-black">
-                Email
-              </span>
-            </label>
-            <input
-              type="email"
-              placeholder="Enter Email"
-              className="input input-bordered"
-            />
+            <div className="join">
+              <div>
+                <div>
+                  <input
+                    className="input input-bordered join-item"
+                    placeholder="Search"
+                  />
+                </div>
+              </div>
+              <select
+                value={showUsersType}
+                onChange={handleShowUserType}
+                className="select select-bordered join-item"
+              >
+                <option disabled value="">
+                  Filter
+                </option>
+                <option value="Customer">Customer</option>
+                <option value="Employee">Employee</option>
+              </select>
+              <div className="indicator">
+                <button className="btn join-item">Search</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="overflow-x-auto mt-5 text-black">
-        <table className="table text-base font-semibold">
-          {/* head */}
-          <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-            <tr className="rounded-lg">
-              <th>ID</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Package</th>
+        {showUsersType == "" ? (
+          <table className="table text-base font-semibold">
+            {/* head */}
+            <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+              <tr className="rounded-lg">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* row 3 */}
+              <tr className="row">
+                <th className="text-center" colSpan={6}>
+                  Please select user type filter above .
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        ) : showUsersType == "Customer" ? (
+          <table className="table text-base font-semibold">
+            {/* head */}
+            <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+              <tr className="rounded-lg">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Package</th>
 
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-            {/* row 3 */}
-            <tr className="row">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
-              <td>Blue</td>
-              <td>Blue</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-5">Edit</button>
-                <button className="btn btn-sm btn-error">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="row">
+                <th>3</th>
+                <td>Brice Swyre</td>
+                <td>Tax Accountant</td>
+                <td>Red</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>
+                  <button className="btn btn-sm btn-info mr-5">Edit</button>
+                  <button className="btn btn-sm btn-error">Delete</button>
+                </td>
+              </tr>
+              {/* row 3 */}
+              <tr className="row">
+                <th>3</th>
+                <td>Brice Swyre</td>
+                <td>Tax Accountant</td>
+                <td>Red</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>
+                  <button className="btn btn-sm btn-info mr-5">Edit</button>
+                  <button className="btn btn-sm btn-error">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        ) : (
+          <table className="table text-base font-semibold">
+            {/* head */}
+            <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+              <tr className="rounded-lg">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Package</th>
+
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="row">
+                <th>3</th>
+                <td>Brice Swyre</td>
+                <td>Tax Accountant</td>
+                <td>Red</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>
+                  <button className="btn btn-sm btn-info mr-5">Edit</button>
+                  <button className="btn btn-sm btn-error">Delete</button>
+                </td>
+              </tr>
+              {/* row 3 */}
+              <tr className="row">
+                <th>3</th>
+                <td>Brice Swyre</td>
+                <td>Tax Accountant</td>
+                <td>Red</td>
+                <td>Blue</td>
+                <td>Blue</td>
+                <td>
+                  <button className="btn btn-sm btn-info mr-5">Edit</button>
+                  <button className="btn btn-sm btn-error">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

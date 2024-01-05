@@ -9,6 +9,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+
+
+  let  token;
+
+
+
   if (req.method !== "POST") {
     res.status(405).json({ code: 405, message: "Method not allowed" });
     return;
@@ -41,8 +47,27 @@ export default async function handler(
       res.status(401).json({ code: 401, message: "Invalid credentials used." });
       return;
     }
-    console.log(user);
-    const token = jwt.sign(
+    if(user.code=="(NULL)"  || user.code==undefined || user.code==null){
+      token=jwt.sign(
+        {
+          id: user.id,
+          role: user.user_type,
+          role_name: user.user_type_users_user_typeTouser_type.name,
+          main_id:
+            user.employee_info.length > 0
+              ? user.employee_info[0].id
+              : user.customer_info[0].id,
+          is_employee: user.employee_info.length > 0 ? true : false,
+          is_email_verified: user.email_verified_at ? true : false,
+          code:user.code
+        },
+        jwt_secret,
+        {
+          expiresIn: "1h",
+        }
+      )
+ }else if( user.password_change_at==undefined || user.password_change_at==null){
+   token=jwt.sign(
       {
         id: user.id,
         role: user.user_type,
@@ -53,13 +78,35 @@ export default async function handler(
             : user.customer_info[0].id,
         is_employee: user.employee_info.length > 0 ? true : false,
         is_email_verified: user.email_verified_at ? true : false,
+        code:user.code,
+        password_change_at:false
       },
       jwt_secret,
       {
         expiresIn: "1h",
       }
-    );
-    console.log(token);
+    )
+    }else{
+    
+      token=jwt.sign(
+        {
+          id: user.id,
+          role: user.user_type,
+          role_name: user.user_type_users_user_typeTouser_type.name,
+          main_id:
+            user.employee_info.length > 0
+              ? user.employee_info[0].id
+              : user.customer_info[0].id,
+          is_employee: user.employee_info.length > 0 ? true : false,
+          is_email_verified: user.email_verified_at ? true : false,
+        },
+        jwt_secret,
+        {
+          expiresIn: "1h",
+        }
+      )
+    }
+   
     res
       .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
       .status(200)
