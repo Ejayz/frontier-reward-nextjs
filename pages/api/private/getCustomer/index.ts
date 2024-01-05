@@ -15,7 +15,7 @@ export default async function handler(
 req: NextApiRequest,
 res: NextApiResponse
 ) {
-if (req.method !== "POST") {
+if (req.method !== "GET") {
 return res.status(405).json({code:405, message: "Method not allowed" });
 }
 const {search,page} = req.query
@@ -29,52 +29,10 @@ return res.status(401).json({code:401, message: "User is not authenticated" });
 }
 
 
-const getUsers = await prisma.customer_info.findMany({
-    where: {
-      is_exist: 1,
-      OR: [
-        {
-          first_name: {
-            contains: search as string,
-          },
-        },
-        {
-          last_name: {
-            contains: search as string,
-          },
-        },
-        {
-          middle_name: {
-            contains: search as string,
-          },
-        },
-        {
-          suffix: {
-            contains: search as string,
-          },
-        },
-        // Add the email filter using the extended type
-        {
-          email: {
-            contains: search as string,
-          },
-        },
-      ],
-    },
-    include: {
-      users: {
-        include: {
-          user_type_users_user_typeTouser_type: true,
-        },
-      },
-      customer_address: true,
-      Renamedpackage: true,
-      employee_info: true,
-      redeem_transaction: true,
-    },
-  });
+const getUsers = await prisma.$queryRaw`SELECT * FROM customer_info LEFT JOIN users ON customer_info.user_id = users.id  LEFT JOIN user_type ON users.user_type = user_type.id LEFT JOIN customer_address ON customer_info.address_id = customer_address.id `;
+console.log(getUsers)
 
-
+return res.status(200).json({code:200, message: "Success", data: getUsers });
 
 }
 catch (error:any) {

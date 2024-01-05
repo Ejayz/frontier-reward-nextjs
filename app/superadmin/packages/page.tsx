@@ -1,9 +1,22 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers, FormikProps, FormikValues } from "formik";
+import {
+  ErrorMessage,
+  Field,
+  Form,
+  Formik,
+  FormikHelpers,
+  FormikProps,
+  FormikValues,
+} from "formik";
 import * as yup from "yup";
 import { useToast } from "@/hooks/useToast";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { start } from "repl";
 
 type Element = {
@@ -36,7 +49,7 @@ export default function Page() {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
-      let response = await fetch(`/api/private/getPackages/`, {
+      let response = await fetch(`/api/private/displayPackages/`, {
         method: "GET",
         headers: headersList,
       });
@@ -72,7 +85,7 @@ export default function Page() {
 
       return response.json();
     },
-    onSuccess: async (data:any) => {
+    onSuccess: async (data: any) => {
       setPage(1);
       queryClient.invalidateQueries({
         queryKey: ["getCampaignPagination"],
@@ -83,7 +96,7 @@ export default function Page() {
         status: "success",
         message: "Campaign Created Successfully",
       });
-      
+
       RefetchCampaignPagination();
       setProcessing(false);
       createPackageRef.current?.resetForm();
@@ -107,7 +120,6 @@ export default function Page() {
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
     multiplier: yup.number().required("Multiplier is required"),
-
   });
 
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -115,19 +127,19 @@ export default function Page() {
 
   // ... other functions ...
   const initialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name : '',
-    description: rowDataToEdit ? rowDataToEdit.description : '',
-    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : '',
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
-    console.log('Edit clicked for row:', rowData);
+    console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
 
   useEffect(() => {
-    console.log('Row data updated:', rowDataToEdit);
+    console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEdit) {
       createPackageRef.current?.setValues({
         name: rowDataToEdit.name,
@@ -138,114 +150,143 @@ export default function Page() {
     }
   }, [rowDataToEdit]);
 
-
   const onSubmit = async (values: any) => {
-    console.log('Edit Form submitted with values:', values);
+    console.log("Edit Form submitted with values:", values);
     // Add logic to update the table or perform other actions
     // ...
     setEditModalOpen(false);
   };
 
-
-
+  console.log(DataCampaignPagination);
 
   return (
     <div className="pl-10">
-     <label htmlFor="my_modal_6" className="btn btn-primary ">Add Package</label>
-     <input type="checkbox" id="my_modal_6" className="modal-toggle"    
-     checked={isModalOpen}
-        onChange={() => setModalOpen(!isModalOpen)} />
-<div className="modal" role="dialog">
-  <div className="modal-box">
-  <form method="dialog">
-  <label htmlFor="my_modal_6"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
-          
-  </form>
-  <h3 className="font-bold text-lg">Add Package</h3>
-    <Formik
-    initialValues={
-      {
-        name: "",
-        description: "",
-        multiplier: "",
-        created_at: new Date().toISOString(),
-      }
-    }
-    ref={createPackageRef}
-    validationSchema={campaignValidation}
-    onSubmit={async (values, { resetForm }) => {
-      console.log("Form submitted with values:", values);
-      setProcessing(true);
-      resetForm();
-const multiplierTofloat = parseFloat(values.multiplier);
-      let bodyContent = JSON.stringify({
-        name: values.name,
-        description: values.description,
-        multiplier: multiplierTofloat,
-        created_at: values.created_at,
-      });
-      createCampaignMutation.mutate(bodyContent);
-    }}
-  >{({ errors, touched }) => (
-    <Form>
-          <div className="form-control bg-white">
-         
-<label className="label">
-              <span className="label-text text-base font-semibold">Name</span>
+      <label htmlFor="my_modal_6" className="btn btn-primary ">
+        Add Package
+      </label>
+      <input
+        type="checkbox"
+        id="my_modal_6"
+        className="modal-toggle"
+        checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_6"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
             </label>
-            <Field
-              type="text"
-              placeholder="Enter Package Name"
-              className="input input-bordered"
-              name="name"
-            /> 
-             <ErrorMessage name="name" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
+          </form>
+          <h3 className="font-bold text-lg">Add Package</h3>
+          <Formik
+            initialValues={{
+              name: "",
+              description: "",
+              multiplier: "",
+              created_at: new Date().toISOString(),
+            }}
+            ref={createPackageRef}
+            validationSchema={campaignValidation}
+            onSubmit={async (values, { resetForm }) => {
+              console.log("Form submitted with values:", values);
+              setProcessing(true);
+              resetForm();
+              const multiplierTofloat = parseFloat(values.multiplier);
+              let bodyContent = JSON.stringify({
+                name: values.name,
+                description: values.description,
+                multiplier: multiplierTofloat,
+                created_at: values.created_at,
+              });
+              createCampaignMutation.mutate(bodyContent);
+            }}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div className="form-control bg-white">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Package Name"
+                    className="input input-bordered"
+                    name="name"
+                  />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
 
-<label className="label">
-              <span className="label-text text-base font-semibold">Description</span>
-            </label>
-            <Field
-              type="text"
-              placeholder="Enter Package Description"
-              className="input input-bordered"
-              name="description"
-            /> 
-             <ErrorMessage name="description" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Package Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
 
-    <label className="label">
-              <span className="label-text text-base font-semibold">Multiplier</span>
-            </label>
-            <Field
-              type="text"
-              placeholder="Enter Package Multiplier"
-              className="input input-bordered"
-              name="multiplier"
-            /> 
-             <ErrorMessage name="multiplier" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
-
-          </div>         
-          <div className="m-8 " style={{ marginTop: 60 }}>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Multiplier
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Package Multiplier"
+                    className="input input-bordered"
+                    name="multiplier"
+                  />
+                  <ErrorMessage name="multiplier" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                </div>
+                <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
                       htmlFor="my_modal_6"
@@ -258,91 +299,111 @@ const multiplierTofloat = parseFloat(values.multiplier);
                     </button>
                   </div>
                 </div>
-          </Form>
-  )}
+              </Form>
+            )}
           </Formik>
-
-  </div>
-</div>
-
-
-<input
-        type="checkbox"
-        id="my_modal_7"
-        className="modal-toggle"
-    
-      />
-<div className="modal" role="dialog">
-  <div className="modal-box">
-  <form method="dialog">
-  <label htmlFor="my_modal_7"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
-          
-  </form>
-  <h3 className="font-bold text-lg">Add Package</h3>
-    <Formik
-    initialValues={initialValues}
-    enableReinitialize={true}
-    onSubmit={onSubmit}
-  >{({ errors, touched }) => (
-    <Form>
-          <div className="form-control bg-white">
-         
-<label className="label">
-              <span className="label-text text-base font-semibold">Name</span>
-            </label>
-            <Field
-              type="text"
-              placeholder="Enter Package Name"
-              className="input input-bordered"
-              name="name"
-            /> 
-             <ErrorMessage name="name" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
         </div>
-      )}
-    </ErrorMessage>
+      </div>
 
-<label className="label">
-              <span className="label-text text-base font-semibold">Description</span>
+      <input type="checkbox" id="my_modal_7" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_7"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
             </label>
-            <Field
-              type="text"
-              placeholder="Enter Package Description"
-              className="input input-bordered"
-              name="description"
-            /> 
-             <ErrorMessage name="description" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
+          </form>
+          <h3 className="font-bold text-lg">Add Package</h3>
+          <Formik
+            initialValues={initialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmit}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div className="form-control bg-white">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Package Name"
+                    className="input input-bordered"
+                    name="name"
+                  />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
 
-    <label className="label">
-              <span className="label-text text-base font-semibold">Multiplier</span>
-            </label>
-            <Field
-              type="text"
-              placeholder="Enter Package Multiplier"
-              className="input input-bordered"
-              name="multiplier"
-            /> 
-             <ErrorMessage name="multiplier" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Package Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
 
-          </div>         
-          <div className="m-8 " style={{ marginTop: 60 }}>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Multiplier
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Package Multiplier"
+                    className="input input-bordered"
+                    name="multiplier"
+                  />
+                  <ErrorMessage name="multiplier" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <img
+                          src="../icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                </div>
+                <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
                       htmlFor="my_modal_7"
@@ -355,18 +416,17 @@ const multiplierTofloat = parseFloat(values.multiplier);
                     </button>
                   </div>
                 </div>
-          </Form>
-  )}
+              </Form>
+            )}
           </Formik>
-
-  </div>
-</div>
+        </div>
+      </div>
       <div className="overflow-x-auto mt-5 text-black">
-      <table className="table  text-base font-semibold text-center">
+        <table className="table  text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
-            <th>Name</th>
+              <th>Name</th>
               <th>Description</th>
               <th>Multiplier</th>
               <th>Created</th>
@@ -381,19 +441,22 @@ const multiplierTofloat = parseFloat(values.multiplier);
               </tr>
             ) : (
               DataCampaignPagination.data.map((element: any) => {
+                console.log(element);
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{element.multiplier}</td>
-<td>{new Date(element.created_at).toLocaleDateString()}</td>
-<td>{new Date(element.updated_at).toLocaleDateString()}</td>
-                    
+                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
+                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
+
                     <td className="flex">
                       <div className="flex mx-auto">
-                   
-                      <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
-                         onClick={() => handleEditClick(element)}>
+                        <label
+                          htmlFor="my_modal_7"
+                          className="btn btn-sm btn-info mr-2"
+                          onClick={() => handleEditClick(element)}
+                        >
                           <img
                             src="../icons/editicon.svg"
                             width={20}
