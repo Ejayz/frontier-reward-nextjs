@@ -22,6 +22,10 @@ export default async function handler(
       select: {
         id: true,
         name: true,
+        description: true,
+        created_at: true,
+        updated_at: true,
+        removed_at: true,
       },
     });
     const modifiedPackagesList = packagesList.map((packages) => ({

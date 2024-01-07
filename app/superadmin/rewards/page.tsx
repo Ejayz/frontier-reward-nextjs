@@ -17,7 +17,7 @@ import LabeledSelectInput from "@/components/LabeledSelectInput";
 type Element = {
   name: string;
   description: string;
-  rewardtype: string;
+  reward_type_id: number;
   quantity: number;
 };
 
@@ -145,7 +145,7 @@ export default function Page() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const actionValidation = yup.object().shape({
-    rewardtype: yup.string().required("Type is required"),
+    reward_type_id: yup.number().required("Type is required"),
     quantity: yup.number().required("Quantity is required"),
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
@@ -160,7 +160,7 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : '',
     description: rowDataToEdit ? rowDataToEdit.description : '',
     quantity: rowDataToEdit ? rowDataToEdit.quantity : '',
-    rewardtype: rowDataToEdit ? rowDataToEdit.rewardtype : '',
+    reward_type_id: rowDataToEdit ? rowDataToEdit.reward_type_id : '',
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
@@ -176,7 +176,7 @@ export default function Page() {
         name: rowDataToEdit.name,
         description: rowDataToEdit.description,
         quantity: rowDataToEdit.quantity,
-        rewardtype: rowDataToEdit.rewardtype,
+        reward_type_id: rowDataToEdit.reward_type_id,
 
         // ... add other fields as needed ...
       });
@@ -189,6 +189,16 @@ export default function Page() {
     // Add logic to update the table or perform other actions
     // ...
     setEditModalOpen(false);
+  };
+
+  const [selectedValue, setSelectedValue] = useState('');
+
+  const handleSelectChange = (event:any) => {
+    const newValue = event.target.value;
+    console.log(newValue);
+    setSelectedValue(newValue);
+
+    createActionRef.current?.setFieldValue('reward_type_id', newValue);
   };
 
   return (
@@ -222,13 +232,10 @@ export default function Page() {
           <Formik
                 initialValues={{
                   quantity: "",
-                  type: "",
+                  reward_type_id: 0,
                   name: "",
                   description: "",
                   created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                  rewardType: "",
-                  
                 }}
                 
                 ref={createActionRef}
@@ -241,28 +248,25 @@ export default function Page() {
                   
                   let bodyContent = JSON.stringify({
                     quantity: quantityAsInt,
-                    type: values.type,
+                    reward_type_id: values.reward_type_id,
                     name: values.name,
                     description: values.description,
                     created_at: values.created_at,
-                    updated_at: values.updated_at,
                   });
                     createActionMutation.mutate(bodyContent);
                   }}
               >
-                {({ errors, touched }) => (
+                {({ errors, touched, values, setFieldValue }) => (
                   <Form>
 
-    <select name="rewardtype" className="select select-bordered w-full max-w-xs font-semibold text-base" onChange={(e) => setPage(Number(e.target.value))}>
-    {DataRewardTypePagination?.data.map((item:any) => (
-      <option key={item.id} value={item.id}>
-        {item.name}
-      </option>
-    ))}
-  </select>
-  
-  
-   
+  <select name="reward_type_id"  className="select select-bordered w-full max-w-xs font-semibold text-base" id="" onChange={handleSelectChange} value={selectedValue}>
+      <option disabled selected value="">Select Reward Type</option>
+      {DataRewardTypePagination?.data.map((item: any) => (
+        <option key={item.id} value={item.id}>
+          {item.name}
+        </option>
+      ))}
+    </select>
                     <label className="label">
                       <span className="label-text text-base font-semibold">Quantity</span>
                     </label>
@@ -339,7 +343,7 @@ export default function Page() {
 
 
 {/* edit modal */}
-<input
+{/* <input
         type="checkbox"
         id="my_modal_7"
         className="modal-toggle"
@@ -356,10 +360,8 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Add Action</h3>
-            {/* {isLoadingRewardTypePagination ? (
-    <p>Loading...</p>
-  ) : ( */}
+          <h3 className="font-bold text-lg">Edit Action</h3>
+       
           <Formik
 initialValues={initialValues}
 enableReinitialize={true}
@@ -447,10 +449,10 @@ onSubmit={onSubmit}>
                   </Form>
                 
               </Formik>
-    {/* )} */}
+
 
   </div>
-</div>
+</div> */}
 
       <div className="overflow-x-auto mt-5 text-black">
       <table className="table  text-base font-semibold text-center">

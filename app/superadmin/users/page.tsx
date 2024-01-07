@@ -1302,7 +1302,8 @@ export default function Page() {
                 </Formik>
                 <div className="divider uppercase">Vehicle Information</div>
                 <Formik
-                  innerRef={VehicleDetail}
+ 
+ innerRef={VehicleDetail}
                   initialValues={{
                     year: "",
                     model: "",
