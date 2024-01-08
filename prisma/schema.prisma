@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
 }
 
 datasource db {
@@ -36,12 +37,13 @@ model campaign {
   removed_at                  DateTime?                     @db.Timestamp(0)
   is_exist                    Int?                          @default(1) @db.TinyInt
   employee_info               employee_info?                @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "campaign_ibfk_1")
-  Renamedpackage              packages?                     @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "campaign_ibfk_2")
+  packages                    packages?                     @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "campaign_ibfk_2")
   campaign_action_reward_list campaign_action_reward_list[]
   campaign_transaction        campaign_transaction[]
 
   @@index([employee_id], map: "employee_id")
   @@index([package_id], map: "package_id")
+  @@fulltext([name, description], map: "name_description")
 }
 
 model campaign_action_reward_list {
@@ -139,7 +141,7 @@ model customer_info {
   campaign_transaction  campaign_transaction[]
   users                 users                   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_1")
   customer_address      customer_address        @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_2")
-  Renamedpackage        packages                @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_4")
+  packages              packages                @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_4")
   employee_info         employee_info           @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_ibfk_5")
   customer_vehicle_info customer_vehicle_info[]
   redeem_transaction    redeem_transaction[]
@@ -148,22 +150,28 @@ model customer_info {
   @@index([employee_id], map: "employee_id")
   @@index([package_id], map: "package_id")
   @@index([user_id], map: "user_id")
+  @@fulltext([first_name], map: "first_name")
+  @@fulltext([last_name], map: "last_name")
+  @@fulltext([middle_name], map: "middle_name")
+  @@fulltext([suffix], map: "suffix")
 }
 
 model customer_vehicle_info {
-  id            Int            @id @default(autoincrement())
-  customer_id   Int?
-  vin_id        String         @db.Text
-  year          String         @db.VarChar(10)
-  trim          String         @db.VarChar(96)
-  color         String         @db.VarChar(50)
-  created_at    DateTime?      @default(now()) @db.Timestamp(0)
-  updated_at    DateTime?      @db.Timestamp(0)
-  removed_at    DateTime?      @db.Timestamp(0)
-  is_exist      Int?           @default(1) @db.TinyInt
-  customer_info customer_info? @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_id_fk")
+  id               Int            @id @default(autoincrement())
+  customer_info_id Int?
+  vin_id           String         @db.Text
+  year             String         @db.VarChar(10)
+  trim             String         @db.VarChar(96)
+  color            String         @db.VarChar(50)
+  created_at       DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at       DateTime?      @db.Timestamp(0)
+  removed_at       DateTime?      @db.Timestamp(0)
+  is_exist         Int?           @default(1) @db.TinyInt
+  customer_info    customer_info? @relation(fields: [customer_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customer_info_fk")
 
-  @@index([customer_id], map: "customer_id")
+  @@index([customer_info_id], map: "customer_info_id")
+  @@fulltext([vin_id], map: "vin_id")
+  @@fulltext([year, trim, color], map: "year_trim_color")
 }
 
 model employee_info {
@@ -188,18 +196,40 @@ model employee_info {
   reward                      reward[]
 
   @@index([user_id], map: "user_id")
+  @@fulltext([first_name, middle_name, last_name, suffix], map: "first_name_middle_name_last_name_suffix")
 }
 
 model package_reward_list {
-  id             Int       @id @default(autoincrement())
-  reward_id      Int?
-  created_at     DateTime? @default(now()) @db.Timestamp(0)
-  updated_at     DateTime? @db.Timestamp(0)
-  removed_at     DateTime? @db.Timestamp(0)
-  is_exist       Int?      @default(1) @db.TinyInt
-  Renamedpackage packages? @relation(fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "package_reward_list_ibfk_1")
+  id                                                Int       @id @default(autoincrement())
+  reward_id                                         Int?
+  package_id                                        Int?
+  created_at                                        DateTime? @default(now()) @db.Timestamp(0)
+  updated_at                                        DateTime? @db.Timestamp(0)
+  removed_at                                        DateTime? @db.Timestamp(0)
+  is_exist                                          Int?      @default(1) @db.TinyInt
+  packages_package_reward_list_package_idTopackages packages? @relation("package_reward_list_package_idTopackages", fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_package_reward_list_packages")
+  packages_package_reward_list_reward_idTopackages  packages? @relation("package_reward_list_reward_idTopackages", fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "package_reward_list_ibfk_1")
 
+  @@index([package_id], map: "package_id")
   @@index([reward_id], map: "reward_id")
+}
+
+model packages {
+  id                                                           Int                   @id @default(autoincrement())
+  name                                                         String?               @db.VarChar(50)
+  description                                                  String?               @db.VarChar(250)
+  multiplier                                                   Float?                @db.Float
+  created_at                                                   DateTime?             @default(now()) @db.Timestamp(0)
+  updated_at                                                   DateTime?             @db.Timestamp(0)
+  removed_at                                                   DateTime?             @db.Timestamp(0)
+  is_exist                                                     Int?                  @db.TinyInt
+  campaign                                                     campaign[]
+  customer_info                                                customer_info[]
+  package_reward_list_package_reward_list_package_idTopackages package_reward_list[] @relation("package_reward_list_package_idTopackages")
+  package_reward_list_package_reward_list_reward_idTopackages  package_reward_list[] @relation("package_reward_list_reward_idTopackages")
+  redeem                                                       redeem[]
+
+  @@fulltext([name, description], map: "name_description")
 }
 
 model redeem {
@@ -215,7 +245,7 @@ model redeem {
   is_exist           Int?                 @default(1) @db.TinyInt
   employee_info      employee_info?       @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_1")
   reward             reward?              @relation(fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_2")
-  Renamedpackage     packages?            @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_3")
+  packages           packages?            @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "redeem_ibfk_3")
   redeem_transaction redeem_transaction[]
 
   @@index([employee_id], map: "employee_id")
@@ -263,6 +293,7 @@ model reward {
 
   @@index([employee_id], map: "employee_id")
   @@index([reward_type_id], map: "reward_type_id")
+  @@fulltext([name, description], map: "name_description")
 }
 
 model reward_type {
@@ -290,33 +321,20 @@ model users {
   email                                String          @db.VarChar(50)
   password                             String
   phone_number                         String          @db.VarChar(50)
-  code                                 String?         @db.Text
-  expires_at                           DateTime        @default(now()) @db.Timestamp(0)
   user_type                            Int
   email_verified_at                    DateTime?       @db.Timestamp(0)
   created_at                           DateTime?       @default(now()) @db.Timestamp(0)
   deleted_at                           DateTime?       @db.Timestamp(0)
   removed_at                           DateTime?       @db.Timestamp(0)
   is_exist                             Int?            @default(1) @db.TinyInt
+  code                                 String?         @db.VarChar(512)
   password_change_at                   DateTime?       @db.Timestamp(0)
+  expires_at                           DateTime?       @default(now()) @db.Timestamp(0)
   customer_info                        customer_info[]
   employee_info                        employee_info[]
   user_type_users_user_typeTouser_type user_type       @relation("users_user_typeTouser_type", fields: [user_type], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_1")
 
   @@index([user_type], map: "user_type")
-}
-
-model packages {
-  id                  Int                   @id @default(autoincrement())
-  name                String?               @db.VarChar(50)
-  description         String?               @db.VarChar(250)
-  multiplier          Float?                @db.Float
-  created_at          DateTime?             @default(now()) @db.Timestamp(0)
-  updated_at          DateTime?             @db.Timestamp(0)
-  removed_at          DateTime?             @db.Timestamp(0)
-  is_exist            Int?                  @db.TinyInt
-  campaign            campaign[]
-  customer_info       customer_info[]
-  package_reward_list package_reward_list[]
-  redeem              redeem[]
+  @@fulltext([email], map: "email")
+  @@fulltext([phone_number], map: "phone_number")
 }

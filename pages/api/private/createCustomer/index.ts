@@ -52,7 +52,6 @@ export default async function handler(
       numbers: true,
       uppercase: true,
       lowercase: true,
-      symbols: true,
     });
     const hashedPassword = await bcrypt.hash(password, 10);
     const transact = await prisma
@@ -112,7 +111,7 @@ export default async function handler(
           for (const vehicle of processedVehicles) {
           await tx.customer_vehicle_info.create({
             data: {
-              customer_id: creationOfUserInfo.id,
+             customer_info_id: creationOfUserInfo.id,
                color: vehicle.color,
               trim: vehicle.trim,
               year:`${ vehicle.year}`,

@@ -3,9 +3,12 @@
 import LabeledInput from "@/components/LabeledInput";
 import LabeledInputPhone from "@/components/LabeledInputPhone";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
+import NormalInput from "@/components/NormalInput";
+import SelectInput from "@/components/SelectInput";
 import { useToast } from "@/hooks/useToast";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { Form, Formik, FormikProps } from "formik";
+import { Form, Formik, FormikHelpers, FormikProps, FormikValues } from "formik";
+import { useRouter } from "next/navigation";
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
@@ -27,8 +30,11 @@ type phoneType = {
   priority: number;
 };
 export default function Page() {
+  const nav = useRouter();
   const [userType, setUserType] = useState("");
+  const [page, setPage] = useState(0);
   const modalForm = useRef<HTMLDialogElement>(null);
+  const searchForm = useRef<FormikProps<any>>(null);
   const { showToast } = useToast();
   const [showUsersType, setShowUsersType] = useState<string>("");
   const handleUserTypeChange = (event: any) => {
@@ -37,7 +43,47 @@ export default function Page() {
   const handleShowUserType = (event: any) => {
     setShowUsersType(event.target.value);
   };
+  const {
+    data: customerData,
+    error: customerError,
+    isLoading: customerIsLoading,
+    isFetching: customerIsFetching,
+    refetch: customerRefetch,
+  } = useQuery({
+    queryKey: [
+      "getCustomers",
+      searchForm.current?.values.selected == "Customer",
+      page,
+      searchForm.current?.values.keyword,
+    ],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
 
+      let response = await fetch(
+        `/api/private/getCustomer?keyword=${searchForm.current?.values.keyword}&page=${page}`,
+        {
+          method: "GET",
+          headers: headersList,
+        }
+      );
+
+      let data = await response.json();
+      console.log(data);
+      if (!response.ok) {
+        toast.error(data.message);
+      }
+      data.data.forEach((datas: any) => {
+        datas.propsId = Math.pow(Math.random(), 2);
+      });
+
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+  });
   const countries = [
     {
       value: "Afghanistan",
@@ -816,6 +862,9 @@ export default function Page() {
       text: "Zimbabwe",
     },
   ];
+  useEffect(() => {
+    customerRefetch();
+  }, [searchForm.current?.values.keyword]);
   const confirmBox = useRef<HTMLInputElement>(null);
   const CustomerAccountDetail = useRef<FormikProps<any>>(null);
   const VehicleDetail = useRef<FormikProps<any>>(null);
@@ -1636,152 +1685,231 @@ export default function Page() {
       </div>
 
       {/* filters */}
-      <div className="form-control mt-4">
-        <div className="flex">
-          <div className="relative w-full">
-            <div className="join">
-              <div>
-                <div>
-                  <input
-                    className="input input-bordered join-item"
-                    placeholder="Search"
-                  />
+      <Formik
+        innerRef={searchForm}
+        initialValues={{
+          keyword: "",
+          selected: "",
+        }}
+        onSubmit={(values: any) => {
+          if (values.selected == "Customer") {
+            customerRefetch();
+          }
+        }}
+      >
+        {({ errors, touched, setFieldValue, values }) => (
+          <Form>
+            <div className="form-control mt-4">
+              <div className="flex">
+                <div className="relative w-full">
+                  <div className="join">
+                    <div>
+                      <div>
+                        <NormalInput
+                          field_name="keyword"
+                          type="text"
+                          placeholder="Search"
+                          className="input input-bordered join-item"
+                          errors={errors.keyword}
+                          touched={touched.keyword}
+                          classes="text-base"
+                          label="Search"
+                        />
+                      </div>
+                    </div>
+                    <SelectInput
+                      field_name="selected"
+                      className="select select-bordered join-item"
+                      placeholder="User Type"
+                      SelectOptions={[
+                        {
+                          value: "Customer",
+                          text: "Customer",
+                        },
+                        {
+                          value: "Employee",
+                          text: "Employee",
+                        },
+                      ]}
+                      errors={errors.selected}
+                      touched={touched.selected}
+                      setFieldValue={setFieldValue}
+                      values={values.selected}
+                    />
+
+                    <div className="indicator">
+                      <button className="btn join-item">Search</button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <select
-                value={showUsersType}
-                onChange={handleShowUserType}
-                className="select select-bordered join-item"
-              >
-                <option disabled value="">
-                  Filter
-                </option>
-                <option value="Customer">Customer</option>
-                <option value="Employee">Employee</option>
-              </select>
-              <div className="indicator">
-                <button className="btn join-item">Search</button>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="overflow-x-auto mt-5 text-black">
-        {showUsersType == "" ? (
-          <table className="table text-base font-semibold">
-            {/* head */}
-            <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-              <tr className="rounded-lg">
-                <th>ID</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* row 3 */}
-              <tr className="row">
-                <th className="text-center" colSpan={6}>
-                  Please select user type filter above .
-                </th>
-              </tr>
-            </tbody>
-          </table>
-        ) : showUsersType == "Customer" ? (
-          <table className="table text-base font-semibold">
-            {/* head */}
-            <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-              <tr className="rounded-lg">
-                <th>ID</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Package</th>
-
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="row">
-                <th>3</th>
-                <td>Brice Swyre</td>
-                <td>Tax Accountant</td>
-                <td>Red</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>
-                  <button className="btn btn-sm btn-info mr-5">Edit</button>
-                  <button className="btn btn-sm btn-error">Delete</button>
-                </td>
-              </tr>
-              {/* row 3 */}
-              <tr className="row">
-                <th>3</th>
-                <td>Brice Swyre</td>
-                <td>Tax Accountant</td>
-                <td>Red</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>
-                  <button className="btn btn-sm btn-info mr-5">Edit</button>
-                  <button className="btn btn-sm btn-error">Delete</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        ) : (
-          <table className="table text-base font-semibold">
-            {/* head */}
-            <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-              <tr className="rounded-lg">
-                <th>ID</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Package</th>
-
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="row">
-                <th>3</th>
-                <td>Brice Swyre</td>
-                <td>Tax Accountant</td>
-                <td>Red</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>
-                  <button className="btn btn-sm btn-info mr-5">Edit</button>
-                  <button className="btn btn-sm btn-error">Delete</button>
-                </td>
-              </tr>
-              {/* row 3 */}
-              <tr className="row">
-                <th>3</th>
-                <td>Brice Swyre</td>
-                <td>Tax Accountant</td>
-                <td>Red</td>
-                <td>Blue</td>
-                <td>Blue</td>
-                <td>
-                  <button className="btn btn-sm btn-info mr-5">Edit</button>
-                  <button className="btn btn-sm btn-error">Delete</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <div className="overflow-x-auto mt-5 text-black">
+              {values.selected == "" ? (
+                <table className="table text-base font-semibold">
+                  {/* head */}
+                  <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+                    <tr className="rounded-lg">
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* row 3 */}
+                    <tr className="row">
+                      <th className="text-center" colSpan={6}>
+                        Please select user type filter above .
+                      </th>
+                    </tr>
+                  </tbody>
+                </table>
+              ) : values.selected == "Customer" ? (
+                <>
+                  <table className="table text-base font-semibold">
+                    {/* head */}
+                    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+                      <tr className="rounded-lg">
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Package</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customerIsFetching || customerIsLoading ? (
+                        <tr className="row">
+                          <th className="text-center" colSpan={6}>
+                            <span className="loading loading-lg"></span>
+                          </th>
+                        </tr>
+                      ) : customerData.data.length == 0 ? (
+                        <tr className="row">
+                          <th className="text-center" colSpan={6}>
+                            No data found.
+                          </th>
+                        </tr>
+                      ) : (
+                        customerData.data.map(
+                          (customer: any, index: number) => (
+                            <tr key={customer.propsId} className="row">
+                              <td>{index + 1}</td>
+                              <td>
+                                {customer.first_name} {customer.last_name}
+                              </td>
+                              <td>{customer.email}</td>
+                              <td>{customer.phone_number}</td>
+                              <td>{customer.package}</td>
+                              <td>
+                                <button
+                                  onClick={() => {
+                                    nav.push(
+                                      `/superadmin/users/update/?user_id=${customer.customer_id}`
+                                    );
+                                  }}
+                                  type="button"
+                                  className="btn btn-sm btn-info mr-5"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-error"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                  <div className="w-11/12 flex mx-auto">
+                    <div className="join mx-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (page !== 0) {
+                            const newPage = page - 1;
+                            setPage(newPage);
+                          }
+                        }}
+                        className="join-item btn"
+                      >
+                        «
+                      </button>
+                      <button className="join-item btn">
+                        {isFetching ? (
+                          <span className="loading loading-dots loading-md"></span>
+                        ) : (
+                          `Page ${page + 1}`
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (customerData.data.length >= 10) {
+                            const newPage = page + 1;
+                            setPage(newPage);
+                          } else {
+                            return;
+                          }
+                        }}
+                        className="join-item btn"
+                      >
+                        »
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : values.selected == "Employee" ? (
+                <>
+                  <table className="table text-base font-semibold">
+                    {/* head */}
+                    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+                      <tr className="rounded-lg">
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="row">
+                        <th>3</th>
+                        <td>Brice Swyre</td>
+                        <td>Tax Accountant</td>
+                        <td>Red</td>
+                        <td>Blue</td>
+                        <td>Blue</td>
+                        <td>
+                          <button className="btn btn-sm btn-info mr-5">
+                            Edit
+                          </button>
+                          <button className="btn btn-sm btn-error">
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <></>
+              )}
+            </div>
+          </Form>
         )}
-      </div>
+      </Formik>
     </div>
   );
 }
