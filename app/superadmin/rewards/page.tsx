@@ -152,17 +152,17 @@ export default function Page() {
   });
 
   const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+
+  const [rowDataToEdit, setRowDataToEdit] = useState<any | null>(null);
 
   // ... other functions ...
   const initialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name : "",
+    name: rowDataToEdit ? rowDataToEdit.name || null : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
-    quantity: rowDataToEdit ? rowDataToEdit.quantity : "",
-    reward_type_id: rowDataToEdit ? rowDataToEdit.reward_type_id : "",
     // ... add other fields as needed ...
   };
-  const handleEditClick = (rowData: Element) => {
+  const handleEditClick = (rowData: any) => {
+
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
@@ -228,6 +228,7 @@ export default function Page() {
           <Formik
             initialValues={{
               quantity: "",
+
               reward_type_id: "",
               name: "",
               description: "",
@@ -240,6 +241,7 @@ export default function Page() {
               setProcessing(true);
               resetForm();
               const quantityAsInt = parseInt(values.quantity, 10);
+
 
               let bodyContent = JSON.stringify({
                 quantity: quantityAsInt,
@@ -394,70 +396,109 @@ onSubmit={onSubmit}>
              
                   <Form>
 
-    <select name="rewardtype" className="select select-bordered w-full max-w-xs font-semibold text-base" onChange={(e) => setPage(Number(e.target.value))}>
-    {DataRewardTypePagination?.data.map((item:any) => (
-      <option key={item.id} value={item.id}>
-        {item.name}
-      </option>
-    ))}
-  </select>
-  
-  
-   
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Quantity</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Quantity"
-                      className="input input-bordered"
-                      name="quantity"
-                    />
-                    <ErrorMessage name="quantity" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
+              let bodyContent = JSON.stringify({
+                quantity: quantityAsInt,
+                type: values.type,
+                name: values.name,
+                description: values.description,
+                created_at: values.created_at,
+                updated_at: values.updated_at,
+              });
+              createActionMutation.mutate(bodyContent);
+            }}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <select
+                  name="rewardtype"
+                  className="select select-bordered w-full max-w-xs font-semibold text-base"
+                  onChange={(e) => setPage(Number(e.target.value))}
+                >
+                  {DataRewardTypePagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
 
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Name</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Name"
-                      className="input input-bordered"
-                      name="name"
-                    />
-                    <ErrorMessage name="name" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Quantity
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Quantity"
+                  className="input input-bordered"
+                  name="quantity"
+                />
+                <ErrorMessage name="quantity" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
 
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Description</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Description"
-                      className="input input-bordered"
-                      name="description"
-                    />
-                    <ErrorMessage name="description" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-                    <div className="m-8 " style={{ marginTop: 60 }}>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Name"
+                  className="input input-bordered"
+                  name="name"
+                />
+                <ErrorMessage name="name" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Description"
+                  className="input input-bordered"
+                  name="description"
+                />
+                <ErrorMessage name="description" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+                <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
                       htmlFor="my_modal_7"
@@ -470,13 +511,13 @@ onSubmit={onSubmit}>
                     </button>
                   </div>
                 </div>
-                  </Form>
-                
-              </Formik>
+              </Form>
+            )}
+          </Formik>
+          {/* )} */}
+        </div>
+      </div>
 
-
-  </div>
-</div> */}
 
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
