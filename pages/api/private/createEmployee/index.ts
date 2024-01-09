@@ -22,7 +22,14 @@ export default async function handler(
   if (!req.body) {
     return res.status(400).json({ message: "No body provided" });
   }
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({
+    log: [
+      {
+        emit: "event",
+        level: "query",
+      },
+    ],
+  });
   const resend = new Resend(RESEND_API);
   const {
     first_name,
@@ -46,7 +53,6 @@ export default async function handler(
     numbers: true,
     uppercase: true,
     lowercase: true,
-    symbols: true,
   });
   try {
     const verify = jwt.verify(auth, JWT_SECRET);

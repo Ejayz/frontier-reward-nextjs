@@ -72,7 +72,7 @@ export default function RootLayout({
             </div>
             <div className="w-full flex flex-row">
               <AdminSideBar></AdminSideBar>
-              <div className="w-3/4 h-screen overflow-y-scroll">
+              <div className="w-3/4 h-screen overflow-y-hidden">
                 <QueryClientProvider client={queryClient}>
                   {children}
                 </QueryClientProvider>
