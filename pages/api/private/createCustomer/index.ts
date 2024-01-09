@@ -55,7 +55,7 @@ export default async function handler(
     });
     const hashedPassword = await bcrypt.hash(password, 10);
     const transact = await prisma
-      .$transaction(async (tx) => {
+      .$transaction(async (tx:any) => {
         const getUsers = await tx.users.findMany({
           where: { email: email, is_exist: 1 },
         });
