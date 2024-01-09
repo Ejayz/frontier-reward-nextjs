@@ -184,8 +184,7 @@ export default function Page() {
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    // Add logic to update the table or perform other actions
-    // ...
+
     setEditModalOpen(false);
   };
 
