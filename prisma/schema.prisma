@@ -278,7 +278,6 @@ model reward {
   id                          Int                           @id @default(autoincrement())
   name                        String?                       @db.VarChar(50)
   description                 String?                       @db.VarChar(250)
-  reward_type_id              Int?
   quantity                    Float?                        @db.Float
   employee_id                 Int?
   created_at                  DateTime?                     @default(now()) @db.Timestamp(0)

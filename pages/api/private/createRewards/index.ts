@@ -30,20 +30,20 @@ export default async function handler(
       // Handle any other unexpected verification result
       console.error("Invalid token format");
     }
-    const { name, description, quantity, reward_type, employee_id, created_at, updated_at,removed_at, is_exist } = req.body;
+    console.log(req.body)
+    const { name, description, quantity, reward_type_id, employee_id, created_at, updated_at,removed_at, is_exist } = req.body;
     try {
       const createRewards = await prisma.reward.create({
         data: {
           name,
           description,
           quantity,
-          //reward_type,
+         reward_type_id: parseInt(reward_type_id),
           employee_id : current_user,
           created_at,
           updated_at,
           removed_at,
           is_exist: 1,
-
         },
       });
 
