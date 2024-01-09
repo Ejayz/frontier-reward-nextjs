@@ -14,14 +14,11 @@ import { useToast } from "@/hooks/useToast";
 import { act } from "react-dom/test-utils";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
 
-type rewardslist = {
+type Element = {
   name: string;
   description: string;
-  type: string;
-  quantity: string;
-  created_at: string;
-  updated_at: string;
-  removed_at: string;
+  reward_type_id: number;
+  quantity: number;
 };
 
 export default function Page() {
@@ -148,13 +145,14 @@ export default function Page() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const actionValidation = yup.object().shape({
-    type: yup.string().required("Type is required"),
+    reward_type_id: yup.string().required("Type is required"),
     quantity: yup.number().required("Quantity is required"),
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
   });
 
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+
   const [rowDataToEdit, setRowDataToEdit] = useState<any | null>(null);
 
   // ... other functions ...
@@ -164,6 +162,7 @@ export default function Page() {
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: any) => {
+
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
@@ -175,6 +174,9 @@ export default function Page() {
       createActionRef.current?.setValues({
         name: rowDataToEdit.name,
         description: rowDataToEdit.description,
+        quantity: rowDataToEdit.quantity,
+        reward_type_id: rowDataToEdit.reward_type_id,
+
         // ... add other fields as needed ...
       });
     }
@@ -186,12 +188,21 @@ export default function Page() {
     setEditModalOpen(false);
   };
 
+  const [selectedValue, setSelectedValue] = useState("");
+
+  const handleSelectChange = (event: any) => {
+    const newValue = event.target.value;
+    console.log(newValue);
+    setSelectedValue(newValue);
+    createActionRef.current?.setFieldValue("reward_type_id", newValue);
+  };
+
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
       </label>
-
+      {/* add modal */}
       <input
         type="checkbox"
         id="my_modal_6"
@@ -216,20 +227,173 @@ export default function Page() {
           <Formik
             initialValues={{
               quantity: "",
-              type: "",
+
+              reward_type_id: "",
               name: "",
               description: "",
               created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              rewardType: "",
             }}
-            ref={createActionRef}
+            innerRef={createActionRef}
             validationSchema={actionValidation}
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
               resetForm();
               const quantityAsInt = parseInt(values.quantity, 10);
+
+
+              let bodyContent = JSON.stringify({
+                quantity: quantityAsInt,
+                reward_type_id: values.reward_type_id,
+                name: values.name,
+                description: values.description,
+                created_at: values.created_at,
+              });
+              createActionMutation.mutate(bodyContent);
+            }}
+          >
+            {({ errors, touched, values, setFieldValue }) => (
+              <Form>
+                <select
+                  name="reward_type_id"
+                  className="select select-bordered w-full max-w-xs font-semibold text-base"
+                  id=""
+                  onChange={handleSelectChange}
+                  value={values.reward_type_id}
+                >
+                  <option disabled value="">
+                    Select Reward Type
+                  </option>
+                  {DataRewardTypePagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Quantity
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Quantity"
+                  className="input input-bordered"
+                  name="quantity"
+                />
+                <ErrorMessage name="quantity" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Name"
+                  className="input input-bordered"
+                  name="name"
+                />
+                <ErrorMessage name="name" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Description"
+                  className="input input-bordered"
+                  name="description"
+                />
+                <ErrorMessage name="description" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+                <div className="m-8 " style={{ marginTop: 60 }}>
+                  <div className="absolute bottom-6 right-6">
+                    <label
+                      htmlFor="my_modal_6"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </Form>
+            )}
+          </Formik>
+          {/* )} */}
+        </div>
+      </div>
+
+      {/* edit modal */}
+      {/* <input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+        checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_7"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Edit Action</h3>
+       
+          <Formik
+initialValues={initialValues}
+enableReinitialize={true}
+onSubmit={onSubmit}>
+              
+             
+                  <Form>
 
               let bodyContent = JSON.stringify({
                 quantity: quantityAsInt,
@@ -336,7 +500,7 @@ export default function Page() {
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
-                      htmlFor="my_modal_6"
+                      htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
                     >
                       Cancel
@@ -352,6 +516,7 @@ export default function Page() {
           {/* )} */}
         </div>
       </div>
+
 
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
@@ -385,7 +550,11 @@ export default function Page() {
 
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <button className="btn btn-sm btn-info mr-2">
+                        <label
+                          htmlFor="my_modal_7"
+                          className="btn btn-sm btn-info mr-2"
+                          onClick={() => handleEditClick(element)}
+                        >
                           <img
                             src="../icons/editicon.svg"
                             width={20}
@@ -393,7 +562,7 @@ export default function Page() {
                             alt="Edit Icon"
                           />
                           Edit
-                        </button>
+                        </label>
                         <button className="btn btn-sm btn-error">
                           <img
                             src="../icons/deleteicon.svg"
