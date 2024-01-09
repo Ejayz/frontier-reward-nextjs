@@ -105,7 +105,7 @@ export default function Page() {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
         "Content-Type": "application/json",
-      };  
+      };
 
       let response = await fetch(`/api/private/createRewards/`, {
         method: "POST",
@@ -115,7 +115,7 @@ export default function Page() {
 
       return response.json();
     },
-    onSuccess: async (data:any) => {
+    onSuccess: async (data: any) => {
       setPage(1);
       queryClient.invalidateQueries({
         queryKey: ["getActionsPagination"],
@@ -126,7 +126,7 @@ export default function Page() {
         status: "success",
         message: "Action Created Successfully",
       });
-      
+
       RefetchActionPagination();
       setProcessing(false);
       createActionRef.current?.resetForm();
@@ -154,24 +154,23 @@ export default function Page() {
     description: yup.string().required("Description is required"),
   });
 
-
-   const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [rowDataToEdit, setRowDataToEdit] = useState<any | null>(null);
 
   // ... other functions ...
   const initialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name : '',
-    description: rowDataToEdit ? rowDataToEdit.description : '',
+    name: rowDataToEdit ? rowDataToEdit.name || null : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
     // ... add other fields as needed ...
   };
-  const handleEditClick = (rowData: Element) => {
-    console.log('Edit clicked for row:', rowData);
+  const handleEditClick = (rowData: any) => {
+    console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
 
   useEffect(() => {
-    console.log('Row data updated:', rowDataToEdit);
+    console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEdit) {
       createActionRef.current?.setValues({
         name: rowDataToEdit.name,
@@ -181,9 +180,8 @@ export default function Page() {
     }
   }, [rowDataToEdit]);
 
-
   const onSubmit = async (values: any) => {
-    console.log('Edit Form submitted with values:', values);
+    console.log("Edit Form submitted with values:", values);
     // Add logic to update the table or perform other actions
     // ...
     setEditModalOpen(false);
@@ -213,107 +211,130 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">Add Action</h3>
-            {/* {isLoadingRewardTypePagination ? (
+          {/* {isLoadingRewardTypePagination ? (
     <p>Loading...</p>
   ) : ( */}
           <Formik
-                initialValues={{
-                  quantity: "",
-                  type: "",
-                  name: "",
-                  description: "",
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                  rewardType: "",
-                  
-                }}
-                
-                ref={createActionRef}
-                validationSchema={actionValidation}
-                onSubmit={async (values, { resetForm }) => {
-                  console.log("Form submitted with values:", values);
-                  setProcessing(true);
-                  resetForm();
-                  const quantityAsInt = parseInt(values.quantity, 10);
-                  
-                  let bodyContent = JSON.stringify({
-                    quantity: quantityAsInt,
-                    type: values.type,
-                    name: values.name,
-                    description: values.description,
-                    created_at: values.created_at,
-                    updated_at: values.updated_at,
-                  });
-                    createActionMutation.mutate(bodyContent);
-                  }}
-              >
-                {({ errors, touched }) => (
-                  <Form>
+            initialValues={{
+              quantity: "",
+              type: "",
+              name: "",
+              description: "",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              rewardType: "",
+            }}
+            ref={createActionRef}
+            validationSchema={actionValidation}
+            onSubmit={async (values, { resetForm }) => {
+              console.log("Form submitted with values:", values);
+              setProcessing(true);
+              resetForm();
+              const quantityAsInt = parseInt(values.quantity, 10);
 
-    <select name="rewardtype" className="select select-bordered w-full max-w-xs font-semibold text-base" onChange={(e) => setPage(Number(e.target.value))}>
-    {DataRewardTypePagination?.data.map((item:any) => (
-      <option key={item.id} value={item.id}>
-        {item.name}
-      </option>
-    ))}
-  </select>
-  
-  
-   
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Quantity</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Quantity"
-                      className="input input-bordered"
-                      name="quantity"
-                    />
-                    <ErrorMessage name="quantity" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
+              let bodyContent = JSON.stringify({
+                quantity: quantityAsInt,
+                type: values.type,
+                name: values.name,
+                description: values.description,
+                created_at: values.created_at,
+                updated_at: values.updated_at,
+              });
+              createActionMutation.mutate(bodyContent);
+            }}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <select
+                  name="rewardtype"
+                  className="select select-bordered w-full max-w-xs font-semibold text-base"
+                  onChange={(e) => setPage(Number(e.target.value))}
+                >
+                  {DataRewardTypePagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
 
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Name</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Name"
-                      className="input input-bordered"
-                      name="name"
-                    />
-                    <ErrorMessage name="name" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Quantity
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Quantity"
+                  className="input input-bordered"
+                  name="quantity"
+                />
+                <ErrorMessage name="quantity" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
 
-                    <label className="label">
-                      <span className="label-text text-base font-semibold">Description</span>
-                    </label>
-                    <Field
-                      type="text"
-                      placeholder="Enter Reward Description"
-                      className="input input-bordered"
-                      name="description"
-                    />
-                    <ErrorMessage name="description" className="flex">
-                      {(msg) => (
-                        <div className="text-red-600 flex">
-                           <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-                          {msg}
-                        </div>
-                      )}
-                    </ErrorMessage>
-                    <div className="m-8 " style={{ marginTop: 60 }}>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Name"
+                  className="input input-bordered"
+                  name="name"
+                />
+                <ErrorMessage name="name" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Description"
+                  className="input input-bordered"
+                  name="description"
+                />
+                <ErrorMessage name="description" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+                <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
                       htmlFor="my_modal_6"
@@ -326,20 +347,19 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
-                  </Form>
-                )}
-              </Formik>
-    {/* )} */}
-
-  </div>
-</div>
+              </Form>
+            )}
+          </Formik>
+          {/* )} */}
+        </div>
+      </div>
 
       <div className="overflow-x-auto mt-5 text-black">
-      <table className="table  text-base font-semibold text-center">
+        <table className="table  text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
-             <th>Name</th>
+              <th>Name</th>
               <th>Description</th>
               <th>Type</th>
               <th>QTY</th>
@@ -363,7 +383,7 @@ export default function Page() {
                     <td>{element.quantity}</td>
                     <td>{new Date(element.created_at).toLocaleDateString()}</td>
                     <td>{new Date(element.updated_at).toLocaleDateString()}</td>
-                    
+
                     <td className="flex">
                       <div className="flex mx-auto">
                         <button className="btn btn-sm btn-info mr-2">
