@@ -36,3 +36,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# react-email-starter
+/react-email-starter/.react-email
+/react-email-starter/node_modules

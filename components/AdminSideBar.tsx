@@ -6,9 +6,9 @@ export default function AdminSideBar() {
     <div className="w-1/4 h-screen bg-white">
       <ul className="menu w-80 h-screen [&_li>*]:rounded-none fixed bg-white text-slate-950">
         <li className="bg-yellow-400">
-          <Link href={"dashboard"} className="text-2xl font-bold">
+          <Link href={"/superadmin/dashboard"} className="text-2xl font-bold">
             <img
-              src="./icons/dashboard.svg"
+              src="/icons/dashboard.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -18,57 +18,57 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/superadmin/actions"} className="text-2xl font-bold">
             <img
-              src="./icons/actions.svg"
+              src="/icons/actions.svg"
               className="mr-2"
               alt=""
               width={30}
               height={30}
             />{" "}
             Actions
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/superadmin/packages"} className="text-2xl font-bold">
             <img
-              src="./icons/packages.svg"
+              src="/icons/packages.svg"
               className="mr-2"
               alt=""
               width={30}
               height={30}
             />
             Packages
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/superadmin/rewards"} className="text-2xl font-bold">
             <img
-              src="./icons/rewards.svg"
+              src="/icons/rewards.svg"
               className="mr-2"
               alt=""
               width={30}
               height={30}
             />
             Rewards
-          </a>
+          </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link href={"/superadmin/campaigns"} className="text-2xl font-bold">
             <img
-              src="./icons/campaigns.svg"
+              src="/icons/campaigns.svg"
               className="mr-2"
               alt=""
               width={30}
               height={30}
             />
             Campaigns
-          </a>
+          </Link>
         </li>
         <li>
-          <Link className="text-2xl font-bold" href={"/users"}>
+          <Link className="text-2xl font-bold" href={"/superadmin/users"}>
             <img
-              src="./icons/users.svg"
+              src="/icons/users.svg"
               className="mr-2"
               alt=""
               width={30}
@@ -78,16 +78,19 @@ export default function AdminSideBar() {
           </Link>
         </li>
         <li>
-          <a className="text-2xl font-bold">
+          <Link
+            href={"/superadmin/transactions"}
+            className="text-2xl font-bold"
+          >
             <img
-              src="./icons/transactions.svg"
+              src="/icons/transactions.svg"
               className="mr-2"
               alt=""
               width={30}
               height={30}
             />{" "}
             Transactions
-          </a>
+          </Link>
         </li>
       </ul>
     </div>

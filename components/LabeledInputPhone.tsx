@@ -4,17 +4,12 @@ import { PhoneInput } from "react-international-phone";
 
 export default function LabeledInputPhone({
   field_name,
-  type,
-  placeholder,
-  className,
   errors,
   touched,
-  classes,
   label,
   value,
   setFieldValue,
   setPhoneInfo,
-  customerValidation,
 }: any) {
   console.log(errors, touched);
   return (
