@@ -21,7 +21,7 @@ export default async function handler(
     const { name, description,created_at,updated_at } = req.body;
       const [UpdateActionsResult, UpdateActionsFields] = <RowDataPacket[]>await connection.query( `UPDATE actions SET name=?,description=?,created_at=?,updated_at=? WHERE id=?`,
       [name,description,created_at,updated_at] );
-      if (UpdateActionsFields.affectedRows == 0) {
+      if (UpdateActionsResult.affectedRows == 0) {
         return res.status(500).json({code:500, message: "Something went wrong" });
       }else{
         return res.status(200).json({code:200, message: "Successfully updated actions" });

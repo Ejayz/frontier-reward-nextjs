@@ -46,8 +46,7 @@ export default async function handler(
         [name, description,  current_user, 1]
       )
     );
-
-    if (fields.affectedRows > 0) {
+    if (results.affectedRows > 0) {
       res
         .status(201)
         .json({ code: 201, message: "Action created successfully" });

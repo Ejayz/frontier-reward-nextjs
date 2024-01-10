@@ -45,20 +45,20 @@ export default async function handler(
     } = req.body;
     const [createPackageResult, createPackageFields] = <RowDataPacket[]>(
       await connection.query(
-        `INSERT INTO packages (name,description,multiplier,is_exist) VALUES (?,?,?,?)`,
+        `INSERT INTO packages (name,description,multiplier) VALUES (?,?,?)`,
         [
           name,
           description,
           multiplier,
-          is_exist,
+          
         ]
       )
     );
-    if (createPackageFields.affectedRows == 0) {
+    if (createPackageResult.affectedRows == 0) {
       await connection.rollback();
       return res.status(400).json({ message: "Something went wrong" });
     }
-    if (createPackageFields.affectedRows > 0) {
+    if (createPackageResult.affectedRows > 0) {
       return res.status(200).json({ message: "Package created successfully" });
     } else {
       return res.status(400).json({ message: "Something went wrong" });

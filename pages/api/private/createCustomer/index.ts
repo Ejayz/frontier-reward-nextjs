@@ -83,7 +83,7 @@ export default async function handler(
         }
 
         const [results,insertUser] = <RowDataPacket[]>await connection.query(`INSERT INTO users (email, password, phone_number, user_type, is_exist) VALUES (?,?,?,?,?)`, [email, hashedPassword, phoneNumber, 4, 1]);
-        if(insertUser.affectedRows==0){
+        if(results.affectedRows==0){
           connection.rollback();
           return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
         }

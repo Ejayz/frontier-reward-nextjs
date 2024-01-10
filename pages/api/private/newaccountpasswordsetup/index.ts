@@ -43,7 +43,7 @@ export default async function hander(
     const hashedPassword = await bcrypt.hash(password, 10);
     const [UpdatePasswordResult, UpdatePasswordFields] =<RowDataPacket[]> await connection.query( `UPDATE users SET password=?,password_change_at=? WHERE id=?`,
     [hashedPassword,new Date(),verify.id] );
-    if (UpdatePasswordFields.affectedRows == 0) {
+    if (UpdatePasswordResult.affectedRows == 0) {
       return res.status(500).json({code:500, message: "Something went wrong" });
     }else{
       return res

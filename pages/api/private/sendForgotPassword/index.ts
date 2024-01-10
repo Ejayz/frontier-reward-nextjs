@@ -59,7 +59,7 @@ export default async function handler(
       )
     );
 
-    if (UpdateCodeFields.affectedRows == 0) {
+    if (UpdateCodeResult.affectedRows == 0) {
       return res.status(500).json({
         code: 500,
         message: "Something went wrong.Please try again later.",
