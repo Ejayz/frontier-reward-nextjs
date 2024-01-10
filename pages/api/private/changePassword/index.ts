@@ -33,7 +33,7 @@ export default async function handler(
     const hashedPassword = await bcrypt.hash(password, 10);
   
     const [results,fields] =<RowDataPacket[]> await connection.query(`UPDATE users SET password=? where id=? and is_exist=1`, [hashedPassword, verify.user_id])
-    if (fields.affectedRows==0) {
+    if (results.affectedRows==0) {
       return res
         .status(500)
         .json({ code: 500, message: "Something went wrong.Please try again" });
@@ -49,6 +49,8 @@ export default async function handler(
       return res.status(401).json({ code: 401, message: "Invalid token" });
     } else if (error.name == "NotBeforeError") {
       return res.status(401).json({ code: 401, message: "Token not active" });
+    }else{
+        return res.status(500).json({code:500,message:"Something went wrong.Please try again"})
     }
   } finally {
     Connection.releaseConnection(connection);

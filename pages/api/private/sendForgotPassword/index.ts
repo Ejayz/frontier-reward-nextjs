@@ -30,7 +30,7 @@ export default async function handler(
         [email]
       )
     );
-
+console.log(UsersAccountResult)
     if (UsersAccountFields.length == 0) {
       return res
         .status(404)
