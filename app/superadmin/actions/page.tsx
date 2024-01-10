@@ -11,16 +11,14 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
-
-type Element ={
+import Image from "next/image";
+type Element = {
   id: number;
   name: string;
   description: string;
   // Add other properties as needed
-}
+};
 export default function Page() {
-
-
   const myDiv = document.getElementById("mydiv");
 
   const [processing, setProcessing] = useState(false);
@@ -81,22 +79,30 @@ export default function Page() {
 
       return response.json();
     },
-    onSuccess: async (data:any) => {
+    onSuccess: async (data: any) => {
       setPage(1);
       queryClient.invalidateQueries({
         queryKey: ["getActionsPagination"],
       });
       console.log(data);
+      if (data.code == 201) {
+        showToast({
+          status: "success",
+          message: "Action Created Successfully",
+        });
 
-      showToast({
-        status: "success",
-        message: "Action Created Successfully",
-      });
-      
-      RefetchActionPagination();
-      setProcessing(false);
-      createActionRef.current?.resetForm();
-      setModalOpen(false);
+        RefetchActionPagination();
+        setProcessing(false);
+        createActionRef.current?.resetForm();
+        setModalOpen(false);
+      } else {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+        setModalOpen(false);
+      }
     },
     onError: async (error: any) => {
       console.log(error);
@@ -113,30 +119,26 @@ export default function Page() {
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
   const actionValidation = yup.object().shape({
-    name: yup
-      .string()
-      .required("Name is required"),
-    description: yup
-      .string()
-      .required("Description is required"),
+    name: yup.string().required("Name is required"),
+    description: yup.string().required("Description is required"),
   });
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
 
   // ... other functions ...
   const initialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name : '',
-    description: rowDataToEdit ? rowDataToEdit.description : '',
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
-    console.log('Edit clicked for row:', rowData);
+    console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
 
   useEffect(() => {
-    console.log('Row data updated:', rowDataToEdit);
+    console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEdit) {
       createActionRef.current?.setValues({
         name: rowDataToEdit.name,
@@ -146,15 +148,12 @@ export default function Page() {
     }
   }, [rowDataToEdit]);
 
-
   const onSubmit = async (values: any) => {
-    console.log('Edit Form submitted with values:', values);
+    console.log("Edit Form submitted with values:", values);
     // Add logic to update the table or perform other actions
     // ...
     setEditModalOpen(false);
   };
-
-
 
   return (
     <div className="pl-10">
@@ -219,8 +218,8 @@ export default function Page() {
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
-                          src="../icons/warning.svg"
+                        <Image
+                          src="/icons/warning.svg"
                           width={20}
                           height={20}
                           alt="Error Icon"
@@ -245,8 +244,8 @@ export default function Page() {
                   <ErrorMessage name="description" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
-                          src="../icons/warning.svg"
+                        <Image
+                          src="/icons/warning.svg"
                           width={20}
                           height={20}
                           alt="Error Icon"
@@ -277,12 +276,7 @@ export default function Page() {
         </div>
       </div>
 
-      <input
-        type="checkbox"
-        id="my_modal_7"
-        className="modal-toggle"
-    
-      />
+      <input type="checkbox" id="my_modal_7" className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
@@ -294,34 +288,49 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">Edit Action</h3>
-          <Formik  initialValues={initialValues}
-  enableReinitialize={true}
-  onSubmit={onSubmit}>
-  <Form>
-    <div className="form-control bg-white">
-      <label className="label">
-        <span className="label-text text-base font-semibold">Name</span>
-      </label>
-      <Field type="text" placeholder="Enter Action Name" className="input input-bordered" name="name" />
-      {/* ... add other form fields as needed ... */}
-      <label className="label">
-        <span className="label-text text-base font-semibold">Description</span>
-      </label>
-      <Field type="text" placeholder="Enter Action Description" className="input input-bordered" name="description" />
-      {/* ... add other form fields as needed ... */}
-    </div>
-    <div className="m-8 " style={{ marginTop: 60 }}>
-      <div className="absolute bottom-6 right-6">
-        <button type="submit" className="btn btn-primary">
-          Submit
-        </button>
-      </div>
-    </div>
-  </Form>
-</Formik>
+          <Formik
+            initialValues={initialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmit}
+          >
+            <Form>
+              <div className="form-control bg-white">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input input-bordered"
+                  name="name"
+                />
+                {/* ... add other form fields as needed ... */}
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Description"
+                  className="input input-bordered"
+                  name="description"
+                />
+                {/* ... add other form fields as needed ... */}
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
         </div>
       </div>
-
 
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
@@ -348,13 +357,16 @@ export default function Page() {
                     <td>{element.description}</td>
                     <td>{new Date(element.created_at).toLocaleDateString()}</td>
                     <td>{new Date(element.updated_at).toLocaleDateString()}</td>
-                    
+
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
-                         onClick={() => handleEditClick(element)}>
-                          <img
-                            src="../icons/editicon.svg"
+                        <label
+                          htmlFor="my_modal_7"
+                          className="btn btn-sm btn-info mr-2"
+                          onClick={() => handleEditClick(element)}
+                        >
+                          <Image
+                            src="/icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
@@ -362,8 +374,8 @@ export default function Page() {
                           Edit
                         </label>
                         <button className="btn btn-sm btn-error">
-                          <img
-                            src="../icons/deleteicon.svg"
+                          <Image
+                            src="/icons/deleteicon.svg"
                             width={20}
                             height={20}
                             alt="Delete Icon"

@@ -1,11 +1,12 @@
+"use client";
 import Link from "next/link";
-
+import Image from "next/image";
 export default function AdminNavBar() {
   return (
     <div className="navbar bg-white  " data-theme="light">
       <div className="flex-1">
         <a className="btn btn-ghost text-xl">
-          <img src="/images/logo-nav.png"></img>
+          <Image src="/images/logo-nav.png" height={48} width={215} alt="" />
         </a>
       </div>
       <div className="flex-none">

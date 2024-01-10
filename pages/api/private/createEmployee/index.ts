@@ -3,10 +3,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
 import * as generator from "generate-password";
 import { Resend } from "resend";
 import AccountCreation from "@/react-email-starter/emails/account-creation";
+import Connection from "../../db";
+import { RowDataPacket } from "mysql2";
 
 dotenv.config();
 
@@ -22,14 +23,7 @@ export default async function handler(
   if (!req.body) {
     return res.status(400).json({ message: "No body provided" });
   }
-  const prisma = new PrismaClient({
-    log: [
-      {
-        emit: "event",
-        level: "query",
-      },
-    ],
-  });
+  const connection = await Connection.getConnection();
   const resend = new Resend(RESEND_API);
   const {
     first_name,
@@ -40,13 +34,6 @@ export default async function handler(
     email,
     employee_type,
   } = req.body;
-  console.log( first_name,
-    middle_name,
-    last_name,
-    suffix,
-    phone_number,
-    email,
-    employee_type,)
   const auth = new Cookies(req, res).get("auth") || "";
   const password = generator.generate({
     length: 10,
@@ -56,39 +43,27 @@ export default async function handler(
   });
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
-    const transaction = await prisma.$transaction(async (tx: any) => {
-      const checkEmail = await tx.users.findMany({
-        where: {
-          email: email,
-          is_exist: 1,
-        },
-      });
-      if (checkEmail.length > 0) {
+    const transaction = await connection.beginTransaction();
+    const [checkEmailResult,checkEmailFields]= <RowDataPacket[]>await connection.query(`SELECT * FROM users WHERE email=? AND is_exist=1`,[email]);
+    
+      if (checkEmailResult.length > 0) {
         return res.status(400).json({ message: "Email already exist" });
       }
-   
-
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(password, salt);
-      const createUser= await tx.users.create({
-        data:{
-          email:email,
-          phone_number:phone_number,
-          password:hash,
-          is_exist:1,
-          user_type:parseInt(employee_type),
-        }
-      })
-      const createEmployeeInfo = await tx.employee_info.create({
-        data: {
-          first_name: first_name,
-          middle_name: middle_name,
-          last_name: last_name,
-          suffix: suffix==""?"N/A":suffix,
-          user_id: createUser.id,
-        },
-      });
-    });
+      const [createUserResult,createUserFields]=<RowDataPacket[]>await connection.query(`INSERT INTO users (email,phone_number,password,is_exist,user_type) VALUES (?,?,?,?,?)`,
+      [email,phone_number,hash,1,parseInt(employee_type)]);
+      if(createUserResult.affectedRows==0){
+        await connection.rollback();
+        return res.status(400).json({ message: "Something went wrong" });
+      }
+
+      const [createEmployeeInfoResult,createEmployeeInfoFields]=<RowDataPacket[]>await connection.query(`INSERT INTO employee_info (first_name,middle_name,last_name,suffix,user_id) VALUES (?,?,?,?,?)`,
+      [first_name,middle_name,last_name,suffix==""?"N/A":suffix,createUserResult.insertId]);
+      if(createEmployeeInfoResult.affectedRows==0){
+        await connection.rollback();
+        return res.status(400).json({ message: "Something went wrong" });
+      }
     const data=await resend.emails.send({
       from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
       to: [email],
@@ -104,6 +79,7 @@ export default async function handler(
     });
     
     if(data){
+      await connection.commit();
       return res.status(200).json({
         code: 200,
         message:
@@ -127,6 +103,6 @@ export default async function handler(
       return res.status(500).json({ message: error.message });
     }
   } finally {
-    await prisma.$disconnect();
+    await Connection.releaseConnection(connection);
   }
 }

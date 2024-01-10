@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
+import Connection from "../../db";
+import { RowDataPacket } from "mysql2";
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,38 +12,18 @@ export default async function handler(
       message: "Invalid method. This endpoint only accept GET method",
     });
   }
-  const prisma = new PrismaClient();
+const connection=await Connection.getConnection();
 
   try {
     const reqQuery = parseInt(req.query.page as string) || 1;
     const skip = (reqQuery - 1) * 10;
     const take = 10;
-    const transactions = await prisma.campaign.findMany({
-      where: {
-        is_exist: 1,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        start_date: true,
-        end_date: true,
-        created_at: true,
-        updated_at: true,
-
-      },
-      skip: skip,
-      take: take,
-      orderBy: {
-        id: "desc",
-      },
-    });
-    console.log(transactions);
-    return res.status(200).json({ code: 200, data: transactions });
+    const [campaignResult, campaignFields] =<RowDataPacket[]> await connection.query( `SELECT * FROM campaign WHERE is_exist=1 ORDER BY id DESC LIMIT ?,?`, [skip, take] );
+    return res.status(200).json({ code: 200, data: campaignResult });
   } catch (e) {
     console.log(e);
     return res.status(400).json({ code: 400, message: "Something went wrong" });
   } finally {
-    prisma.$disconnect();
+    await Connection.releaseConnection(connection);
   }
 }

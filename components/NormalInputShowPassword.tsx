@@ -38,16 +38,16 @@ export default function NormalInputShowPassword({
             className="btn join-item"
           >
             {showPassword == "text" ? (
-              <img
-                src="../images/seen.png"
+              <Image
+                src="/images/seen.png"
                 width={40}
                 height={40}
                 alt="Error Icon"
                 className="error-icon pr-1"
               />
             ) : (
-              <img
-                src="../images/hide.png"
+              <Image
+                src="/images/hide.png"
                 width={40}
                 height={40}
                 alt="Error Icon"

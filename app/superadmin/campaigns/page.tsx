@@ -1,11 +1,16 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers, FormikProps, FormikValues } from "formik";
+import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 import { useToast } from "@/hooks/useToast";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { start } from "repl";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
+import Image from "next/image";
 type campaign = {
   name: string;
   description: string;
@@ -61,7 +66,6 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
-
   const createCampaignMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -78,22 +82,31 @@ export default function Page() {
 
       return response.json();
     },
-    onSuccess: async (data:any) => {
+    onSuccess: async (data: any) => {
       setPage(1);
       queryClient.invalidateQueries({
         queryKey: ["getCampaignPagination"],
       });
       console.log(data);
+      if (data.code == 201) {
+        showToast({
+          status: "success",
+          message: "Campaign Created Successfully",
+        });
 
-      showToast({
-        status: "success",
-        message: "Campaign Created Successfully",
-      });
-      
-      RefetchCampaignPagination();
-      setProcessing(false);
-      createCampaignRef.current?.resetForm();
-      setModalOpen(false);
+        RefetchCampaignPagination();
+        setProcessing(false);
+        createCampaignRef.current?.resetForm();
+        setModalOpen(false);
+      } else {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+
+        setModalOpen(false);
+      }
     },
     onError: async (error: any) => {
       console.log(error);
@@ -118,128 +131,166 @@ export default function Page() {
 
   return (
     <div className="pl-10">
-     <label htmlFor="my_modal_6" className="btn btn-primary ">Add Campaign</label>
-     <input type="checkbox" id="my_modal_6" className="modal-toggle"    
-     checked={isModalOpen}
-        onChange={() => setModalOpen(!isModalOpen)} />
-<div className="modal" role="dialog">
-  <div className="modal-box">
-  <form method="dialog">
-  <label htmlFor="my_modal_6"className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 ">✕</label>
-          
-  </form>
-  <h3 className="font-bold text-lg">Add Campaign</h3>
-  <Formik
-  initialValues={
-    {
-      name: "",
-      description: "",
-      start_date: "",
-      end_date:"",
-      is_exist: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      deleted_at: new Date().toISOString(),
+      <label htmlFor="my_modal_6" className="btn btn-primary ">
+        Add Campaign
+      </label>
+      <input
+        type="checkbox"
+        id="my_modal_6"
+        className="modal-toggle"
+        checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_6"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Add Campaign</h3>
+          <Formik
+            initialValues={{
+              name: "",
+              description: "",
+              start_date: "",
+              end_date: "",
+              is_exist: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: new Date().toISOString(),
+            }}
+            ref={createCampaignRef}
+            validationSchema={campaignValidation}
+            onSubmit={async (values, { resetForm }) => {
+              console.log("Form submitted with values:", values);
+              setProcessing(true);
+              resetForm();
+              values.start_date = new Date(values.start_date).toISOString();
+              values.end_date = new Date(values.end_date).toISOString();
+              let bodyContent = JSON.stringify({
+                name: values.name,
+                description: values.description,
+                start_date: values.start_date,
+                end_date: values.end_date,
+                created_at: values.created_at,
+                updated_at: values.updated_at,
+                deleted_at: values.deleted_at,
+                is_exist: values.is_exist,
+              });
+              createCampaignMutation.mutate(bodyContent);
+            }}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div className="form-control bg-white">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Campaign Name"
+                    className="input input-bordered"
+                    name="name"
+                  />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
 
-    }
-  }
-  ref={createCampaignRef}
-  validationSchema={campaignValidation}
-  onSubmit={async (values, { resetForm }) => {
-    console.log("Form submitted with values:", values);
-    setProcessing(true);
-    resetForm();
-    values.start_date = new Date(values.start_date).toISOString();
-    values.end_date = new Date(values.end_date).toISOString();
-    let bodyContent = JSON.stringify({
-      name: values.name,
-      description: values.description,
-      start_date: values.start_date,
-      end_date: values.end_date,
-      created_at: values.created_at,
-      updated_at: values.updated_at,
-      deleted_at: values.deleted_at,
-      is_exist: values.is_exist,
-    });
-    createCampaignMutation.mutate(bodyContent);
-  }}
-  >{({ errors, touched }) => (
-    <Form>
-          <div className="form-control bg-white">
-         
-<label className="label">
-              <span className="label-text text-base font-semibold">Name</span>
-            </label>
-            <Field
-              type="text"
-              placeholder="Enter Campaign Name"
-              className="input input-bordered"
-              name="name"
-            /> 
-             <ErrorMessage name="name" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
-
-<label className="label">
-              <span className="label-text text-base font-semibold">Description</span>
-            </label>
-            <Field
-              type="text"
-              placeholder="Enter Campaign Description"
-              className="input input-bordered"
-              name="description"
-            /> 
-             <ErrorMessage name="description" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-        </div>
-      )}
-    </ErrorMessage>
-        {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-<label className="label">
-              <span className="label-text text-base font-semibold">Start Date</span>
-            </label>
-            <Field
-              type="date"
-              placeholder="Enter Campaign Start Date"
-              className="input input-bordered"
-              name="start_date"
-            
-            /> 
-             <ErrorMessage name="start_date" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-          </div>
-      )}
-    </ErrorMessage>
-<label className="label">
-              <span className="label-text text-base font-semibold">End Date</span>
-            </label>
-            <Field
-              type="date"
-              placeholder="Enter Campaign End Date"
-              className="input input-bordered"
-              name="end_date"
-            /> 
-             <ErrorMessage name="end_date" className="flex">
-      {(msg) => (
-        <div className="text-red-600 flex">
-          <img src="../icons/warning.svg" width={20} height={20} alt="Error Icon" className="error-icon pr-1" />
-          {msg}
-          </div>
-      )}
-    </ErrorMessage>
-          </div>         
-          <div className="m-8 " style={{ marginTop: 60 }}>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Campaign Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Start Date
+                    </span>
+                  </label>
+                  <Field
+                    type="date"
+                    placeholder="Enter Campaign Start Date"
+                    className="input input-bordered"
+                    name="start_date"
+                  />
+                  <ErrorMessage name="start_date" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      End Date
+                    </span>
+                  </label>
+                  <Field
+                    type="date"
+                    placeholder="Enter Campaign End Date"
+                    className="input input-bordered"
+                    name="end_date"
+                  />
+                  <ErrorMessage name="end_date" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                </div>
+                <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
                       htmlFor="my_modal_6"
@@ -252,19 +303,18 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
-          </Form>
-  )}
+              </Form>
+            )}
           </Formik>
-
-  </div>
-</div>
+        </div>
+      </div>
 
       <div className="overflow-x-auto mt-5 text-black">
-      <table className="table  text-base font-semibold text-center">
+        <table className="table  text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
-            <th>Name</th>
+              <th>Name</th>
               <th>Description</th>
               <th>Start Date</th>
               <th>End Date</th>
@@ -285,15 +335,15 @@ export default function Page() {
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
-<td>{new Date(element.end_date).toLocaleDateString()}</td>
-<td>{new Date(element.created_at).toLocaleDateString()}</td>
-<td>{new Date(element.updated_at).toLocaleDateString()}</td>
-                    
+                    <td>{new Date(element.end_date).toLocaleDateString()}</td>
+                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
+                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
+
                     <td className="flex">
                       <div className="flex mx-auto">
-                      <button className="btn btn-sm btn-accent mr-2">
-                          <img
-                            src="../icons/addrewards.svg"
+                        <button className="btn btn-sm btn-accent mr-2">
+                          <Image
+                            src="/icons/addrewards.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
@@ -301,8 +351,8 @@ export default function Page() {
                           Reward
                         </button>
                         <button className="btn btn-sm btn-info mr-2">
-                          <img
-                            src="../icons/editicon.svg"
+                          <Image
+                            src="/icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
@@ -310,8 +360,8 @@ export default function Page() {
                           Edit
                         </button>
                         <button className="btn btn-sm btn-error">
-                          <img
-                            src="../icons/deleteicon.svg"
+                          <Image
+                            src="/icons/deleteicon.svg"
                             width={20}
                             height={20}
                             alt="Delete Icon"

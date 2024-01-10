@@ -1,10 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
-import Cookies from "cookies";
-import { Console } from "console";
-import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcrypt";
+import Connection from "../../db";
+import {  RowDataPacket } from "mysql2";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -20,8 +19,8 @@ export default async function handler(
     return res.status(400).json({ code: 400, message: "Bad request" });
   }
   const { password, token } = req.body;
+  const connection=await Connection.getConnection();
 
-  const prisma = new PrismaClient();
 
   try {
     const verify = jwt.verify(token, JWT_SECRET);
@@ -32,17 +31,9 @@ export default async function handler(
         return res.status(401).json({ code: 401, message: "Invalid token" });
         }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const updatePassword = await prisma.users.update({
-      where: {
-        id: verify.user_id,
-        is_exist: 1,
-
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
-    if (!updatePassword) {
+  
+    const [results,fields] =<RowDataPacket[]> await connection.query(`UPDATE users SET password=? where id=? and is_exist=1`, [hashedPassword, verify.user_id])
+    if (results.affectedRows==0) {
       return res
         .status(500)
         .json({ code: 500, message: "Something went wrong.Please try again" });
@@ -58,8 +49,10 @@ export default async function handler(
       return res.status(401).json({ code: 401, message: "Invalid token" });
     } else if (error.name == "NotBeforeError") {
       return res.status(401).json({ code: 401, message: "Token not active" });
+    }else{
+        return res.status(500).json({code:500,message:"Something went wrong.Please try again"})
     }
   } finally {
-    prisma.$disconnect();
+    Connection.releaseConnection(connection);
   }
 }
