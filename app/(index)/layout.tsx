@@ -13,7 +13,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [init, setInit] = useState(false);
+  const [init, setInit] = useState(true);
   const queryClient = new QueryClient();
   let path = usePathname() || "/";
   const nav = useRouter();
