@@ -44,8 +44,8 @@ export default async function handler(
     is_exist,
   } = req.body;
 
-  const [createRewardsResult, createRewardsFields] = <RowDataPacket[]>await connection.query( `INSERT INTO rewards (name,description,quantity,reward_type_id,employee_id,created_at,updated_at,removed_at,is_exist) VALUES (?,?,?,?,?,?,?,?,?)`, 
-  [name,description,quantity,reward_type_id,employee_id,created_at,updated_at,removed_at,is_exist] );
+  const [createRewardsResult, createRewardsFields] = <RowDataPacket[]>await connection.query( `INSERT INTO rewards (name,description,quantity,reward_type_id,employee_id,is_exist) VALUES (,?,?,?,?,?,?)`, 
+  [name,description,quantity,reward_type_id,employee_id,is_exist] );
 
   if (createRewardsFields.affectedRows == 0) {
     return res.status(500).json({code:500, message: "Something went wrong" });

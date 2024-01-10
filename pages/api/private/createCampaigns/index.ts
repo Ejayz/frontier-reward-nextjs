@@ -31,7 +31,7 @@ export default async function handler(
 
     const { name, description,start_date,end_date,status, package_id,employee_id, created_at, updated_at,removed_at, is_exist } = req.body;
     try {
-      const [results,fields] =<RowDataPacket[]> await connection.query(`INSERT INTO campaigns (name,description,start_date,end_date,status,package_id,employee_id,created_at,updated_at,removed_at,is_exist) VALUES (?,?,?,?,?,?,?,?,?,?,?)`, [name,description,start_date,end_date,status,package_id,current_user,created_at,updated_at,removed_at,1])
+      const [results,fields] =<RowDataPacket[]> await connection.query(`INSERT INTO campaigns (name,description,start_date,end_date,status,package_id,employee_id,is_exist) VALUES (?,?,?,?,?,?,?,?)`, [name,description,start_date,end_date,status,package_id,current_user,1])
         if(fields.affectedRows>0){
             res.status(201).json({code:201,message:"Campaign created successfully"});
         }else{

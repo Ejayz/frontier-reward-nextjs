@@ -43,7 +43,7 @@ export default async function handler(
     const [results, fields] = <RowDataPacket[]>(
       await connection.query(
         `INSERT INTO actions (name,description,employee_id,is_exist) VALUES (?,?,?,?)`,
-        [name, description, created_at, updated_at, removed_at, current_user, 1]
+        [name, description,  current_user, 1]
       )
     );
 
