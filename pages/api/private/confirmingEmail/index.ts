@@ -25,19 +25,19 @@ export default async function handler(
  
 
     const [results,fields]= <RowDataPacket[]>await  connection.query(`UPDATE users SET email_verified_at=? where id=? and is_exist=1`, [new Date(), verify.id])
-    if (fields.affectedRows == 0) {
+    if (results.affectedRows == 0) {
       return res
         .status(500)
         .json({ code: 500, message: "Internal Server Error" });
     } else {
       
-      const [results] =<RowDataPacket[]>await connection.query(`SELECT *,employee_info.id AS employee_id , customer_info.id AS customer_id  FROM users LEFT JOIN user_type ON user_type.id=users.user_type LEFT JOIN customer_info ON customer_info.user_id=users.id LEFT JOIN employee_info ON employee_info.user_id= users.id WHERE users.id='${verify.id}' AND users.is_exist=1`);
+      const [results] =<RowDataPacket[]>await connection.query(`SELECT *,employee_info.id AS employee_id , customer_info.id AS customer_id ,users.id as core_id FROM users LEFT JOIN user_type ON user_type.id=users.user_type LEFT JOIN customer_info ON customer_info.user_id=users.id LEFT JOIN employee_info ON employee_info.user_id= users.id WHERE users.id='${verify.id}' AND users.is_exist=1`);
    
       let token;
       if(results[0].code=="(NULL)"  || results[0].code==undefined || results[0].code==null){
         token=jwt.sign(
           {
-            id: results[0].id,
+            id: results[0].core_id,
             role: results[0].user_type,
             role_name: results[0].name,
             main_id:
@@ -56,7 +56,7 @@ export default async function handler(
    }else if( results[0].password_change_at==undefined || results[0].password_change_at==null){
      token=jwt.sign(
         {
-          id: results[0].id,
+          id: results[0].core_id,
           role: results[0].name,
           role_name: results[0].name,
           main_id:
@@ -77,7 +77,7 @@ export default async function handler(
       
         token=jwt.sign(
           {
-            id: results[0].id,
+            id: results[0].core_id,
             role: results[0].user_type,
             role_name: results[0].name,
             main_id:
@@ -100,7 +100,7 @@ export default async function handler(
         .json({ code: 200, message: "Email Verified","passwordToken":token });
     }
   } catch (error: any) {
-
+    console.log(error)
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ code: 401, message: "Token Expired" });
     } else if (error.name === "JsonWebTokenError") {

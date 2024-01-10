@@ -26,7 +26,7 @@ export default async function hander(
     if (typeof verify == "string") {
       return res.status(401).json({ code: 401, message: "Invalid Token" });
     }
-    console.log(verify.password_change_at);
+    
     if (
       verify.password_change_at == null ||
       verify.password_change_at == true ||
@@ -41,8 +41,10 @@ export default async function hander(
         });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const [UpdatePasswordResult, UpdatePasswordFields] =<RowDataPacket[]> await connection.query( `UPDATE users SET password=?,password_change_at=? WHERE id=?`,
+    console.log(verify)
+    const [UpdatePasswordResult, UpdatePasswordFields] =<RowDataPacket[]> await connection.query( `UPDATE users SET password=?,password_change_at=? WHERE id=? and is_exist=1`,
     [hashedPassword,new Date(),verify.id] );
+      console.log(UpdatePasswordResult)
     if (UpdatePasswordResult.affectedRows == 0) {
       return res.status(500).json({code:500, message: "Something went wrong" });
     }else{
