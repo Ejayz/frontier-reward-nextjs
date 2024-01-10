@@ -43,7 +43,7 @@ export default function NormalInputShowPassword({
           >
             {showPassword == "text" ? (
               <Image
-                src="../images/seen.png"
+                src="/images/seen.png"
                 width={40}
                 height={40}
                 alt="Error Icon"
@@ -51,7 +51,7 @@ export default function NormalInputShowPassword({
               />
             ) : (
               <Image
-                src="../images/hide.png"
+                src="/images/hide.png"
                 width={40}
                 height={40}
                 alt="Error Icon"

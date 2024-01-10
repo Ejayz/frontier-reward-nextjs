@@ -60,7 +60,7 @@ export default function Page() {
         ) : (
           <div id="slide2" className="carousel-item relative w-full">
             <Image
-              src="../images/slider-2.png"
+              src="/images/slider-2.png"
               className="w-full"
               width={1051}
               height={249}

@@ -219,7 +219,7 @@ export default function Page() {
                     {(msg) => (
                       <div className="text-red-600 flex">
                         <Image
-                          src="../icons/warning.svg"
+                          src="/icons/warning.svg"
                           width={20}
                           height={20}
                           alt="Error Icon"
@@ -245,7 +245,7 @@ export default function Page() {
                     {(msg) => (
                       <div className="text-red-600 flex">
                         <Image
-                          src="../icons/warning.svg"
+                          src="/icons/warning.svg"
                           width={20}
                           height={20}
                           alt="Error Icon"
@@ -366,7 +366,7 @@ export default function Page() {
                           onClick={() => handleEditClick(element)}
                         >
                           <Image
-                            src="../icons/editicon.svg"
+                            src="/icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
@@ -375,7 +375,7 @@ export default function Page() {
                         </label>
                         <button className="btn btn-sm btn-error">
                           <Image
-                            src="../icons/deleteicon.svg"
+                            src="/icons/deleteicon.svg"
                             width={20}
                             height={20}
                             alt="Delete Icon"

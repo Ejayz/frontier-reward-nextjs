@@ -52,7 +52,7 @@ export default function Page() {
         <div className="hero-content flex-col">
           <div className="text-center lg:text-center">
             <div className="w-60">
-              <Image src="./images/logo.png" width={642} height={620} alt="" />
+              <Image src="/images/logo.png" width={642} height={620} alt="" />
             </div>
           </div>
           <div className="card flex-shrink-0 w-96 max-w-sm shadow-2xl bg-yellow-400">
