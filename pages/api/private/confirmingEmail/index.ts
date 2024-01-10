@@ -25,7 +25,6 @@ export default async function handler(
  
 
     const [results,fields]= <RowDataPacket[]>await  connection.query(`UPDATE users SET email_verified_at=? where id=? and is_exist=1`, [new Date(), verify.id])
-
     if (fields.affectedRows == 0) {
       return res
         .status(500)

@@ -67,7 +67,10 @@ export default function Page() {
                 const data = await isLoggedIn.json();
                 if (isLoggedIn.ok) {
                   toast.success(data.message);
-                  if (data.token.is_email_verified == false) {
+                  if (
+                    data.token.is_email_verified == false ||
+                    data.token.password_change_at == false
+                  ) {
                     toast.error("Please verify your email first.");
                     nav.push("/verifyemail");
                   } else if (data.token.role == 1) {

@@ -103,7 +103,18 @@ const connection=await Connection.getConnection();
         }
       )
     }
-    console.log(token)
+    console.log( {
+      id: results[0].id,
+      role: results[0].user_type,
+      role_name: results[0].name,
+      main_id:
+      results[0].employee_id ==undefined || results[0].employee_id==null
+        ? results[0].customer_id
+        : results[0].employee_id,
+        is_employee: results[0].employee_id==null ? false : true,
+        is_email_verified: results[0].email_verified_at ? true : false,
+        password_change_at: results[0].password_change_at==null?false:true
+    })
     res
       .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
       .status(200)
@@ -120,6 +131,7 @@ const connection=await Connection.getConnection();
             : results[0].employee_id,
             is_employee: results[0].employee_id==null ? false : true,
             is_email_verified: results[0].email_verified_at ? true : false,
+            password_change_at: results[0].password_change_at==null?false:true
         },
       });
   } catch (error: any) {
