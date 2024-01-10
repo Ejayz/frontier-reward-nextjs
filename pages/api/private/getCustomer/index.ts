@@ -1,11 +1,10 @@
-import { Prisma, PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
 import Connection from "../../db";
-import prisma from "@/lib/prisma";
 import { randomUUID } from "crypto";
+import { RowDataPacket } from "mysql2";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -17,9 +16,7 @@ export default async function handler(
   if (req.method !== "GET") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
-  const prisma=new PrismaClient({
-    log: ["query"],
-  });
+ const connection=await Connection.getConnection();
   console.log(req.query);
   const { keyword, page } = req.query;
   const formattedKeyword=`*${keyword}*`
@@ -27,6 +24,7 @@ export default async function handler(
   const offset=page?parseInt(page.toString())*10:0;
   const limit=10;
   let rows 
+  let fields
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     if (typeof verify === "string") {
@@ -34,14 +32,13 @@ export default async function handler(
         .status(401)
         .json({ code: 401, message: "User is not authenticated" });
     }
-    // const query = Connection.format(
-    //        [formattedKeyword, formattedKeyword, formattedKeyword,formattedKeyword]
-    // );
-    // const [rows, error] = await Connection.execute(query);
+
  if(keyword!=""){
-  rows=await prisma.$queryRaw(Prisma.sql `SELECT *,packages.name as package_name, customer_info.id as customer_id FROM customer_info LEFT JOIN users ON customer_info.user_id = users.id  LEFT JOIN user_type ON users.user_type = user_type.id LEFT JOIN customer_address ON customer_info.address_id = customer_address.id LEFT JOIN packages ON packages.id=customer_info.package_id WHERE ( MATCH (users.email) AGAINST (${formattedKeyword} IN BOOLEAN MODE)  OR MATCH (customer_info.first_name) AGAINST (${formattedKeyword} IN BOOLEAN MODE) OR MATCH(customer_info.middle_name) AGAINST (${formattedKeyword} IN BOOLEAN MODE) OR MATCH (customer_info.last_name) AGAINST (${formattedKeyword} IN BOOLEAN MODE)) AND  users.is_exist=1 and users.user_type=4  LIMIT ${limit} OFFSET ${offset} `,)
+   [rows,fields]= <RowDataPacket[] >await connection.query(`SELECT *,packages.name as package_name, customer_info.id as customer_id FROM customer_info LEFT JOIN users ON customer_info.user_id = users.id  LEFT JOIN user_type ON users.user_type = user_type.id LEFT JOIN customer_address ON customer_info.address_id = customer_address.id LEFT JOIN packages ON packages.id=customer_info.package_id WHERE ( MATCH (users.email) AGAINST (? IN BOOLEAN MODE)  OR MATCH (customer_info.first_name) AGAINST (? IN BOOLEAN MODE) OR MATCH(customer_info.middle_name) AGAINST (? IN BOOLEAN MODE) OR MATCH (customer_info.last_name) AGAINST (? IN BOOLEAN MODE)) AND  users.is_exist=1 and users.user_type=4  LIMIT ? OFFSET ?`
+   ,[formattedKeyword,formattedKeyword,formattedKeyword,formattedKeyword,limit,offset])
  }else{
-  rows=await prisma.$queryRaw(Prisma.sql `SELECT * ,packages.name as package_name, customer_info.id as customer_id FROM customer_info LEFT JOIN users ON customer_info.user_id = users.id  LEFT JOIN user_type ON users.user_type = user_type.id LEFT JOIN customer_address ON customer_info.address_id = customer_address.id LEFT JOIN packages ON packages.id=customer_info.package_id WHERE users.is_exist=1 and users.user_type=4  LIMIT ${limit} OFFSET ${offset} `,)
+  [rows,fields]=<RowDataPacket[]> await connection.query(`SELECT * ,packages.name as package_name, customer_info.id as customer_id FROM customer_info LEFT JOIN users ON customer_info.user_id = users.id  LEFT JOIN user_type ON users.user_type = user_type.id LEFT JOIN customer_address ON customer_info.address_id = customer_address.id LEFT JOIN packages ON packages.id=customer_info.package_id WHERE users.is_exist=1 and users.user_type=4  LIMIT ? OFFSET ? `
+  , [limit,offset])
  }
 
 
@@ -63,5 +60,6 @@ export default async function handler(
         .json({ code: 500, message: "Internal Server Error" });
     }
   } finally {
+    await Connection.releaseConnection(connection);
   }
 }

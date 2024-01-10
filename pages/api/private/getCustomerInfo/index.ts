@@ -2,7 +2,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import { Prisma, PrismaClient } from "@prisma/client";
+
+import Connection from "../../db";
+import { RowDataPacket } from "mysql2";
 
 dotenv.config();
 
@@ -16,9 +18,7 @@ export default async function handler(
     if(req.method !== "GET"){
         return res.status(405).json({code:405,message:"Method not allowed"})
     }
-    const prisma=new PrismaClient({
-        log:["query"],
-    });
+  
     const auth=new Cookies(req,res).get("auth")||"";
     const verify = jwt.verify(auth, JWT_SECRET);
     if (typeof verify === "string") {
@@ -29,30 +29,21 @@ export default async function handler(
     if(req.query.user_id==undefined){
         return res.status(400).json({code:400,message:"User id is required"})
     }
-
+    const connection=await Connection.getConnection();
     try{
         const user_id=req.query.user_id||0;
         if(typeof user_id !== "string"){
             return res.status(400).json({code:400,message:"User id must be a string"})
         }
-        const customer=await prisma.customer_info.findUnique({
-            where:{
-                id:parseInt(user_id) || 0
-            },
-            include:{
-                customer_address:true,
-                packages:true,
-                users:true,
-                customer_vehicle_info:true,
-            }
-        })
-        const vehicles=await prisma.$queryRaw(Prisma.sql`SELECT *,vin_id as vin_no, id as table_uuid FROM customer_vehicle_info WHERE customer_info_id=${user_id} and is_exist=1`)
-        console.log(vehicles)
-        if(customer==null){
+        const [customerResult,customerFields]=<RowDataPacket[]>await connection.query(`SELECT * FROM customer_info LEFT JOIN customer_address ON customer_address.id=customer_info.address_id LEFT JOIN packages ON packages.id = customer_info.package_id LEFT JOIN users ON users.id ON customer_info.user_id WHERE customer_info.id=? and is_exist=1`,[user_id])
+        const [customerVehicleResult,customerVehicleFields]=<RowDataPacket[]>await connection.query(`SELECT *,vin_id as vin_no, id as table_uuid FROM customer_vehicle_info WHERE customer_info_id=? and is_exist=1`,[user_id])
+
+       
+        if(customerResult.length==0){
             return res.status(404).json({code:404,message:"Customer not found"})
         }
 
-       return res.status(200).json({code:200,message:"Success",data:customer,vehicles:vehicles})
+       return res.status(200).json({code:200,message:"Success",data:customerResult,vehicles:customerVehicleResult})
     }catch(error:any){
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({ code: 401, message: "jwt expired" });
@@ -67,7 +58,7 @@ export default async function handler(
           }
     }
 finally{
-   prisma.$disconnect();
+  await Connection.releaseConnection(connection);
 }
 
 }

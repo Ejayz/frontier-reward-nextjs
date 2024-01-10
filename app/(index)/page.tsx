@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import Background from "../login-bg.png";
-import cookie_processor from "@/hooks/useCookieProcessor";
+import Image from "next/image";
 export default function Page() {
   const data = useSearchParams();
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function Page() {
         <div className="hero-content flex-col">
           <div className="text-center lg:text-center">
             <div className="w-60">
-              <img src="./images/logo.png" />
+              <Image src="./images/logo.png" width={642} height={620} alt="" />
             </div>
           </div>
           <div className="card flex-shrink-0 w-96 max-w-sm shadow-2xl bg-yellow-400">

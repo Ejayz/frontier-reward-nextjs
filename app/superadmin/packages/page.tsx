@@ -9,6 +9,7 @@ import {
   FormikProps,
   FormikValues,
 } from "formik";
+import Image from "next/image";
 import * as yup from "yup";
 import { useToast } from "@/hooks/useToast";
 import {
@@ -222,7 +223,7 @@ export default function Page() {
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
+                        <Image
                           src="../icons/warning.svg"
                           width={20}
                           height={20}
@@ -248,7 +249,7 @@ export default function Page() {
                   <ErrorMessage name="description" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
+                        <Image
                           src="../icons/warning.svg"
                           width={20}
                           height={20}
@@ -274,7 +275,7 @@ export default function Page() {
                   <ErrorMessage name="multiplier" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
+                        <Image
                           src="../icons/warning.svg"
                           width={20}
                           height={20}
@@ -339,7 +340,7 @@ export default function Page() {
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
+                        <Image
                           src="../icons/warning.svg"
                           width={20}
                           height={20}
@@ -365,7 +366,7 @@ export default function Page() {
                   <ErrorMessage name="description" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
+                        <Image
                           src="../icons/warning.svg"
                           width={20}
                           height={20}
@@ -391,7 +392,7 @@ export default function Page() {
                   <ErrorMessage name="multiplier" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
-                        <img
+                        <Image
                           src="../icons/warning.svg"
                           width={20}
                           height={20}
@@ -457,7 +458,7 @@ export default function Page() {
                           className="btn btn-sm btn-info mr-2"
                           onClick={() => handleEditClick(element)}
                         >
-                          <img
+                          <Image
                             src="../icons/editicon.svg"
                             width={20}
                             height={20}
@@ -466,7 +467,7 @@ export default function Page() {
                           Edit
                         </label>
                         <button className="btn btn-sm btn-error">
-                          <img
+                          <Image
                             src="../icons/deleteicon.svg"
                             width={20}
                             height={20}

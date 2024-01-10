@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useState } from "react";
-
+import Image from "next/image";
 export default function Page() {
   const [carousel, setCarousel] = useState(1);
   const [transactions, setTransactions] = useState({
@@ -23,7 +23,13 @@ export default function Page() {
       <div className="carousel w-full mt-2 mx-auto">
         {carousel == 1 ? (
           <div id="slide1" className="carousel-item relative w-full">
-            <img src="/images/slider-1.png" className="w-full" />
+            <Image
+              src="/images/slider-1.png"
+              className="w-full"
+              width={1051}
+              height={249}
+              alt=""
+            />
             <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
               <button
                 onClick={() => {
@@ -53,7 +59,13 @@ export default function Page() {
           </div>
         ) : (
           <div id="slide2" className="carousel-item relative w-full">
-            <img src="../images/slider-2.png" className="w-full" />
+            <Image
+              src="../images/slider-2.png"
+              className="w-full"
+              width={1051}
+              height={249}
+              alt=""
+            />
             <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
               <button
                 onClick={() => {

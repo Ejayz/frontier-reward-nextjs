@@ -2,17 +2,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
+import Image from "next/image";
 import {
-  QueryClient,
-  dataTagSymbol,
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+
 import { useToast } from "@/hooks/useToast";
-import { act } from "react-dom/test-utils";
-import LabeledSelectInput from "@/components/LabeledSelectInput";
 
 type rewardslist = {
   name: string;
@@ -270,7 +268,7 @@ export default function Page() {
                 <ErrorMessage name="quantity" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
-                      <img
+                      <Image
                         src="../icons/warning.svg"
                         width={20}
                         height={20}
@@ -296,7 +294,7 @@ export default function Page() {
                 <ErrorMessage name="name" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
-                      <img
+                      <Image
                         src="../icons/warning.svg"
                         width={20}
                         height={20}
@@ -322,7 +320,7 @@ export default function Page() {
                 <ErrorMessage name="description" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
-                      <img
+                      <Image
                         src="../icons/warning.svg"
                         width={20}
                         height={20}
@@ -386,7 +384,7 @@ export default function Page() {
                     <td className="flex">
                       <div className="flex mx-auto">
                         <button className="btn btn-sm btn-info mr-2">
-                          <img
+                          <Image
                             src="../icons/editicon.svg"
                             width={20}
                             height={20}
@@ -395,7 +393,7 @@ export default function Page() {
                           Edit
                         </button>
                         <button className="btn btn-sm btn-error">
-                          <img
+                          <Image
                             src="../icons/deleteicon.svg"
                             width={20}
                             height={20}

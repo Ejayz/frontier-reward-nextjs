@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../../lib/prisma";
+
 import Cookies from "cookies";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
+import Connection from "../../db";
+import { RowDataPacket } from "mysql2/promise";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
 export default async function handler(
@@ -14,26 +16,13 @@ export default async function handler(
   }
 
   const auth = new Cookies(req, res).get("auth") || "";
-
+  const connection = await Connection.getConnection();
   try {
     const verify = await jwt.verify(auth, JWT_SECRET);
-    const packagesList = await prisma.packages.findMany({
-      where: { is_exist: 1 },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        created_at: true,
-        updated_at: true,
-        removed_at: true,
-      },
-    });
-    const modifiedPackagesList = packagesList.map((packages) => ({
-      value: packages.id,
-      text: packages.name,
-    }));
+    const [packageListResult, packageListFields] = <RowDataPacket[]> await connection.query( `SELECT id as value , name as text FROM packages WHERE is_exist=1 ORDER BY id DESC` );
 
-    return res.status(200).json({ data: modifiedPackagesList });
+
+    return res.status(200).json({ data: packageListResult });
   } catch (err: any) {
     if (err.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token Expired" });
@@ -45,6 +34,6 @@ export default async function handler(
       return res.status(500).json({ message: "Internal Server Error" });
     }
   } finally {
-    await prisma.$disconnect();
+    await Connection.releaseConnection(connection);
   }
 }

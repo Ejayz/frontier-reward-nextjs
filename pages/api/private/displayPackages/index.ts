@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
+import Connection from "../../db";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -17,36 +17,16 @@ export default async function handler(
       message: "Invalid method. This endpoint only accept GET method",
     });
   }
-  const prisma = new PrismaClient();
+  const connection=await Connection.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
   try {
     jwt.verify(auth, JWT_SECRET);
     const reqQuery = parseInt(req.query.page as string) || 1;
     const skip = (reqQuery - 1) * 10;
     const take = 10;
-    const transactions = await prisma.packages.findMany({
-      where: {
-        is_exist: 1,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        multiplier: true,
-        created_at: true,
-        updated_at: true,
-        removed_at: true,
-        is_exist: true,
-        
-      },
-      skip: skip,
-      take: take,
-      orderBy: {
-        id: "desc",
-      },
-    });
-    console.log(transactions);
-    return res.status(200).json({ code: 200, data: transactions });
+    const [packagesResult, packagesFields] = await connection.query( `SELECT * FROM packages WHERE is_exist=1 ORDER BY id DESC LIMIT ?,?`, [skip, take] );
+
+    return res.status(200).json({ code: 200, data: packagesResult });
   } catch (e: any) {
     if (e.name === "TokenExpiredError") {
       return res.status(401).json({ code: 401, message: "Token Expired" });
@@ -58,6 +38,6 @@ export default async function handler(
       return res.status(500).json({ code: 500, message: e.message });
     }
   } finally {
-    prisma.$disconnect();
+    await Connection.releaseConnection(connection);
   }
 }

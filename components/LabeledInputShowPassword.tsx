@@ -42,7 +42,7 @@ export default function NormalInputShowPassword({
             className="btn join-item"
           >
             {showPassword == "text" ? (
-              <img
+              <Image
                 src="../images/seen.png"
                 width={40}
                 height={40}
@@ -50,7 +50,7 @@ export default function NormalInputShowPassword({
                 className="error-icon pr-1"
               />
             ) : (
-              <img
+              <Image
                 src="../images/hide.png"
                 width={40}
                 height={40}

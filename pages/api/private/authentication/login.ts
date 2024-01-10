@@ -1,15 +1,16 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import * as bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
+import Connection from "../../db";
+import { RowDataPacket } from "mysql2";
 dotenv.config();
 const jwt_secret = process.env.JWT_SECRET || "";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-
+const connection=await Connection.getConnection();
 
   let  token;
 
@@ -26,59 +27,54 @@ export default async function handler(
     return;
   }
   const { email, password } = req.body;
-  console.log(email, password);
-  const prisma = new PrismaClient();
+
   try {
-    const user = await prisma.users.findFirst({
-      where: { email: email, is_exist: 1 },
-      include: {
-        user_type_users_user_typeTouser_type: true,
-        customer_info: true,
-        employee_info: true,
-      },
-    });
-    console.log(user);
-    if (!user) {
-      res.status(404).json({ code: 404, message: "Invalid credentials used." });
-      return;
-    }
-    const passwordValid = await bcrypt.compare(password, user.password);
+
+    const [results] =<RowDataPacket[]>await connection.query(`SELECT *,employee_info.id AS employee_id , customer_info.id AS customer_id  FROM users LEFT JOIN user_type ON user_type.id=users.user_type LEFT JOIN customer_info ON customer_info.user_id=users.id LEFT JOIN employee_info ON employee_info.user_id= users.id WHERE users.email='${email}' AND users.is_exist=1`);
+   
+   console.log(results[0])
+   if(Array.isArray(results) && results.length===0 ){
+  return res.status(404).json({ code: 404, message: "Invalid credentials used." });
+   
+   }
+  
+    const passwordValid = await bcrypt.compare(password,  results[0].password);
     if (!passwordValid) {
       res.status(401).json({ code: 401, message: "Invalid credentials used." });
       return;
     }
-    if(user.code=="(NULL)"  || user.code==undefined || user.code==null){
+    if(results[0].code=="(NULL)"  || results[0].code==undefined || results[0].code==null){
       token=jwt.sign(
         {
-          id: user.id,
-          role: user.user_type,
-          role_name: user.user_type_users_user_typeTouser_type.name,
+          id: results[0].id,
+          role: results[0].user_type,
+          role_name: results[0].name,
           main_id:
-            user.employee_info.length > 0
-              ? user.employee_info[0].id
-              : user.customer_info[0].id,
-          is_employee: user.employee_info.length > 0 ? true : false,
-          is_email_verified: user.email_verified_at ? true : false,
-          code:user.code
+            results[0].employee_id ==undefined || results[0].employee_id==null
+              ? results[0].customer_id
+              : results[0].employee_id,
+          is_employee: results[0].employee_id==null ? false : true,
+          is_email_verified: results[0].email_verified_at ? true : false,
+          code:results[0].code
         },
         jwt_secret,
         {
           expiresIn: "1h",
         }
       )
- }else if( user.password_change_at==undefined || user.password_change_at==null){
+ }else if( results[0].password_change_at==undefined || results[0].password_change_at==null){
    token=jwt.sign(
       {
-        id: user.id,
-        role: user.user_type,
-        role_name: user.user_type_users_user_typeTouser_type.name,
+        id: results[0].id,
+        role: results[0].name,
+        role_name: results[0].name,
         main_id:
-          user.employee_info.length > 0
-            ? user.employee_info[0].id
-            : user.customer_info[0].id,
-        is_employee: user.employee_info.length > 0 ? true : false,
-        is_email_verified: user.email_verified_at ? true : false,
-        code:user.code,
+        results[0].employee_id ==undefined || results[0].employee_id==null
+          ? results[0].customer_id
+          : results[0].employee_id,
+          is_employee: results[0].employee_id==null ? false : true,
+          is_email_verified: results[0].email_verified_at ? true : false,
+        code:results[0].code,
         password_change_at:false
       },
       jwt_secret,
@@ -90,15 +86,15 @@ export default async function handler(
     
       token=jwt.sign(
         {
-          id: user.id,
-          role: user.user_type,
-          role_name: user.user_type_users_user_typeTouser_type.name,
+          id: results[0].id,
+          role: results[0].user_type,
+          role_name: results[0].name,
           main_id:
-            user.employee_info.length > 0
-              ? user.employee_info[0].id
-              : user.customer_info[0].id,
-          is_employee: user.employee_info.length > 0 ? true : false,
-          is_email_verified: user.email_verified_at ? true : false,
+          results[0].employee_id ==undefined || results[0].employee_id==null
+            ? results[0].customer_id
+            : results[0].employee_id,
+            is_employee: results[0].employee_id==null ? false : true,
+            is_email_verified: results[0].email_verified_at ? true : false,
         },
         jwt_secret,
         {
@@ -106,7 +102,7 @@ export default async function handler(
         }
       )
     }
-   
+    console.log(token)
     res
       .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
       .status(200)
@@ -114,20 +110,20 @@ export default async function handler(
         code: 200,
         message: "Login successful",
         token: {
-          id: user.id,
-          role: user.user_type,
-          role_name: user.user_type_users_user_typeTouser_type.name,
+          id: results[0].id,
+          role: results[0].user_type,
+          role_name: results[0].name,
           main_id:
-            user.employee_info.length > 0
-              ? user.employee_info[0].id
-              : user.customer_info[0].id,
-          is_employee: user.employee_info.length > 0 ? true : false,
-          is_email_verified: user.email_verified_at ? true : false,
+          results[0].employee_id ==undefined || results[0].employee_id==null
+            ? results[0].customer_id
+            : results[0].employee_id,
+            is_employee: results[0].employee_id==null ? false : true,
+            is_email_verified: results[0].email_verified_at ? true : false,
         },
       });
   } catch (error: any) {
     res.status(500).json({ code: 500, message: error.message });
   } finally {
-    await prisma.$disconnect();
+    Connection.releaseConnection(connection);
   }
 }
