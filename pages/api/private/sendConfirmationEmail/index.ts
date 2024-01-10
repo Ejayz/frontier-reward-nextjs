@@ -21,6 +21,7 @@ export default async function handler(
     return;
   }
   const user_token = jwt.decode(cookies);
+  console.log(user_token)
   if (typeof user_token == "string") {
     return res.status(401).json({ message: "Invalid Token" });
   }
@@ -45,6 +46,7 @@ export default async function handler(
     const [UserAccountResult, UserAccountFields] = <RowDataPacket[]>(
       await connection.query(`SELECT *,customer_info.first_name as CustomerFirstName,customer_info.last_name as CustomerLastName,employee_info.first_name as EmployeeFirstName,employee_info.last_name as EmployeeLastName FROM users LEFT JOIN employee_info ON employee_info.id= users.id LEFT JOIN customer_info ON customer_info.id=users.id LEFT JOIN user_type ON user_type.id =users.user_type WHERE users.id=? AND users.is_exist=1`, [verify.id])
       );
+      console.log(UserAccountResult)
     if (UserAccountResult[0].email_verified_at) {
       return res.status(401).json({ message: "Email Already Verified" });
     }
