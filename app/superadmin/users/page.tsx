@@ -13,6 +13,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import "yup-phone-lite";
+import Image from "next/image";
 type vehicleType = {
   table_uuid: string;
   year: string;
@@ -31,6 +32,7 @@ type phoneType = {
 };
 export default function Page() {
   const nav = useRouter();
+  const [keyword, setKeyword] = useState<string>("");
   const [userType, setUserType] = useState("");
   const [page, setPage] = useState(0);
   const modalForm = useRef<HTMLDialogElement>(null);
@@ -865,6 +867,9 @@ export default function Page() {
   useEffect(() => {
     customerRefetch();
   }, [searchForm.current?.values.keyword]);
+  useEffect(() => {
+    console.log(keyword);
+  }, [keyword]);
   const confirmBox = useRef<HTMLInputElement>(null);
   const CustomerAccountDetail = useRef<FormikProps<any>>(null);
   const VehicleDetail = useRef<FormikProps<any>>(null);
@@ -1351,8 +1356,7 @@ export default function Page() {
                 </Formik>
                 <div className="divider uppercase">Vehicle Information</div>
                 <Formik
- 
- innerRef={VehicleDetail}
+                  innerRef={VehicleDetail}
                   initialValues={{
                     year: "",
                     model: "",
@@ -1713,6 +1717,9 @@ export default function Page() {
                           className="input input-bordered join-item"
                           errors={errors.keyword}
                           touched={touched.keyword}
+                          onChange={(e: any) => {
+                            setKeyword(e.target.value);
+                          }}
                           classes="text-base"
                           label="Search"
                         />
@@ -1811,18 +1818,47 @@ export default function Page() {
                                 <button
                                   onClick={() => {
                                     nav.push(
-                                      `/superadmin/users/update/?user_id=${customer.customer_id}`
+                                      `/superadmin/users/updatevehicle/?user_id=${customer.customer_id}`
                                     );
                                   }}
                                   type="button"
-                                  className="btn btn-sm btn-info mr-5"
+                                  className="btn btn-info mr-5"
                                 >
-                                  Edit
+                                  <Image
+                                    src="/images/update-car.png"
+                                    alt="edit"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  <span> Edit Vehicle</span>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    nav.push(
+                                      `/superadmin/users/updateaccount/?user_id=${customer.customer_id}`
+                                    );
+                                  }}
+                                  type="button"
+                                  className="btn btn-info mr-5"
+                                >
+                                  <Image
+                                    src="/images/update-user.png"
+                                    alt="edit"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  <span> Edit Account</span>
                                 </button>
                                 <button
                                   type="button"
-                                  className="btn btn-sm btn-error"
+                                  className="btn  btn-error"
                                 >
+                                  <Image
+                                    src="/icons/deleteicon.svg"
+                                    width={20}
+                                    height={20}
+                                    alt="Delete Icon"
+                                  />
                                   Delete
                                 </button>
                               </td>

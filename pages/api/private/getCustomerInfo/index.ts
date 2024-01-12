@@ -21,6 +21,7 @@ export default async function handler(
   
     const auth=new Cookies(req,res).get("auth")||"";
     const verify = jwt.verify(auth, JWT_SECRET);
+    console.log(typeof verify === "string")
     if (typeof verify === "string") {
       return res
         .status(401)
@@ -35,16 +36,17 @@ export default async function handler(
         if(typeof user_id !== "string"){
             return res.status(400).json({code:400,message:"User id must be a string"})
         }
-        const [customerResult,customerFields]=<RowDataPacket[]>await connection.query(`SELECT * FROM customer_info LEFT JOIN customer_address ON customer_address.id=customer_info.address_id LEFT JOIN packages ON packages.id = customer_info.package_id LEFT JOIN users ON users.id ON customer_info.user_id WHERE customer_info.id=? and is_exist=1`,[user_id])
-        const [customerVehicleResult,customerVehicleFields]=<RowDataPacket[]>await connection.query(`SELECT *,vin_id as vin_no, id as table_uuid FROM customer_vehicle_info WHERE customer_info_id=? and is_exist=1`,[user_id])
+        const [customerResult,customerFields]=<RowDataPacket[]>await connection.query(`SELECT * FROM customer_info LEFT JOIN customer_address ON customer_address.id=customer_info.address_id LEFT JOIN packages ON packages.id = customer_info.package_id LEFT JOIN users ON users.id = customer_info.user_id WHERE customer_info.id=? and users.is_exist=1`,[user_id])
+        const [customerVehicleResult,customerVehicleFields]=<RowDataPacket[]>await connection.query(`SELECT *,vin_id as vin_no, id as table_uuid ,(true) AS isFromDb FROM customer_vehicle_info WHERE customer_info_id=? and is_exist=1`,[user_id])
 
        
         if(customerResult.length==0){
             return res.status(404).json({code:404,message:"Customer not found"})
         }
-
+        console.log(customerVehicleResult)
        return res.status(200).json({code:200,message:"Success",data:customerResult,vehicles:customerVehicleResult})
     }catch(error:any){
+      console.log(error)
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({ code: 401, message: "jwt expired" });
           } else if (error.name === "JsonWebTokenError") {
@@ -54,7 +56,7 @@ export default async function handler(
           } else {
             return res
               .status(401)
-              .json({ code: 401, message: "User is not authenticated" });
+              .json({ code: 500, message:"Something went wrong. Please try again." });
           }
     }
 finally{
