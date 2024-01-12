@@ -130,6 +130,7 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     id:rowDataToEdit? rowDataToEdit.id:0,
+    updated_at: new Date().toISOString(),
     
     // ... add other fields as needed ...
   };
@@ -149,14 +150,11 @@ export default function Page() {
       };
   
       try {
+        console.log("the values are: ",values);
         const response = await fetch(`/api/private/editActions/`, {
           method: 'POST',
-          body: JSON.stringify({
-            id: values.id,
-            name: values.name,
-            description: values.description,
-            updated_at: new Date().toISOString(),
-          }),
+         
+          body: JSON.stringify(values), 
           headers: headersList,
         });
   
