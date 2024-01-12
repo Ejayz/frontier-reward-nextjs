@@ -12,13 +12,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  try {
+ 
     if (req.method !== 'POST') {
       return res.status(405).json({ message: 'Method not allowed' });
     }
+  // Get a database connection
+    const connection = await Connection.getConnection();
 
     // Ensure the request has a valid JWT token
     const auth = new Cookies(req, res).get('auth') || '';
+    try {
     const verify = jwt.verify(auth, JWT_SECRET);
 
     // Extract data from the request body
@@ -32,9 +35,7 @@ export default async function handler(
       });
     }
 
-    // Get a database connection
-    const connection = await Connection.getConnection();
-
+  
     // Update the action in the database
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
       `UPDATE actions SET name=?, description=?, updated_at=? WHERE id=?`,
