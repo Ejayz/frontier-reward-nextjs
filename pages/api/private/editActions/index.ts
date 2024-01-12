@@ -25,10 +25,10 @@ export default async function handler(
     const verify = jwt.verify(auth, JWT_SECRET);
 
     // Extract data from the request body
-    const { id, name, description, created_at, updated_at } = req.body;
+    const { id, name, description, updated_at } = req.body;
 
     // Validate that required parameters are present
-    if (!id || !name || !description || !created_at || !updated_at) {
+    if (!id || !name || !description|| !updated_at) {
       return res.status(400).json({
         code: 400,
         message: 'Missing required parameters',
