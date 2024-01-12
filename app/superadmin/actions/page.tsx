@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 import {
@@ -16,6 +16,7 @@ type Element = {
   id: number;
   name: string;
   description: string;
+  updated_at: string;
   // Add other properties as needed
 };
 export default function Page() {
@@ -115,7 +116,6 @@ export default function Page() {
       setModalOpen(false);
     },
   });
-
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
   const actionValidation = yup.object().shape({
@@ -129,6 +129,8 @@ export default function Page() {
   const initialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
+    id:rowDataToEdit? rowDataToEdit.id:0,
+    
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
@@ -136,25 +138,62 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
-
-  useEffect(() => {
-    console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEdit) {
-      createActionRef.current?.setValues({
-        name: rowDataToEdit.name,
-        description: rowDataToEdit.description,
-        // ... add other fields as needed ...
-      });
-    }
-  }, [rowDataToEdit]);
-
-  const onSubmit = async (values: any) => {
+  const handleUpdateAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+  
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        const response = await fetch(`/api/private/editActions/`, {
+          method: 'POST',
+          body: JSON.stringify({
+            id: values.id,
+            name: values.name,
+            description: values.description,
+            updated_at: new Date().toISOString(),
+          }),
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Action Updated Successfully',
+        });
+  
+        RefetchActionPagination();
+        setProcessing(false);
+        editActionRef.current?.resetForm();
+        setEditModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast, RefetchActionPagination, editActionRef]
+  );
+  
+  const onSubmit = async (values:any) => {
     console.log("Edit Form submitted with values:", values);
-    // Add logic to update the table or perform other actions
+    handleUpdateAction(values);
     // ...
     setEditModalOpen(false);
   };
-
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
@@ -181,6 +220,7 @@ export default function Page() {
           <h3 className="font-bold text-lg">Add Action</h3>
           <Formik
             initialValues={{
+              
               name: "",
               description: "",
               created_at: new Date().toISOString(),
@@ -291,7 +331,7 @@ export default function Page() {
           <Formik
             initialValues={initialValues}
             enableReinitialize={true}
-            onSubmit={onSubmit}
+            onSubmit={handleUpdateAction} 
           >
             <Form>
               <div className="form-control bg-white">
