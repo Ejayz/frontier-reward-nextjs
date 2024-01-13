@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ErrorMessage,
   Field,
@@ -21,9 +21,11 @@ import {
 import { start } from "repl";
 
 type Element = {
+  id: number;
   name: string;
   description: string;
   multiplier: number;
+  updated_at: string;
 };
 
 export default function Page() {
@@ -31,20 +33,21 @@ export default function Page() {
 
   const [processing, setProcessing] = useState(false);
   const createPackageRef = useRef<FormikProps<any>>(null);
+  const editPackageRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
   useEffect(() => {
-    RefetchCampaignPagination();
+    RefetchPackagesPagination();
   }, [page]);
 
   const {
-    data: DataCampaignPagination,
+    data: DataPackagesPagination,
     isFetching,
     isLoading,
-    refetch: RefetchCampaignPagination,
+    refetch: RefetchPackagesPagination,
   } = useQuery({
-    queryKey: ["getCampaignPagination", page],
+    queryKey: ["getPackagesPagination", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -98,7 +101,7 @@ export default function Page() {
         message: "Campaign Created Successfully",
       });
 
-      RefetchCampaignPagination();
+      RefetchPackagesPagination();
       setProcessing(false);
       createPackageRef.current?.resetForm();
       setModalOpen(false);
@@ -131,6 +134,9 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
+    id : rowDataToEdit ? rowDataToEdit.id : 0,
+    update_at: new Date().toISOString(),
+
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
@@ -138,28 +144,58 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
+  const handleUpdatePackages = useCallback(
+    async (values: any) => {
+      setProcessing(true);
 
-  useEffect(() => {
-    console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEdit) {
-      createPackageRef.current?.setValues({
-        name: rowDataToEdit.name,
-        description: rowDataToEdit.description,
-        multiplier: rowDataToEdit.multiplier,
-        // ... add other fields as needed ...
-      });
-    }
-  }, [rowDataToEdit]);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/editPackage/`, {
+          method: 'POST',
+         
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Action Updated Successfully',
+        });
+        setEditModalOpen(false);
+        RefetchPackagesPagination();
+        setProcessing(false);
+        editPackageRef.current?.resetForm();
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast, RefetchPackagesPagination, editPackageRef,setEditModalOpen]
+  );
 
-  const onSubmit = async (values: any) => {
-    console.log("Edit Form submitted with values:", values);
-    // Add logic to update the table or perform other actions
-    // ...
+  console.log(DataPackagesPagination);
+useEffect(() => {
+  if (!processing) {
     setEditModalOpen(false);
-  };
-
-  console.log(DataCampaignPagination);
-
+  }
+}, [processing]);
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
@@ -319,9 +355,9 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Add Package</h3>
           <Formik
-            initialValues={initialValues}
-            enableReinitialize={true}
-            onSubmit={onSubmit}
+         initialValues={initialValues}
+         enableReinitialize={true}
+         onSubmit={handleUpdatePackages} 
           >
             {({ errors, touched }) => (
               <Form>
@@ -441,7 +477,7 @@ export default function Page() {
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataCampaignPagination.data.map((element: any) => {
+              DataPackagesPagination.data.map((element: any) => {
                 console.log(element);
                 return (
                   <tr key={element.id}>
@@ -505,7 +541,7 @@ export default function Page() {
             </button>
             <button
               onClick={() => {
-                if (DataCampaignPagination.data.length >= 7) {
+                if (DataPackagesPagination.data.length >= 7) {
                   const newPage = page + 1;
                   setPage(newPage);
                 }

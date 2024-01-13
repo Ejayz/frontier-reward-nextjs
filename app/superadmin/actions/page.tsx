@@ -122,7 +122,7 @@ export default function Page() {
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
   });
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(true);
   const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
 
   // ... other functions ...
@@ -142,7 +142,7 @@ export default function Page() {
   const handleUpdateAction = useCallback(
     async (values: any) => {
       setProcessing(true);
-  
+
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -168,11 +168,10 @@ export default function Page() {
           status: 'success',
           message: 'Action Updated Successfully',
         });
-  
+        setEditModalOpen(false);
         RefetchActionPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
-        setEditModalOpen(false);
       } catch (error) {
         showToast({
           status: 'error',
@@ -183,15 +182,9 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast, RefetchActionPagination, editActionRef,setEditModalOpen]
   );
-  
-  const onSubmit = async (values:any) => {
-    console.log("Edit Form submitted with values:", values);
-    handleUpdateAction(values);
-    // ...
-    setEditModalOpen(false);
-  };
+
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
