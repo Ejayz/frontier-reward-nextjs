@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowProps } from "@react-email/components";
 import { RowDataPacket } from "mysql2";
 
@@ -15,7 +15,8 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
-  const connection = await Connection.getConnection();
+
+  const connection = await instance.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
@@ -43,7 +44,7 @@ export default async function handler(
 
     const getDate = Date.parse(new Date().toString());
 
-    const transaction = await connection.beginTransaction();
+    const transaction = await await connection.beginTransaction();
     const [UpdateUserAccount] = <RowDataPacket[]>(
       await connection.query(
         `UPDATE customer_info SET first_name=?,middle_name=?,last_name=?,phone_number=?,email=?,package_id=?,points=?,suffix=?,updated_at=? WHERE id=? and is_exist=1`,
@@ -89,14 +90,14 @@ export default async function handler(
           .json({ code: 404, message: "Customer not found" });
       }
       await connection.commit();
-      return res
-        .status(200)
-        .json({
-          code: 200,
-          message: "Customer information updated successfully",
-        });
+      return res.status(200).json({
+        code: 200,
+        message: "Customer information updated successfully",
+      });
     }
   } catch (error: any) {
+    console.log(error);
+
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ code: 401, message: "jwt expired" });
     } else if (error.name === "JsonWebTokenError") {
@@ -110,6 +111,6 @@ export default async function handler(
       });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+   await connection.release();
   }
 }

@@ -2,8 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 
 dotenv.config();
@@ -30,7 +29,7 @@ export default async function handler(
     if(req.query.user_id==undefined){
         return res.status(400).json({code:400,message:"User id is required"})
     }
-    const connection=await Connection.getConnection();
+    const connection=await instance.getConnection();
     try{
         const user_id=req.query.user_id||0;
         if(typeof user_id !== "string"){
@@ -60,7 +59,7 @@ export default async function handler(
           }
     }
 finally{
-  await Connection.releaseConnection(connection);
+  await connection.release()
 }
 
 }

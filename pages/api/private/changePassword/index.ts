@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import * as bcrypt from "bcrypt";
-import Connection from "../../db";
+import instance from "../../db";
 import {  RowDataPacket } from "mysql2";
 dotenv.config();
 
@@ -19,7 +19,7 @@ export default async function handler(
     return res.status(400).json({ code: 400, message: "Bad request" });
   }
   const { password, token } = req.body;
-  const connection=await Connection.getConnection();
+  const connection=await instance.getConnection();
 
 
   try {
@@ -53,6 +53,6 @@ export default async function handler(
         return res.status(500).json({code:500,message:"Something went wrong.Please try again"})
     }
   } finally {
-    Connection.releaseConnection(connection);
+    await connection.release();
   }
 }

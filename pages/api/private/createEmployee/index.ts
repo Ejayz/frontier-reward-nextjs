@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 import * as generator from "generate-password";
 import { Resend } from "resend";
 import AccountCreation from "@/react-email-starter/emails/account-creation";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 
 dotenv.config();
@@ -23,7 +23,7 @@ export default async function handler(
   if (!req.body) {
     return res.status(400).json({ message: "No body provided" });
   }
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
   const resend = new Resend(RESEND_API);
   const {
     first_name,
@@ -103,6 +103,6 @@ export default async function handler(
       return res.status(500).json({ message: error.message });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+    await connection.release();
   }
 }

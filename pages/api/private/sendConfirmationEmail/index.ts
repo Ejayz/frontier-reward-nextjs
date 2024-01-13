@@ -4,7 +4,7 @@ import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import { Resend } from "resend";
 import ConfirmEmail from "@/react-email-starter/emails/confirm-email";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 
 dotenv.config();
@@ -36,7 +36,7 @@ export default async function handler(
         });
     }
   }
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
   const resend = new Resend(RESEND_SECRET);
   try {
     const verify = jwt.verify(cookies, JWT_SECRET);
@@ -96,6 +96,6 @@ export default async function handler(
       return res.status(500).json({ message: error.message });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+    await connection.release();
   }
 }

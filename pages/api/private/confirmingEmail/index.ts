@@ -2,8 +2,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
-import Connection from "../../db";
+import {  RowDataPacket } from "mysql2";
+import instance from "../../db";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
@@ -16,7 +16,7 @@ export default async function handler(
   }
   const { token } = req.body;
 
-  const connection=await Connection.getConnection();
+  const connection=await instance.getConnection();
   try {
     const verify = jwt.verify(token, JWT_SECRET);
     if (typeof verify == "string") {
@@ -113,6 +113,6 @@ export default async function handler(
         .json({ code: 401, message: "Internal Server Error" });
     }
   } finally {
-    Connection.releaseConnection(connection);
+    await connection.release();
   }
 }
