@@ -2,11 +2,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import Connection from "../../db";
-import { randomUUID } from "crypto";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
-
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
 export default async function handler(
@@ -16,7 +14,7 @@ export default async function handler(
   if (req.method !== "GET") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
- const connection=await Connection.getConnection();
+ const connection=await instance.getConnection();
   console.log(req.query);
   const { keyword, page } = req.query;
   const formattedKeyword=`*${keyword}*`
@@ -60,6 +58,6 @@ export default async function handler(
         .json({ code: 500, message: "Internal Server Error" });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+  await connection.release()
   }
 }

@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -18,7 +18,7 @@ export default async function handler(
   }
     const auth = new Cookies(req, res).get("auth") || "";
   const verify = jwt.verify(auth, JWT_SECRET);
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
     let current_user = 0;
     if (typeof verify === "string") {
       res.status(401).json({ code:401,message: "Invalid token" });
@@ -43,7 +43,7 @@ export default async function handler(
       console.error(error);
       res.status(500).json({ error: error.message });
     } finally{
-      await Connection.releaseConnection(connection);
+      await connection.release()
     }
  
 

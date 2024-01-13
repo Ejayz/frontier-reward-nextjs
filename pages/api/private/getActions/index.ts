@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
 
@@ -18,7 +18,7 @@ export default async function handler(
       message: "Invalid method. This endpoint only accept GET method",
     });
   }
-  const connection=await Connection.getConnection();
+  const connection=await instance.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
   try {
     jwt.verify(auth, JWT_SECRET);
@@ -38,6 +38,6 @@ export default async function handler(
       return res.status(500).json({ code: 500, message: e.message });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+    await connection.release();
   }
 }

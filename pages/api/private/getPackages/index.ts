@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Cookies from "cookies";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2/promise";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -16,7 +16,7 @@ export default async function handler(
   }
 
   const auth = new Cookies(req, res).get("auth") || "";
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
   try {
     const verify = await jwt.verify(auth, JWT_SECRET);
     const [packageListResult, packageListFields] = <RowDataPacket[]> await connection.query( `SELECT id as value , name as text FROM packages WHERE is_exist=1 ORDER BY id DESC` );
@@ -34,6 +34,6 @@ export default async function handler(
       return res.status(500).json({ message: "Internal Server Error" });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+    await connection.release();
   }
 }

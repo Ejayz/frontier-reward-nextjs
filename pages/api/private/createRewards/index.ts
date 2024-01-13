@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
 import { RowDataPacket } from "mysql2";
-import Connection from "../../db";
+import instance from "../../db";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_API = process.env.RESEND_SECRET || "";
@@ -17,7 +17,7 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
   try {
   const verify = jwt.verify(auth, JWT_SECRET);
@@ -56,6 +56,6 @@ export default async function handler(
     console.error(error);
     res.status(500).json({ error: error.message });
   }finally{
-    await Connection.releaseConnection(connection);
+    await connection.release();
   }
 }
