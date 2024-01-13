@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 
 export default async function handler(
@@ -12,7 +12,7 @@ export default async function handler(
       message: "Invalid method. This endpoint only accept GET method",
     });
   }
-const connection=await Connection.getConnection();
+const connection=await instance.getConnection();
 
   try {
     const reqQuery = parseInt(req.query.page as string) || 1;
@@ -24,6 +24,6 @@ const connection=await Connection.getConnection();
     console.log(e);
     return res.status(400).json({ code: 400, message: "Something went wrong" });
   } finally {
-    await Connection.releaseConnection(connection);
+    await connection.release();
   }
 }

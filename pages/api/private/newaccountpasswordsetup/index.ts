@@ -72,6 +72,6 @@ export default async function hander(
         .json({ code: 500, message: "Server error. Please try again later" });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+    await connection.release()
   }
 }

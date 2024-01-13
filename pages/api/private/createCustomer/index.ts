@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
-import Cookies, { connect } from "cookies";
+import Cookies from "cookies";
 import * as jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import * as generator from "generate-password";
 import * as bcrypt from "bcrypt";
 import AccountCreation from "@/react-email-starter/emails/account-creation";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -39,7 +39,7 @@ export default async function handler(
 
   const resend = new Resend(RESEND_API);
   const auth = new Cookies(req, res).get("auth") || "";
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
   try {
     
     const verify = jwt.verify(auth, JWT_SECRET);
@@ -150,7 +150,7 @@ export default async function handler(
 
 
   } finally {
-  await  Connection.releaseConnection(connection);
+  await  connection.release();
   }
 }
 

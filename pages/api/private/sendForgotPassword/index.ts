@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import Cookies from "cookies";
 import { Resend } from "resend";
 import ForgotPassword from "@/react-email-starter/emails/forgot-password";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 
 dotenv.config();
@@ -19,7 +19,8 @@ export default async function handler(
   if (req.method != "POST") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
-  const connection = await Connection.getConnection();
+
+  const connection = await instance.getConnection();
   const resend = new Resend(RESEND_SECRET);
 
   try {
@@ -93,6 +94,6 @@ console.log(UsersAccountResult)
       return res.status(500).json({ code: 500, message: error.message });
     }
   } finally {
-    await Connection.releaseConnection(connection);
+  await connection.release();
   }
 }

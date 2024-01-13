@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import Connection from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -16,7 +16,7 @@ export default async function handler(
     res.status(405).json({ error: "Method Not Allowed" });
   }
   const auth = new Cookies(req, res).get("auth") || "";
-  const connection = await Connection.getConnection();
+  const connection = await instance.getConnection();
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     let current_user = 0;
@@ -60,6 +60,6 @@ export default async function handler(
     res.status(500).json({ error: error.message });
   }
   finally{
-    Connection.releaseConnection(connection);
+    await connection.release()
   }
 }
