@@ -191,7 +191,11 @@ export default function Page() {
   );
 
   console.log(DataPackagesPagination);
-
+useEffect(() => {
+  if (!processing) {
+    setEditModalOpen(false);
+  }
+}, [processing]);
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
