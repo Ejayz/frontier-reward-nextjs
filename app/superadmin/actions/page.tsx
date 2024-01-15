@@ -17,7 +17,8 @@ type Element = {
   name: string;
   description: string;
   updated_at: string;
-  is_exist: 0;
+  is_exist: number;
+  removed_at: string;
   // Add other properties as needed
 };
 export default function Page() {
@@ -119,28 +120,38 @@ export default function Page() {
   });
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
   const actionValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
   });
 
   const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
+
   // ... other functions ...
-  const initialValues = {
+  const UpdateinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     id:rowDataToEdit? rowDataToEdit.id:0,
     updated_at: new Date().toISOString(),
     is_exist: 0,
-
     // ... add other fields as needed ...
   };
+  
   const handleEditClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
-    setEditModalOpen(true);
+    setEditModalOpen(false);
   };
+  const RemoveinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
+    removed_at: new Date().toISOString(),
+    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+  };
+  
   const handleUpdateAction = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -154,53 +165,6 @@ export default function Page() {
       try {
         console.log("the values are: ",values);
         const response = await fetch(`/api/private/editActions/`, {
-          method: 'POST',
-         
-          body: JSON.stringify(values.is_exist=0), 
-          headers: headersList,
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-  
-        showToast({
-          status: 'success',
-          message: 'Action Updated Successfully',
-        
-        });
-        RefetchActionPagination();
-        setProcessing(false);
-        editActionRef.current?.resetForm();
-        setEditModalOpen(false);
-      } catch (error) {
-        showToast({
-          status: 'error',
-          message: 'Something went wrong',
-        });
-        setProcessing(false);
-        setEditModalOpen(false);
-        console.error(error);
-      }
-    },
-    [setProcessing, showToast, RefetchActionPagination, editActionRef]
-  );
-
-  const handleRemoveAction = useCallback(
-    async (values: any) => {
-      setProcessing(true);
-      setEditModalOpen(false);
-      const headersList = {
-        Accept: '*/*',
-        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-        'Content-Type': 'application/json',
-      };
-  
-      try {
-        console.log("the values are: ",values);
-        const response = await fetch(`/api/private/removeActions/`, {
           method: 'POST',
          
           body: JSON.stringify(values), 
@@ -232,17 +196,78 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast, RefetchActionPagination, editActionRef,setEditModalOpen]
+    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef]
   );
-  
+
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateAction(values);
     setEditModalOpen(false);  
   };  
 
+
+  const handleRemoveClick = (rowData: Element) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setRemoveModalOpen(false);
+  };
+  const handleRemoveAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/removeActions/`, {
+          method: 'POST',
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Action Deleted Successfully',
+        
+        });
+        RefetchActionPagination();
+        setProcessing(false);
+        editActionRef.current?.resetForm();
+        setRemoveModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setRemoveModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setRemoveModalOpen, RefetchActionPagination, editActionRef]
+  );
+
+  
+  const onSubmitRemove = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemoveAction(values);
+    setModalOpen(false);  
+  };  
+
+
   return (
     <div className="pl-10">
+      {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Action
       </label>
@@ -267,11 +292,9 @@ export default function Page() {
           <h3 className="font-bold text-lg">Add Action</h3>
           <Formik
             initialValues={{
-              
               name: "",
               description: "",
               created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
             }}
             ref={createActionRef}
             validationSchema={actionValidation}
@@ -283,7 +306,6 @@ export default function Page() {
                 name: values.name,
                 description: values.description,
                 created_at: values.created_at,
-                updated_at: values.updated_at,
               });
               createActionMutation.mutate(bodyContent);
             }}
@@ -362,8 +384,11 @@ export default function Page() {
           </Formik>
         </div>
       </div>
-
-      <input type="checkbox" id="my_modal_7"   className="modal-toggle" />
+  
+        {/* edit modal */}
+      <input type="checkbox" id="my_modal_7" checked={isEditModalOpen}
+        onChange={() => setEditModalOpen(!isEditModalOpen)}
+        className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
@@ -376,7 +401,7 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Edit Action</h3>
           <Formik
-            initialValues={initialValues}
+            initialValues={UpdateinitialValues}
             enableReinitialize={true}
             onSubmit={onSubmit}
           >
@@ -409,6 +434,79 @@ export default function Page() {
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
                 <div className="absolute bottom-6 right-6">
+                <label
+                      htmlFor="my_modal_7"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
+        </div>
+      </div>
+
+{/* delete modal */}
+<input type="checkbox" id="my_modal_8"
+ checked={isRemoveModalOpen}
+        onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
+        className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+          </form>
+          <h3 className="font-bold text-lg">Delete Action</h3>
+          <Formik
+            initialValues={RemoveinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemove}
+          >
+            <Form>
+              <div className="form-control bg-white">
+              <label className="label">
+    <span className="label-text text-base font-semibold">
+      Are you sure you want to delete the following data?
+    </span>
+  </label>
+  <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none"
+                  name="name"
+                  disabled />
+                </div>
+                <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none text-black"
+                  name="description"
+                  disabled />
+                </div>
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                <label
+                      htmlFor="my_modal_8"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
                   <button type="submit" className="btn btn-primary">
                     Submit
                   </button>
@@ -460,8 +558,8 @@ export default function Page() {
                           />
                           Edit
                         </label>
-                        <button className="btn btn-sm btn-error"
-                        onClick={() => handleRemoveAction(element)}
+                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
+                        onClick={() => handleRemoveClick(element)}
                         >
                           <Image
                             src="/icons/deleteicon.svg"
@@ -470,7 +568,7 @@ export default function Page() {
                             alt="Delete Icon"
                           />
                           Delete
-                        </button>
+                        </label>
                       </div>
                     </td>
                   </tr>

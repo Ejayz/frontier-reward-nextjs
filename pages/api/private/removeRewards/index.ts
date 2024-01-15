@@ -38,7 +38,7 @@ export default async function handler(
   
     // Update the action in the database
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
-      `UPDATE actions SET is_exist=0, removed_at=? WHERE id=?`,
+      `UPDATE reward SET is_exist=0, removed_at=? WHERE id=?`,
       [removed_at, id]
     );
 

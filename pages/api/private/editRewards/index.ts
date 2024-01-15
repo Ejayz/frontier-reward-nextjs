@@ -2,7 +2,7 @@ import Cookies from 'cookies';
 import { NextApiRequest, NextApiResponse } from 'next';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
-import instance from '../../db';
+import Connection from '../../db';
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ export default async function handler(
       return res.status(405).json({ message: 'Method not allowed' });
     }
   // Get a database connection
-    const connection = await instance.getConnection();
+    const connection = await Connection.getConnection();
 
     // Ensure the request has a valid JWT token
     const auth = new Cookies(req, res).get('auth') || '';
@@ -25,10 +25,10 @@ export default async function handler(
     const verify = jwt.verify(auth, JWT_SECRET);
 
     // Extract data from the request body
-    const { is_exist, removed_at, id } = req.body;
+    const { id, name, description,quantity,reward_type_id, updated_at } = req.body;
 
     // Validate that required parameters are present
-    if (!id || !is_exist || !removed_at) {
+    if (!id || !name || !description|| !quantity || !reward_type_id || !updated_at) {
       return res.status(400).json({
         code: 400,
         message: 'Missing required parameters',
@@ -38,8 +38,8 @@ export default async function handler(
   
     // Update the action in the database
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
-      `UPDATE actions SET is_exist=0, removed_at=? WHERE id=?`,
-      [removed_at, id]
+      `UPDATE reward SET name=?, description=?, quantity=?, reward_type_id=?, updated_at=? WHERE id=?`,
+      [name, description, quantity, reward_type_id,updated_at, id]
     );
 
     // Respond with success status
@@ -56,6 +56,6 @@ export default async function handler(
     });
   } finally {
     // Release the database connection in the finally block
-    await connection.release();
+    await Connection.releaseConnection(connection);
   }
 }
