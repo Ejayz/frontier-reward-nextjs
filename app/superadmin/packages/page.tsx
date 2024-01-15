@@ -29,7 +29,6 @@ type Element = {
 };
 
 export default function Page() {
-  const myDiv = document.getElementById("mydiv");
 
   const [processing, setProcessing] = useState(false);
   const createPackageRef = useRef<FormikProps<any>>(null);
@@ -118,7 +117,7 @@ export default function Page() {
     },
   });
   const queryClient = useQueryClient();
-  const [isModalOpen, setModalOpen] = useState(false);
+
 
   const campaignValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
@@ -196,8 +195,11 @@ useEffect(() => {
     setEditModalOpen(false);
   }
 }, [processing]);
+
+  const [isModalOpen, setModalOpen] = useState(false);
   return (
     <div className="pl-10">
+    {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
       </label>
@@ -342,7 +344,9 @@ useEffect(() => {
         </div>
       </div>
 
-      <input type="checkbox" id="my_modal_7" className="modal-toggle" />
+{/* edit modal */}
+      <input type="checkbox" id="my_modal_7" className="modal-toggle" checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}/>
       <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
@@ -502,7 +506,7 @@ useEffect(() => {
                           />
                           Edit
                         </label>
-                        <button className="btn btn-sm btn-error">
+                        <button className="btn btn-sm btn-error" onClick={() => handleEditClick(element)}>
                           <Image
                             src="/icons/deleteicon.svg"
                             width={20}

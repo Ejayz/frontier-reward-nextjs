@@ -17,6 +17,7 @@ type Element = {
   name: string;
   description: string;
   updated_at: string;
+  is_exist: 0;
   // Add other properties as needed
 };
 export default function Page() {
@@ -122,16 +123,17 @@ export default function Page() {
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
   });
-  const [isEditModalOpen, setEditModalOpen] = useState(true);
-  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
 
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   // ... other functions ...
   const initialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     id:rowDataToEdit? rowDataToEdit.id:0,
     updated_at: new Date().toISOString(),
-    
+    is_exist: 0,
+
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
@@ -142,7 +144,7 @@ export default function Page() {
   const handleUpdateAction = useCallback(
     async (values: any) => {
       setProcessing(true);
-
+      setEditModalOpen(false);
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -154,6 +156,53 @@ export default function Page() {
         const response = await fetch(`/api/private/editActions/`, {
           method: 'POST',
          
+          body: JSON.stringify(values.is_exist=0), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Action Updated Successfully',
+        
+        });
+        RefetchActionPagination();
+        setProcessing(false);
+        editActionRef.current?.resetForm();
+        setEditModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast, RefetchActionPagination, editActionRef]
+  );
+
+  const handleRemoveAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setEditModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/removeActions/`, {
+          method: 'POST',
+         
           body: JSON.stringify(values), 
           headers: headersList,
         });
@@ -161,17 +210,18 @@ export default function Page() {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-  
+
         const data = await response.json();
   
         showToast({
           status: 'success',
           message: 'Action Updated Successfully',
+        
         });
-        setEditModalOpen(false);
         RefetchActionPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
+        setEditModalOpen(false);
       } catch (error) {
         showToast({
           status: 'error',
@@ -184,6 +234,12 @@ export default function Page() {
     },
     [setProcessing, showToast, RefetchActionPagination, editActionRef,setEditModalOpen]
   );
+  
+  const onSubmit = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleUpdateAction(values);
+    setEditModalOpen(false);  
+  };  
 
   return (
     <div className="pl-10">
@@ -307,7 +363,7 @@ export default function Page() {
         </div>
       </div>
 
-      <input type="checkbox" id="my_modal_7" className="modal-toggle" />
+      <input type="checkbox" id="my_modal_7"   className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
@@ -322,7 +378,7 @@ export default function Page() {
           <Formik
             initialValues={initialValues}
             enableReinitialize={true}
-            onSubmit={handleUpdateAction} 
+            onSubmit={onSubmit}
           >
             <Form>
               <div className="form-control bg-white">
@@ -404,7 +460,9 @@ export default function Page() {
                           />
                           Edit
                         </label>
-                        <button className="btn btn-sm btn-error">
+                        <button className="btn btn-sm btn-error"
+                        onClick={() => handleRemoveAction(element)}
+                        >
                           <Image
                             src="/icons/deleteicon.svg"
                             width={20}
