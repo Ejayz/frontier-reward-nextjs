@@ -144,13 +144,7 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setEditModalOpen(false);
   };
-  const RemoveinitialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name : "",
-    description: rowDataToEdit ? rowDataToEdit.description : "",
-    id: rowDataToEdit ? rowDataToEdit.id : 0,
-    removed_at: new Date().toISOString(),
-    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
-  };
+
   
   const handleUpdateAction = useCallback(
     async (values: any) => {
@@ -205,7 +199,13 @@ export default function Page() {
     setEditModalOpen(false);  
   };  
 
-
+  const RemoveinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
+    removed_at: new Date().toISOString(),
+    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+  };
   const handleRemoveClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
