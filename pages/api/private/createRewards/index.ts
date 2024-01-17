@@ -43,7 +43,7 @@ export default async function handler(
     removed_at,
     is_exist,
   } = req.body;
-
+console.log(typeof req.body)
   const [createRewardsResult, createRewardsFields] = <RowDataPacket[]>await connection.query( `INSERT INTO rewards (name,description,quantity,reward_type_id,employee_id,is_exist) VALUES (,?,?,?,?,?,?)`, 
   [name,description,quantity,reward_type_id,employee_id,is_exist] );
 

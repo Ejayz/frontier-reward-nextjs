@@ -26,6 +26,8 @@ export default async function handler(
         .json({ code: 401, message: "User is not authenticated" });
     }
     const {
+      CoreId,
+      UserId,
       firstName,
       middleName,
       lastName,
@@ -41,24 +43,22 @@ export default async function handler(
       points,
       suffix,
     } = req.body;
-
+    console.log(CoreId,UserId)
     const getDate = Date.parse(new Date().toString());
 
     const transaction = await await connection.beginTransaction();
     const [UpdateUserAccount] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE customer_info SET first_name=?,middle_name=?,last_name=?,phone_number=?,email=?,package_id=?,points=?,suffix=?,updated_at=? WHERE id=? and is_exist=1`,
+        `UPDATE customer_info SET first_name=?,middle_name=?,last_name=?,package_id=?,points=?,suffix=?,updated_at=? WHERE id=? and is_exist=1`,
         [
           firstName,
           middleName,
           lastName,
-          phoneNumber,
-          email,
           packageId,
           points,
           suffix,
           getDate,
-          verify.id,
+        CoreId
         ]
       )
     );
@@ -78,7 +78,7 @@ export default async function handler(
             address2,
             state_province,
             getDate,
-            verify.id,
+            CoreId,
           ]
         )
       );
@@ -89,12 +89,18 @@ export default async function handler(
           .status(404)
           .json({ code: 404, message: "Customer not found" });
       }
+      const [UpdateUsers]=<RowDataPacket[]>await connection.query(`UPDATE users SET phone_number=?,email=?,updated_at=? WHERE id=? and is_exist=1`,[phoneNumber,email,getDate,UserId]) 
+      if(UpdateUsers.affectedRows==0){
+        await connection.rollback();
+        return res.status(404).json({code:404,message:"Customer not found"})
+      }
       await connection.commit();
       return res.status(200).json({
         code: 200,
         message: "Customer information updated successfully",
       });
-    }
+    } 
+
   } catch (error: any) {
     console.log(error);
 

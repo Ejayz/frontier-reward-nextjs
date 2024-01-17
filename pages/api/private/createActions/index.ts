@@ -39,7 +39,7 @@ export default async function handler(
       employee_id,
       is_exist,
     } = req.body;
-
+    console.log(typeof req.body)
     const [results, fields] = <RowDataPacket[]>(
       await connection.query(
         `INSERT INTO actions (name,description,employee_id,is_exist) VALUES (?,?,?,?)`,
