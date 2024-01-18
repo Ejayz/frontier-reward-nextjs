@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+
 export default function AdminNavBar() {
+ 
   return (
     <div className="navbar bg-white  " data-theme="light">
       <div className="flex-1">

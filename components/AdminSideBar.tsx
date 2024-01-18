@@ -1,11 +1,20 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 export default function AdminSideBar() {
+  const navbarActive = usePathname();
+  console.log(navbarActive);
   return (
     <div className="w-1/4 h-screen bg-white">
       <ul className="menu w-80 h-screen [&_li>*]:rounded-none fixed bg-white text-slate-950">
-        <li className="bg-yellow-400">
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/dashboard")
+              ? "bg-yellow-400"
+              : ""
+          }`}
+        >
           <Link href={"/superadmin/dashboard"} className="text-2xl font-bold">
             <Image
               src="/icons/dashboard.svg"
@@ -17,7 +26,11 @@ export default function AdminSideBar() {
             Dashboard
           </Link>
         </li>
-        <li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/actions") ? "bg-yellow-400" : ""
+          }`}
+        >
           <Link href={"/superadmin/actions"} className="text-2xl font-bold">
             <Image
               src="/icons/actions.svg"
@@ -29,7 +42,13 @@ export default function AdminSideBar() {
             Actions
           </Link>
         </li>
-        <li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/packages")
+              ? "bg-yellow-400"
+              : ""
+          }`}
+        >
           <Link href={"/superadmin/packages"} className="text-2xl font-bold">
             <Image
               src="/icons/packages.svg"
@@ -41,7 +60,11 @@ export default function AdminSideBar() {
             Packages
           </Link>
         </li>
-        <li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/rewards") ? "bg-yellow-400" : ""
+          }`}
+        >
           <Link href={"/superadmin/rewards"} className="text-2xl font-bold">
             <Image
               src="/icons/rewards.svg"
@@ -53,7 +76,13 @@ export default function AdminSideBar() {
             Rewards
           </Link>
         </li>
-        <li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/campaigns")
+              ? "bg-yellow-400"
+              : ""
+          }`}
+        >
           <Link href={"/superadmin/campaigns"} className="text-2xl font-bold">
             <Image
               src="/icons/campaigns.svg"
@@ -65,7 +94,11 @@ export default function AdminSideBar() {
             Campaigns
           </Link>
         </li>
-        <li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/users") ? "bg-yellow-400" : ""
+          }`}
+        >
           <Link className="text-2xl font-bold" href={"/superadmin/users"}>
             <Image
               src="/icons/users.svg"
@@ -77,7 +110,13 @@ export default function AdminSideBar() {
             Users
           </Link>
         </li>
-        <li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/transactions")
+              ? "bg-yellow-400"
+              : ""
+          }`}
+        >
           <Link
             href={"/superadmin/transactions"}
             className="text-2xl font-bold"
