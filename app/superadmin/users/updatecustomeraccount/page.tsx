@@ -818,7 +818,7 @@ export default function Page() {
     name: "Canada",
     priority: 1,
   });
-
+  const [toShow, setToShow] = useState<boolean>(false);
   useEffect(() => {
     if (params?.get("user_id") == undefined) {
       toast.error("User ID is required");
@@ -853,6 +853,7 @@ export default function Page() {
         toast.error(data.message);
       }
       if (data.code == 200) {
+        setToShow(true);
         return data;
       } else {
         toast.error(data.message);
@@ -862,7 +863,6 @@ export default function Page() {
     refetchOnWindowFocus: false,
     staleTime: 0,
   });
-  let initialValues = {};
 
   useEffect(() => {
     if (!CustomerInfoLoading || !CustomerInfoFetching || !CustomerInfoError) {
@@ -930,7 +930,7 @@ export default function Page() {
 
   const notifModal = useRef<HTMLDialogElement>(null);
 
-  const CreateCustomerMutation = useMutation({
+  const UpdateCustomerMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
         Accept: "*/*",
@@ -950,8 +950,8 @@ export default function Page() {
         queryKey: ["getPackages"],
       });
       if (data.code == 200) {
-        setCreateUserMessage(data.message);
-        notifModal.current?.showModal();
+        toast.success(data.message);
+        nav.push("/superadmin/users");
       } else {
         showToast({
           status: "error",
@@ -1029,7 +1029,8 @@ export default function Page() {
           : CustomerInfo.data[0].suffix
         : "",
   };
-  if (CustomerInfoFetching || CustomerInfoLoading) {
+
+  if (!toShow) {
     return <Loading />;
   } else {
     return (
@@ -1222,6 +1223,8 @@ export default function Page() {
             onClick={async () => {
               if (CustomerAccountDetail.current?.isValid) {
                 let bodyContent = {
+                  CoreId: CustomerInfo.data[0].CoreId,
+                  UserId: CustomerInfo.data[0].UserId,
                   firstName: CustomerAccountDetail.current?.values.first_name,
                   middleName: CustomerAccountDetail.current?.values.middle_name,
                   lastName: CustomerAccountDetail.current?.values.last_name,
@@ -1240,7 +1243,7 @@ export default function Page() {
                   suffix: CustomerAccountDetail.current?.values.suffix,
                 };
 
-                CreateCustomerMutation.mutate(bodyContent);
+                UpdateCustomerMutation.mutate(bodyContent);
               } else {
                 toast.error("Please fill up all the required fields");
               }
