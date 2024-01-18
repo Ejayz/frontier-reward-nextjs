@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import * as yup from "yup";
 import { useToast } from "@/hooks/useToast";
+import Select from 'react-select';
 import {
   keepPreviousData,
   useMutation,
@@ -21,11 +22,13 @@ import {
 import { start } from "repl";
 
 type Element = {
-  id: number;
+  package_id: number;
   name: string;
   description: string;
   multiplier: number;
   updated_at: string;
+  reward_id: number;
+  created_at: string;
 };
 
 export default function Page() {
@@ -33,7 +36,7 @@ export default function Page() {
   const [processing, setProcessing] = useState(false);
   const createPackageRef = useRef<FormikProps<any>>(null);
   const editPackageRef = useRef<FormikProps<any>>(null);
-  const createpackagerewardRef = useRef<FormikProps<any>>(null);
+  const createPackageRewardRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -72,15 +75,7 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
-
-
-  const [selectedValue, setSelectedValue] = useState("");
-  const handleSelectChange = (event: any) => {
-    const newValue = event.target.value;
-    console.log(newValue);
-    setSelectedValue(newValue);
-    createpackagerewardRef.current?.setFieldValue("reward_type_id", newValue);
-  };
+  
   const {
     data: DataRewardPagination,
     isFetching: isFetchingRewardPagination,
@@ -114,7 +109,54 @@ export default function Page() {
   });
 
 
-  const createCampaignMutation = useMutation({
+  const {
+    data: DataPackageRewardPagination,
+    isFetching: isFetchingPackageRewardPagination,
+    isLoading: isLoadingPackageRewardPagination,
+    refetch: RefetchPackageRewardPagination,
+  } = useQuery({
+    queryKey: ["getRewardType", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getPackageReward`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+
+  const [selectedValue, setSelectedValue] = useState("");
+  const handleSelectChange = (event: any) => {
+    const newValue = event.target.value;
+
+    console.log(newValue);
+    setSelectedValue(newValue);
+      // Convert the string to a number using parseInt or the unary plus operator
+  const numericValue = parseInt(newValue, 10);
+  // const numericValue = +newValue;
+
+  createPackageRewardRef.current?.setFieldValue("reward_id", numericValue);
+};
+
+
+
+  const createPackageMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
         Accept: "*/*",
@@ -135,11 +177,11 @@ export default function Page() {
       queryClient.invalidateQueries({
         queryKey: ["getCampaignPagination"],
       });
-      console.log(data);
+
 
       showToast({
         status: "success",
-        message: "Campaign Created Successfully",
+        message: "Package Created Successfully",
       });
 
       RefetchPackagesPagination();
@@ -158,89 +200,28 @@ export default function Page() {
       setModalOpen(false);
     },
   });
+
+
+
   const queryClient = useQueryClient();
 
-  const createPackageRewardMutation = useMutation({
-    mutationFn: async (values: any) => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-        "Content-Type": "application/json",
-      };
-
-      let response = await fetch(`/api/private/createPackageReward/`, {
-        method: "POST",
-        body: values,
-        headers: headersList,
-      });
-
-      return response.json();
-    },
-    onSuccess: async (data: any) => {
-      setPage(1);
-      queryClient.invalidateQueries({
-        queryKey: ["getActionsPagination"],
-      });
-      console.log(data);
-      if (data.code == 201) {
-        showToast({
-          status: "success",
-          message: "Action Created Successfully",
-        });
-
-        RefetchPackagesPagination();
-        setProcessing(false);
-        createpackagerewardRef.current?.resetForm();
-        setModalOpen(false);
-      } else {
-        showToast({
-          status: "error",
-          message: "Something went wrong",
-        });
-        setProcessing(false);
-        setModalOpen(false);
-      }
-    },
-    onError: async (error: any) => {
-      console.log(error);
-      showToast({
-        status: "error",
-        message: "Something went wrong",
-      });
-      setProcessing(false);
-
-      setModalOpen(false);
-    },
-  });
-
-  const campaignValidation = yup.object().shape({
+  const PackageValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
     multiplier: yup.number().required("Multiplier is required"),
   });
 
+  const [isModalOpen, setModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
+  const [isAddRewardModalOpen, setAddRewardModalOpen] = useState(false);
   const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
 
-  // ... other functions ...
-  const initialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name : "",
-    description: rowDataToEdit ? rowDataToEdit.description : "",
-    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
-    id : rowDataToEdit ? rowDataToEdit.id : 0,
-    update_at: new Date().toISOString(),
 
-    // ... add other fields as needed ...
-  };
-  const handleEditClick = (rowData: Element) => {
-    console.log("Edit clicked for row:", rowData);
-    setRowDataToEdit(rowData);
-    setEditModalOpen(true);
-  };
-  const handleUpdatePackages = useCallback(
+  const CreatePacakgeRewardhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
-
+      setAddRewardModalOpen(false);
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -249,7 +230,7 @@ export default function Page() {
   
       try {
         console.log("the values are: ",values);
-        const response = await fetch(`/api/private/editPackage/`, {
+        const response = await fetch(`/api/private/createPackageReward/`, {
           method: 'POST',
          
           body: JSON.stringify(values), 
@@ -259,40 +240,74 @@ export default function Page() {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-  
+
         const data = await response.json();
   
         showToast({
           status: 'success',
-          message: 'Action Updated Successfully',
+          message: 'Added Reward Successfully',
+        
         });
-        setEditModalOpen(false);
-        RefetchPackagesPagination();
+        RefetchRewardPagination();
         setProcessing(false);
-        editPackageRef.current?.resetForm();
+        createPackageRewardRef.current?.resetForm();
+        setAddRewardModalOpen(false);
       } catch (error) {
         showToast({
           status: 'error',
           message: 'Something went wrong',
         });
         setProcessing(false);
-        setEditModalOpen(false);
+        setAddRewardModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast, RefetchPackagesPagination, editPackageRef,setEditModalOpen]
+    [setProcessing, showToast,setAddRewardModalOpen, RefetchRewardPagination, createPackageRewardRef]
   );
 
-  console.log(DataPackagesPagination);
-useEffect(() => {
-  if (!processing) {
-    setEditModalOpen(false);
-  }
-}, [processing]);
+  // ... other functions ...
+  const initialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
+    package_id : rowDataToEdit ? rowDataToEdit.package_id : 0,
+    update_at: new Date().toISOString(),
+    reward_id : rowDataToEdit ? rowDataToEdit.reward_id : 0,
+    created_at: new Date().toISOString(),
 
-  const [isModalOpen, setModalOpen] = useState(false);
+    // ... add other fields as needed ...
+  };
+  const PackageRewardinitialValues = {
+    package_id : rowDataToEdit ? rowDataToEdit.package_id : 0,
+    reward_id : rowDataToEdit ? rowDataToEdit.reward_id : 0,
+    created_at: new Date().toISOString(),
+
+    // ... add other fields as needed ...
+  };
+
+  const handlegetProduct_idClick = (rowData: Element) => {
+    console.log("Add reward clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setAddRewardModalOpen(false);
+  };
+  const onSubmit = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await CreatePacakgeRewardhandle(values);
+    setEditModalOpen(false);  
+  };  
+  useEffect(() => {
+    console.log("Row data updated:", rowDataToEdit);
+    if (rowDataToEdit) {
+      createPackageRewardRef.current?.setValues({
+        package_id: rowDataToEdit.package_id,
+        reward_id: rowDataToEdit.reward_id,
+        created_at: rowDataToEdit.created_at,
+      });
+    }
+  }, [rowDataToEdit]);
+
   return (
-    <div className="pl-10">
+    <div className="w-full h-full overflow-y-scroll pl-10">
     {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
@@ -324,7 +339,7 @@ useEffect(() => {
               created_at: new Date().toISOString(),
             }}
             ref={createPackageRef}
-            validationSchema={campaignValidation}
+            validationSchema={PackageValidation}
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
@@ -336,7 +351,7 @@ useEffect(() => {
                 multiplier: multiplierTofloat,
                 created_at: values.created_at,
               });
-              createCampaignMutation.mutate(bodyContent);
+              createPackageMutation.mutate(bodyContent);
             }}
           >
             {({ errors, touched }) => (
@@ -437,125 +452,20 @@ useEffect(() => {
               </Form>
             )}
           </Formik>
-
-          
-                <div className="form-control bg-white"> Reward Details</div>
-                  <Formik
-            initialValues={{
-              reward_id: "",
-              created_at: new Date().toISOString(),
-          }}
-          ref={createPackageRewardMutation}
-          validationSchema={campaignValidation}
-          onSubmit={async (values, { resetForm }) => {
-            console.log("Form submitted with values:", values);
-            setProcessing(true);
-            resetForm();
-            let bodyContent = JSON.stringify({
-              reward_id: values.reward_id,
-              created_at: values.created_at,
-            });
-            createPackageRewardMutation.mutate(bodyContent);
-          }}
-          >            
-          {({ errors, touched, values, setFieldValue }) => (
-            <Form>
-              <div className="form-control bg-white">
-              <select
-                  name="reward_type_id"
-                  className="select select-bordered w-full max-w-xs font-semibold text-base"
-                  id=""
-                  onChange={handleSelectChange}
-                  value={values.reward_id}
-                >
-                  <option disabled value="">
-                    Select Reward Type
-                  </option>
-                  {DataRewardPagination?.data.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} 
-                    </option>
-                  ))}
-                </select>
-
-              </div>
-              <div className="m-8 " style={{ marginTop: 60 }}>
-                
-                  <button type="submit" className="btn btn-primary">
-                    Add Package Reward
-                  </button>
-                </div>
-{/* 
-
-              <div className="overflow-x-auto">
-  <table className="table text-base font-semibold text-center table-xs table-pin-rows table-pin-cols">
-    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-      <tr className="rounded-lg">
-        <th>Reward ID</th> 
-        <td>Package ID</td> 
-        <td>Created At</td> 
-        <td>Udpdated At</td> 
-        <td>Action</td> 
-      </tr>
-    </thead> 
-    <tbody>
-      <tr>
-        <th>1</th> 
-        <td>Cy Ganderton</td> 
-        <td>Quality Control Specialist</td> 
-        <td>Littel, Schaden and Vandervort</td> 
-        <td>Canada</td> 
-       
-      </tr>
-   
-      <tr>
-        <th>10</th> 
-        <td>Zaneta Tewkesbury</td> 
-        <td>VP Marketing</td> 
-        <td>Sauer LLC</td> 
-        <td>Chad</td> 
-    
-      </tr>
-      <tr>
-        <td>Hilpert Group</td> 
-        <td>Poland</td> 
-        <td>7/9/2020</td> 
-        <td>Indigo</td>
-        <th>11</th> 
-      </tr>
-      <tr>
-        <td>Gutmann Inc</td> 
-        <td>Indonesia</td> 
-        <td>2/12/2021</td> 
-        <td>Maroon</td>
-        <th>12</th> 
-      </tr>
-    </tbody> 
-    <tfoot>
-      <tr>
-      <th>Reward ID</th> 
-        <td>Package ID</td> 
-        <td>Created At</td> 
-        <td>Udpdated At</td> 
-        <td>Action</td> 
-        <th></th> 
-      </tr>
-    </tfoot>
-  </table>
-</div> */}
-
-            </Form>
-            )}
-            </Formik>
-          
         </div>
       </div>
 
-{/* edit modal */}
-      <input type="checkbox" id="my_modal_7" className="modal-toggle" checked={isModalOpen}
-        onChange={() => setModalOpen(!isModalOpen)}/>
-      {/* <div className="modal" role="dialog">
-        <div className="modal-box">
+{/* add package_reward */}
+<input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+        checked={isAddRewardModalOpen}
+        onChange={() => setAddRewardModalOpen(!isAddRewardModalOpen)}
+      />
+<div className="modal" role="dialog">
+  <div className="modal-box" style={{ width: 800 }}>
+
           <form method="dialog">
             <label
               htmlFor="my_modal_7"
@@ -564,101 +474,55 @@ useEffect(() => {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Add Package</h3>
+          <h3 className="font-bold text-lg">Add Reward</h3>
           <Formik
-         initialValues={initialValues}
-         enableReinitialize={true}
-         onSubmit={handleUpdatePackages} 
+ initialValues={PackageRewardinitialValues}
+            innerRef={createPackageRewardRef}
+            onSubmit={onSubmit}
           >
-            {({ errors, touched }) => (
+            {({ errors, touched,values, setFieldValue }) => (
               <Form>
-                <div className="form-control bg-white">
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Name
-                    </span>
-                  </label>
-                  <Field
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Reward Name
+                  </span>
+                </label>
+                 <select
+                  name="reward_id"
+                  className="select select-bordered w-full max-w-xs font-semibold text-base"
+                  id=""
+                  onChange={handleSelectChange}
+                  value={values.reward_id}
+                >
+                  <option  value="">
+                    Select Reward Name
+                  </option>
+                  {DataPackageRewardPagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+
+                <label className="label invisible">
+                  <span className="label-text text-base font-semibold">
+                    Package ID
+                  </span>
+                </label>
+                    <Field
                     type="text"
                     placeholder="Enter Package Name"
-                    className="input input-bordered"
-                    name="name"
+                    className="input input-bordered invisible"
+                    name="package_id"
+                    
                   />
-                  <ErrorMessage name="name" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Description
-                    </span>
-                  </label>
-                  <Field
-                    type="text"
-                    placeholder="Enter Package Description"
-                    className="input input-bordered"
-                    name="description"
-                  />
-                  <ErrorMessage name="description" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Multiplier
-                    </span>
-                  </label>
-                  <Field
-                    type="text"
-                    placeholder="Enter Package Multiplier"
-                    className="input input-bordered"
-                    name="multiplier"
-                  />
-                  <ErrorMessage name="multiplier" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                
-                </div>
+                  
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
                       htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
-                    >
+                      >
                       Cancel
                     </label>
                     <button type="submit" className="btn btn-primary">
@@ -666,11 +530,16 @@ useEffect(() => {
                     </button>
                   </div>
                 </div>
+
+
               </Form>
             )}
           </Formik>
+          
         </div>
-      </div> */}
+      </div>
+
+
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -685,15 +554,15 @@ useEffect(() => {
             </tr>
           </thead>
           <tbody>
-            {isLoading ? (
+            {isFetching ? (
               <tr className="text-center">
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
               DataPackagesPagination.data.map((element: any) => {
-                console.log(element);
+              // console.log(element);
                 return (
-                  <tr key={element.id}>
+                  <tr key={element.package_id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{element.multiplier}</td>
@@ -702,10 +571,25 @@ useEffect(() => {
 
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <label
+
+                      <label
                           htmlFor="my_modal_7"
+                          className="btn btn-sm btn-accent mr-2"
+                        onClick={() => handlegetProduct_idClick(element)}
+                        >
+                          <Image
+                            src="/icons/addrewards.svg"
+                            width={20}
+                            height={20}
+                            alt="reward Icon"
+                          />
+                          Add Reward
+                        </label>
+
+                        <label
+                          htmlFor="my_modal_8"
                           className="btn btn-sm btn-info mr-2"
-                          onClick={() => handleEditClick(element)}
+                    
                         >
                           <Image
                             src="/icons/editicon.svg"
@@ -715,7 +599,8 @@ useEffect(() => {
                           />
                           Edit
                         </label>
-                        <button className="btn btn-sm btn-error" onClick={() => handleEditClick(element)}>
+                        <button className="btn btn-sm btn-error"
+                        >
                           <Image
                             src="/icons/deleteicon.svg"
                             width={20}
