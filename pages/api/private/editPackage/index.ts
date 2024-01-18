@@ -2,7 +2,7 @@ import Cookies from 'cookies';
 import { NextApiRequest, NextApiResponse } from 'next';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
-import Connection from '../../db';
+import instance from '../../db';
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ export default async function handler(
       return res.status(405).json({ message: 'Method not allowed' });
     }
   // Get a database connection
-    const connection = await Connection.getConnection();
+    const connection = await instance.getConnection();
 
     // Ensure the request has a valid JWT token
     const auth = new Cookies(req, res).get('auth') || '';
@@ -56,6 +56,6 @@ export default async function handler(
     });
   } finally {
     // Release the database connection in the finally block
-    await Connection.releaseConnection(connection);
+   await connection.release()
   }
 }
