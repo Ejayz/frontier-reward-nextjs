@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useToast } from "@/hooks/useToast";
 import SelectInput from "@/components/SelectInput";
 import NormalInput from "@/components/NormalInput";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Loading from "../loading";
 import { randomUUID } from "crypto";
@@ -93,6 +93,62 @@ export default function Page() {
     enabled: false,
     refetchOnWindowFocus: false,
   });
+  const denyTransactionMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch(`/api/private/denyCampaignTransaction`, {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+      if (data.code == 401) {
+        nav.push("/login");
+      }
+      return data;
+    },
+    onSuccess: (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        setCampaignTransactionID(null);
+        campaignRefetch();
+        showConfirmCampaignTransaction.current?.close();
+      }
+    },
+  });
+
+  const updateCampaignTransaction = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch(`/api/private/confirmCampaignTransaction`, {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+      if (data.code == 401) {
+        nav.push("/login");
+      }
+      return data;
+    },
+    onSuccess: (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        setCampaignTransactionID(null);
+        campaignRefetch();
+        showConfirmCampaignTransaction.current?.close();
+      }
+    },
+  });
+
   if (!showPage) {
     return <Loading></Loading>;
   } else {
@@ -146,12 +202,16 @@ export default function Page() {
                             {action.action_description}
                           </p>
 
-                          <ul className="mt-2.5 flex gap-1.5 text-xs font-medium ">
+                          <ul className="mt-2.5 flex flex-col gap-1.5 text-xs font-medium ">
                             {action.data.map((reward: any, index: number) => (
-                              <li
-                                className="rounded-full border bg-gray-50 px-2 py-1 text-gray-600"
-                                key={index}
-                              >
+                              <li className="py-2" key={index}>
+                                <Image
+                                  src="/images/reward.png"
+                                  width={25}
+                                  height={25}
+                                  className="mr-1.5 inline-block"
+                                  alt="reward"
+                                />
                                 {reward.reward_name}
                               </li>
                             ))}
@@ -165,10 +225,52 @@ export default function Page() {
                 )}
               </div>
               <div className="mt-5 grid w-full grid-cols-4 gap-2.5">
-                <button className=" col-span-1 rounded-full border px-5 py-2.5 text-sm font-medium shadow-sm transition hover:border-white hover:bg-neutral-800 hover:text-white">
+                <button
+                  onClick={() => {
+                    denyTransactionMutation.mutate({
+                      campaign_transaction_id: campaignTransactionId,
+                      transaction_no: CampaignTransactionInfo.transaction_no,
+                    });
+                  }}
+                  className={`${
+                    CampaignTransactionInfoIsFetching ||
+                    CampaignTransactionInfoIsLoading ? (
+                      <>...</>
+                    ) : CampaignTransactionInfo != null ? (
+                      CampaignTransactionInfo.status == "pending" ? (
+                        "btn-success"
+                      ) : (
+                        "btn-disabled"
+                      )
+                    ) : (
+                      ""
+                    )
+                  } btn btn-error rounded-full`}
+                >
                   Deny
                 </button>
-                <button className=" col-span-3 rounded-full border px-5 py-2.5 text-sm font-medium shadow-sm transition hover:border-white hover:bg-neutral-800 hover:text-white">
+                <button
+                  onClick={() => {
+                    updateCampaignTransaction.mutate({
+                      campaign_transaction_id: campaignTransactionId,
+                      transaction_no: CampaignTransactionInfo.transaction_no,
+                    });
+                  }}
+                  className={`${
+                    CampaignTransactionInfoIsFetching ||
+                    CampaignTransactionInfoIsLoading ? (
+                      <>...</>
+                    ) : CampaignTransactionInfo != null ? (
+                      CampaignTransactionInfo.status == "pending" ? (
+                        "btn-success"
+                      ) : (
+                        "btn-disabled"
+                      )
+                    ) : (
+                      ""
+                    )
+                  } btn  col-span-3 rounded-full border px-5 py-2.5 text-sm font-medium shadow-sm transition hover:border-white hover:bg-neutral-800 hover:text-white`}
+                >
                   Confirm
                 </button>
               </div>

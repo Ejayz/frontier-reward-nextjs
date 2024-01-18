@@ -28,7 +28,7 @@ export default async function handler(
     }
     const [rows, fields] = <RowDataPacket[]>(
       await connection.query(
-        `SELECT *,reward.name as reward_name, reward.description as reward_description ,actions.name as action_name,actions.description as action_description, campaign.name as campaign_name,campaign_transaction.status as transaction_status,CONCAT(employee_info.first_name," ",employee_info.middle_name," ",employee_info.last_name) as EmployeeFullName , CONCAT(customer_info.first_name," ",customer_info.middle_name," ",customer_info.last_name) as CustomerFullName FROM campaign_transaction  LEFT JOIN  campaign ON campaign_transaction.campaign_id = campaign.id LEFT JOIN  employee_info ON campaign_transaction.employee_id=employee_info.id LEFT JOIN customer_info ON campaign_transaction.customer_id=customer_info.id LEFT JOIN campaign_action_reward_list ON campaign_action_reward_list.campaign_id=campaign.id LEFT JOIN actions ON campaign_action_reward_list.action_id = actions.id LEFT JOIN reward ON reward.id = campaign_action_reward_list.reward_id WHERE campaign_transaction.id=? AND campaign_transaction.is_exist=1`,
+        `SELECT *,campaign_transaction.status as TransactionStatus,reward.name as reward_name, reward.description as reward_description ,actions.name as action_name,actions.description as action_description, campaign.name as campaign_name,campaign_transaction.status as transaction_status,CONCAT(employee_info.first_name," ",employee_info.middle_name," ",employee_info.last_name) as EmployeeFullName , CONCAT(customer_info.first_name," ",customer_info.middle_name," ",customer_info.last_name) as CustomerFullName FROM campaign_transaction  LEFT JOIN  campaign ON campaign_transaction.campaign_id = campaign.id LEFT JOIN  employee_info ON campaign_transaction.employee_id=employee_info.id LEFT JOIN customer_info ON campaign_transaction.customer_id=customer_info.id LEFT JOIN campaign_action_reward_list ON campaign_action_reward_list.campaign_id=campaign.id LEFT JOIN actions ON campaign_action_reward_list.action_id = actions.id LEFT JOIN reward ON reward.id = campaign_action_reward_list.reward_id WHERE campaign_transaction.id=? AND campaign_transaction.is_exist=1`,
         [id]
       )
     );
@@ -41,6 +41,7 @@ export default async function handler(
       code: 200,
       data: merged_same_action_id,
       transaction_no: rows[0].transaction_no,
+      status: rows[0].TransactionStatus,
     });
   } catch (error: any) {
     console.log(error)
