@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ErrorMessage,
   Field,
@@ -21,36 +21,39 @@ import {
 import { start } from "repl";
 
 type Element = {
+  id: number;
   name: string;
   description: string;
   multiplier: number;
+  updated_at: string;
 };
 
 export default function Page() {
-  const myDiv = document.getElementById("mydiv");
 
   const [processing, setProcessing] = useState(false);
   const createPackageRef = useRef<FormikProps<any>>(null);
+  const editPackageRef = useRef<FormikProps<any>>(null);
+  const createpackagerewardRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
   useEffect(() => {
-    RefetchCampaignPagination();
+    RefetchPackagesPagination();
   }, [page]);
 
   const {
-    data: DataCampaignPagination,
+    data: DataPackagesPagination,
     isFetching,
     isLoading,
-    refetch: RefetchCampaignPagination,
+    refetch: RefetchPackagesPagination,
   } = useQuery({
-    queryKey: ["getCampaignPagination", page],
+    queryKey: ["getPackagesPagination", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
-      let response = await fetch(`/api/private/displayPackages/`, {
+      let response = await fetch(`/api/private/getPackages/`, {
         method: "GET",
         headers: headersList,
       });
@@ -69,6 +72,47 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+
+
+  const [selectedValue, setSelectedValue] = useState("");
+  const handleSelectChange = (event: any) => {
+    const newValue = event.target.value;
+    console.log(newValue);
+    setSelectedValue(newValue);
+    createpackagerewardRef.current?.setFieldValue("reward_type_id", newValue);
+  };
+  const {
+    data: DataRewardPagination,
+    isFetching: isFetchingRewardPagination,
+    isLoading: isLoadingRewardPagination,
+    refetch: RefetchRewardPagination,
+  } = useQuery({
+    queryKey: ["getRewardType", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getRewards`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+
 
   const createCampaignMutation = useMutation({
     mutationFn: async (values: any) => {
@@ -98,7 +142,7 @@ export default function Page() {
         message: "Campaign Created Successfully",
       });
 
-      RefetchCampaignPagination();
+      RefetchPackagesPagination();
       setProcessing(false);
       createPackageRef.current?.resetForm();
       setModalOpen(false);
@@ -115,7 +159,59 @@ export default function Page() {
     },
   });
   const queryClient = useQueryClient();
-  const [isModalOpen, setModalOpen] = useState(false);
+
+  const createPackageRewardMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+
+      let response = await fetch(`/api/private/createPackageReward/`, {
+        method: "POST",
+        body: values,
+        headers: headersList,
+      });
+
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      setPage(1);
+      queryClient.invalidateQueries({
+        queryKey: ["getActionsPagination"],
+      });
+      console.log(data);
+      if (data.code == 201) {
+        showToast({
+          status: "success",
+          message: "Action Created Successfully",
+        });
+
+        RefetchPackagesPagination();
+        setProcessing(false);
+        createpackagerewardRef.current?.resetForm();
+        setModalOpen(false);
+      } else {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+        setModalOpen(false);
+      }
+    },
+    onError: async (error: any) => {
+      console.log(error);
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      setProcessing(false);
+
+      setModalOpen(false);
+    },
+  });
 
   const campaignValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
@@ -131,6 +227,9 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
+    id : rowDataToEdit ? rowDataToEdit.id : 0,
+    update_at: new Date().toISOString(),
+
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
@@ -138,30 +237,63 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setEditModalOpen(true);
   };
+  const handleUpdatePackages = useCallback(
+    async (values: any) => {
+      setProcessing(true);
 
-  useEffect(() => {
-    console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEdit) {
-      createPackageRef.current?.setValues({
-        name: rowDataToEdit.name,
-        description: rowDataToEdit.description,
-        multiplier: rowDataToEdit.multiplier,
-        // ... add other fields as needed ...
-      });
-    }
-  }, [rowDataToEdit]);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/editPackage/`, {
+          method: 'POST',
+         
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Action Updated Successfully',
+        });
+        setEditModalOpen(false);
+        RefetchPackagesPagination();
+        setProcessing(false);
+        editPackageRef.current?.resetForm();
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast, RefetchPackagesPagination, editPackageRef,setEditModalOpen]
+  );
 
-  const onSubmit = async (values: any) => {
-    console.log("Edit Form submitted with values:", values);
-    // Add logic to update the table or perform other actions
-    // ...
+  console.log(DataPackagesPagination);
+useEffect(() => {
+  if (!processing) {
     setEditModalOpen(false);
-  };
+  }
+}, [processing]);
 
-  console.log(DataCampaignPagination);
-
+  const [isModalOpen, setModalOpen] = useState(false);
   return (
     <div className="pl-10">
+    {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
       </label>
@@ -172,8 +304,9 @@ export default function Page() {
         checked={isModalOpen}
         onChange={() => setModalOpen(!isModalOpen)}
       />
-      <div className="modal" role="dialog">
-        <div className="modal-box">
+<div className="modal" role="dialog">
+  <div className="modal-box" style={{ width: 800 }}>
+
           <form method="dialog">
             <label
               htmlFor="my_modal_6"
@@ -208,6 +341,7 @@ export default function Page() {
           >
             {({ errors, touched }) => (
               <Form>
+                         
                 <div className="form-control bg-white">
                   <label className="label">
                     <span className="label-text text-base font-semibold">
@@ -303,11 +437,124 @@ export default function Page() {
               </Form>
             )}
           </Formik>
+
+          
+                <div className="form-control bg-white"> Reward Details</div>
+                  <Formik
+            initialValues={{
+              reward_id: "",
+              created_at: new Date().toISOString(),
+          }}
+          ref={createPackageRewardMutation}
+          validationSchema={campaignValidation}
+          onSubmit={async (values, { resetForm }) => {
+            console.log("Form submitted with values:", values);
+            setProcessing(true);
+            resetForm();
+            let bodyContent = JSON.stringify({
+              reward_id: values.reward_id,
+              created_at: values.created_at,
+            });
+            createPackageRewardMutation.mutate(bodyContent);
+          }}
+          >            
+          {({ errors, touched, values, setFieldValue }) => (
+            <Form>
+              <div className="form-control bg-white">
+              <select
+                  name="reward_type_id"
+                  className="select select-bordered w-full max-w-xs font-semibold text-base"
+                  id=""
+                  onChange={handleSelectChange}
+                  value={values.reward_id}
+                >
+                  <option disabled value="">
+                    Select Reward Type
+                  </option>
+                  {DataRewardPagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} 
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                
+                  <button type="submit" className="btn btn-primary">
+                    Add Package Reward
+                  </button>
+                </div>
+{/* 
+
+              <div className="overflow-x-auto">
+  <table className="table text-base font-semibold text-center table-xs table-pin-rows table-pin-cols">
+    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+      <tr className="rounded-lg">
+        <th>Reward ID</th> 
+        <td>Package ID</td> 
+        <td>Created At</td> 
+        <td>Udpdated At</td> 
+        <td>Action</td> 
+      </tr>
+    </thead> 
+    <tbody>
+      <tr>
+        <th>1</th> 
+        <td>Cy Ganderton</td> 
+        <td>Quality Control Specialist</td> 
+        <td>Littel, Schaden and Vandervort</td> 
+        <td>Canada</td> 
+       
+      </tr>
+   
+      <tr>
+        <th>10</th> 
+        <td>Zaneta Tewkesbury</td> 
+        <td>VP Marketing</td> 
+        <td>Sauer LLC</td> 
+        <td>Chad</td> 
+    
+      </tr>
+      <tr>
+        <td>Hilpert Group</td> 
+        <td>Poland</td> 
+        <td>7/9/2020</td> 
+        <td>Indigo</td>
+        <th>11</th> 
+      </tr>
+      <tr>
+        <td>Gutmann Inc</td> 
+        <td>Indonesia</td> 
+        <td>2/12/2021</td> 
+        <td>Maroon</td>
+        <th>12</th> 
+      </tr>
+    </tbody> 
+    <tfoot>
+      <tr>
+      <th>Reward ID</th> 
+        <td>Package ID</td> 
+        <td>Created At</td> 
+        <td>Udpdated At</td> 
+        <td>Action</td> 
+        <th></th> 
+      </tr>
+    </tfoot>
+  </table>
+</div> */}
+
+            </Form>
+            )}
+            </Formik>
+          
         </div>
       </div>
 
-      <input type="checkbox" id="my_modal_7" className="modal-toggle" />
-      <div className="modal" role="dialog">
+{/* edit modal */}
+      <input type="checkbox" id="my_modal_7" className="modal-toggle" checked={isModalOpen}
+        onChange={() => setModalOpen(!isModalOpen)}/>
+      {/* <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
             <label
@@ -319,9 +566,9 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Add Package</h3>
           <Formik
-            initialValues={initialValues}
-            enableReinitialize={true}
-            onSubmit={onSubmit}
+         initialValues={initialValues}
+         enableReinitialize={true}
+         onSubmit={handleUpdatePackages} 
           >
             {({ errors, touched }) => (
               <Form>
@@ -403,6 +650,8 @@ export default function Page() {
                       </div>
                     )}
                   </ErrorMessage>
+
+                
                 </div>
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
@@ -421,7 +670,7 @@ export default function Page() {
             )}
           </Formik>
         </div>
-      </div>
+      </div> */}
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -441,7 +690,7 @@ export default function Page() {
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataCampaignPagination.data.map((element: any) => {
+              DataPackagesPagination.data.map((element: any) => {
                 console.log(element);
                 return (
                   <tr key={element.id}>
@@ -466,7 +715,7 @@ export default function Page() {
                           />
                           Edit
                         </label>
-                        <button className="btn btn-sm btn-error">
+                        <button className="btn btn-sm btn-error" onClick={() => handleEditClick(element)}>
                           <Image
                             src="/icons/deleteicon.svg"
                             width={20}
@@ -505,7 +754,7 @@ export default function Page() {
             </button>
             <button
               onClick={() => {
-                if (DataCampaignPagination.data.length >= 7) {
+                if (DataPackagesPagination.data.length >= 7) {
                   const newPage = page + 1;
                   setPage(newPage);
                 }

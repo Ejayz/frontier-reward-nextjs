@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 import { useToast } from "@/hooks/useToast";
@@ -11,15 +11,16 @@ import {
 } from "@tanstack/react-query";
 
 import Image from "next/image";
-type campaign = {
+type Element = {
   name: string;
   description: string;
   start_date: string;
   end_date: string;
-  created_at: string;
   updated_at: string;
   deleted_at: string;
   is_exist: boolean;
+  removed_date: string;
+  id: number;
 };
 
 export default function Page() {
@@ -27,6 +28,7 @@ export default function Page() {
 
   const [processing, setProcessing] = useState(false);
   const createCampaignRef = useRef<FormikProps<any>>(null);
+  const editCampaignRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -121,6 +123,8 @@ export default function Page() {
   });
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
 
   const campaignValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
@@ -128,9 +132,159 @@ export default function Page() {
     start_date: yup.date().required("Start Date is required"),
     end_date: yup.date().required("End Date is required"),
   });
+  
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+  // ... other functions ...
+  const UpdateinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    start_date: rowDataToEdit && rowDataToEdit.start_date
+      ? new Date(rowDataToEdit.start_date).toISOString()
+      : "",
+    end_date: rowDataToEdit && rowDataToEdit.end_date
+      ? new Date(rowDataToEdit.end_date).toISOString()
+      : "",
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
+    updated_at: new Date().toISOString(),
+    is_exist: 0,
+    // ... add other fields as needed ...
+  };
+  
+  const handleEditClick = (rowData: Element) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setEditModalOpen(false);
+  };
+  const handleUpdateAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setEditModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/editCampaign/`, {
+          method: 'POST',
+         
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Campaign Updated Successfully',
+        
+        });
+        RefetchCampaignPagination();
+        setProcessing(false);
+        editCampaignRef.current?.resetForm();
+        setEditModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setEditModalOpen, RefetchCampaignPagination, editCampaignRef]
+  );
+
+  const onSubmit = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleUpdateAction(values);
+    setEditModalOpen(false);  
+  };  
+
+
+  const RemoveinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    start_date: rowDataToEdit && rowDataToEdit.start_date
+      ? new Date(rowDataToEdit.start_date).toISOString()
+      : "",
+    end_date: rowDataToEdit && rowDataToEdit.end_date
+      ? new Date(rowDataToEdit.end_date).toISOString()
+      : "",
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
+    removed_at : new Date().toISOString(),
+    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+  };
+  const handleRemoveClick = (rowData: Element) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setRemoveModalOpen(false);
+  };
+  const handleRemoveAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/removeCampaign/`, {
+          method: 'POST',
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Campaign Deleted Successfully',
+        
+        });
+        RefetchCampaignPagination();
+        setProcessing(false);
+        editCampaignRef.current?.resetForm();
+        setRemoveModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setRemoveModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setRemoveModalOpen, RefetchCampaignPagination, editCampaignRef]
+  );
+
+  
+  const onSubmitRemove = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemoveAction(values);
+    setModalOpen(false);  
+  };  
+
+
 
   return (
     <div className="pl-10">
+      {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Campaign
       </label>
@@ -245,11 +399,14 @@ export default function Page() {
                     </span>
                   </label>
                   <Field
-                    type="date"
-                    placeholder="Enter Campaign Start Date"
-                    className="input input-bordered"
-                    name="start_date"
-                  />
+          type="date"
+          id="start_date"
+          name="start_date"
+          className={`input input-bordered ${
+            touched.start_date && errors.start_date ? "input-error" : ""
+          }`}
+          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+        />
                   <ErrorMessage name="start_date" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -270,11 +427,14 @@ export default function Page() {
                     </span>
                   </label>
                   <Field
-                    type="date"
-                    placeholder="Enter Campaign End Date"
-                    className="input input-bordered"
-                    name="end_date"
-                  />
+          type="date"
+          id="end_date"
+          name="end_date"
+          className={`input input-bordered ${
+            touched.end_date && errors.end_date ? "input-error" : ""
+          }`}
+          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+        />
                   <ErrorMessage name="end_date" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -309,6 +469,229 @@ export default function Page() {
         </div>
       </div>
 
+{/* edit modal */}
+
+<input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+        checked={isEditModalOpen}
+        onChange={() => setEditModalOpen(!isEditModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_7"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Edit Campaign</h3>
+          <Formik
+             initialValues={UpdateinitialValues}
+             enableReinitialize={true}
+             onSubmit={onSubmit}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div className="form-control bg-white">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Campaign Name"
+                    className="input input-bordered"
+                    name="name"
+                  />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Campaign Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Start Date
+                    </span>
+                  </label>
+                  <Field
+          type="date"
+          id="start_date"
+          name="start_date"
+          className={`input input-bordered ${
+            touched.start_date && errors.start_date ? "input-error" : ""
+          }`}
+          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+        />
+                  <ErrorMessage name="start_date" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      End Date
+                    </span>
+                  </label>
+                  <Field
+          type="date"
+          id="end_date"
+          name="end_date"
+          className={`input input-bordered ${
+            touched.end_date && errors.end_date ? "input-error" : ""
+          }`}
+          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+        />
+                  <ErrorMessage name="end_date" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                </div>
+                <div className="m-8 " style={{ marginTop: 60 }}>
+                  <div className="absolute bottom-6 right-6">
+                    <label
+                      htmlFor="my_modal_7"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+
+
+{/* delete modal */}
+<input type="checkbox" id="my_modal_8"
+ checked={isRemoveModalOpen}
+        onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
+        className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+          </form>
+          <h3 className="font-bold text-lg">Delete Campaign</h3>
+          <Formik
+            initialValues={RemoveinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemove}
+          >
+            <Form>
+              <div className="form-control bg-white">
+              <label className="label">
+    <span className="label-text text-base font-semibold">
+      Are you sure you want to delete the following data?
+    </span>
+  </label>
+  <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none"
+                  name="name"
+                  disabled />
+                </div>
+                <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none text-black"
+                  name="description"
+                  disabled />
+                </div>
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                <label
+                      htmlFor="my_modal_8"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
+        </div>
+      </div>
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -350,7 +733,8 @@ export default function Page() {
                           />
                           Reward
                         </button>
-                        <button className="btn btn-sm btn-info mr-2">
+                        <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
+                        onClick={() => handleEditClick(element)}>
                           <Image
                             src="/icons/editicon.svg"
                             width={20}
@@ -358,8 +742,9 @@ export default function Page() {
                             alt="Edit Icon"
                           />
                           Edit
-                        </button>
-                        <button className="btn btn-sm btn-error">
+                        </label>
+                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
+                        onClick={() => handleRemoveClick(element)}>
                           <Image
                             src="/icons/deleteicon.svg"
                             width={20}
@@ -367,7 +752,7 @@ export default function Page() {
                             alt="Delete Icon"
                           />
                           Delete
-                        </button>
+                        </label>
                       </div>
                     </td>
                   </tr>

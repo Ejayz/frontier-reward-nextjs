@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
-import instance from "../../db";
+import Connection from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
@@ -16,7 +16,7 @@ export default async function handler(
     res.status(405).json({ error: "Method Not Allowed" });
   }
   const auth = new Cookies(req, res).get("auth") || "";
-  const connection = await instance.getConnection();
+  const connection = await Connection.getConnection();
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     let current_user = 0;
@@ -31,17 +31,16 @@ export default async function handler(
     }
 
     const {
-      name,
-      description,
+      reward_id,
+      package_id,
       created_at,
-      employee_id,
       is_exist,
     } = req.body;
-    console.log(typeof req.body)
+
     const [results, fields] = <RowDataPacket[]>(
       await connection.query(
-        `INSERT INTO actions (name,description,employee_id,created_at, is_exist) VALUES (?,?,?,?,?)`,
-        [name, description,  current_user, created_at, 1]
+        `INSERT INTO package_reward_list (reward_id,package_id,created_at, is_exist) VALUES (?,?,?,?)`,
+        [reward_id, package_id, created_at, 1]
       )
     );
     if (results.affectedRows > 0) {
@@ -58,6 +57,6 @@ export default async function handler(
     res.status(500).json({ error: error.message });
   }
   finally{
-    await connection.release()
+    Connection.releaseConnection(connection);
   }
 }

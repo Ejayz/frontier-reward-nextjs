@@ -45,6 +45,80 @@ export default function Page() {
   const handleShowUserType = (event: any) => {
     setShowUsersType(event.target.value);
   };
+  const removeEmployeeMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch("/api/private/removeEmployee", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      if (data.code == 200) {
+        EmployeeRefetch();
+        showToast({
+          status: "success",
+          message: data.message,
+        });
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
+  const [employeePage, setEmployeePage] = useState(0);
+  const {
+    data: EmployeeData,
+    error: EmployeeError,
+    isLoading: EmployeeIsLoading,
+    isFetching: EmployeeIsFetching,
+    refetch: EmployeeRefetch,
+  } = useQuery({
+    queryKey: [
+      "getEmployees",
+      searchForm.current?.values.selected == "employee",
+      employeePage,
+      searchForm.current?.values.keyword,
+    ],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch(
+        `/api/private/getEmployee?keyword=${searchForm.current?.values.keyword}&page=${employeePage}`,
+        {
+          method: "GET",
+          headers: headersList,
+        }
+      );
+
+      let data = await response.json();
+      console.log("Employee", data);
+      if (!response.ok) {
+        toast.error(data.message);
+      }
+      return data;
+    },
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+  });
+
   const {
     data: customerData,
     error: customerError,
@@ -1004,8 +1078,8 @@ export default function Page() {
       return response.json();
     },
     onSuccess: async (data: any) => {
-      console.log(data);
       if (data.code == 200) {
+        searchForm.current?.resetForm();
         setCreateUserMessage(data.message);
         notifModal.current?.showModal();
         EmployeeForm.current?.resetForm();
@@ -1043,10 +1117,45 @@ export default function Page() {
       new QueryClient().invalidateQueries({
         queryKey: ["getPackages"],
       });
-      console.log(data);
       if (data.code == 200) {
         setCreateUserMessage(data.message);
         notifModal.current?.showModal();
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
+
+  const removeCustomerMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch("/api/private/removeCustomer", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      if (data.code == 200) {
+        customerRefetch();
+        showToast({
+          status: "success",
+          message: data.message,
+        });
       } else {
         showToast({
           status: "error",
@@ -1809,16 +1918,25 @@ export default function Page() {
                             <tr key={customer.propsId} className="row">
                               <td>{index + 1}</td>
                               <td>
-                                {customer.first_name} {customer.last_name}
+                                {customer.first_name}{" "}
+                                {customer.middle_name == null ||
+                                customer.middle_name == ""
+                                  ? ""
+                                  : customer.middle_name}{" "}
+                                {customer.last_name}{" "}
+                                {customer.suffix == null ||
+                                customer.suffix == ""
+                                  ? ""
+                                  : customer.suffix}
                               </td>
                               <td>{customer.email}</td>
                               <td>{customer.phone_number}</td>
-                              <td>{customer.package}</td>
+                              <td>{customer.package_name}</td>
                               <td>
                                 <button
                                   onClick={() => {
                                     nav.push(
-                                      `/superadmin/users/updatevehicle/?user_id=${customer.customer_id}`
+                                      `/superadmin/users/updatecustomercar/?user_id=${customer.customer_id}`
                                     );
                                   }}
                                   type="button"
@@ -1835,7 +1953,7 @@ export default function Page() {
                                 <button
                                   onClick={() => {
                                     nav.push(
-                                      `/superadmin/users/updateaccount/?user_id=${customer.customer_id}`
+                                      `/superadmin/users/updatecustomeraccount/?user_id=${customer.customer_id}`
                                     );
                                   }}
                                   type="button"
@@ -1852,6 +1970,12 @@ export default function Page() {
                                 <button
                                   type="button"
                                   className="btn  btn-error"
+                                  onClick={() => {
+                                    removeCustomerMutation.mutate({
+                                      Customer_Id: customer.customer_id,
+                                      User_Id: customer.user_id,
+                                    });
+                                  }}
                                 >
                                   <Image
                                     src="/icons/deleteicon.svg"
@@ -1859,7 +1983,7 @@ export default function Page() {
                                     height={20}
                                     alt="Delete Icon"
                                   />
-                                  Delete
+                                  Remove Customer
                                 </button>
                               </td>
                             </tr>
@@ -1921,24 +2045,114 @@ export default function Page() {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="row">
-                        <th>3</th>
-                        <td>Brice Swyre</td>
-                        <td>Tax Accountant</td>
-                        <td>Red</td>
-                        <td>Blue</td>
-                        <td>Blue</td>
-                        <td>
-                          <button className="btn btn-sm btn-info mr-5">
-                            Edit
-                          </button>
-                          <button className="btn btn-sm btn-error">
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
+                      {EmployeeIsFetching || EmployeeIsLoading ? (
+                        <tr className="text-center">
+                          <td colSpan={6}>Getting employee list.</td>
+                        </tr>
+                      ) : EmployeeData.data.length == 0 ? (
+                        <tr className="text-center">
+                          <td colSpan={6}>No employee found.</td>
+                        </tr>
+                      ) : (
+                        EmployeeData.data.map(
+                          (employee: any, index: number) => (
+                            <tr key={index} className="row">
+                              <th>{index + 1}</th>
+                              <td>
+                                {employee.first_name} {employee.middle_name}{" "}
+                                {employee.last_name}{" "}
+                                {employee.suffix == "" ||
+                                employee.suffix == "N/A" ||
+                                employee == null
+                                  ? ""
+                                  : employee.suffix}
+                              </td>
+                              <td>{employee.name}</td>
+                              <td>{employee.email}</td>
+                              <td>{employee.phone_number}</td>
+                              <td>
+                                <button
+                                  onClick={() => {
+                                    nav.push(
+                                      `/superadmin/users/updateemployee/?user_id=${employee.CoreId}`
+                                    );
+                                  }}
+                                  type="button"
+                                  className="btn btn-info mr-5"
+                                >
+                                  <Image
+                                    src="/images/update-user.png"
+                                    alt="edit"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  <span> Edit Account</span>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    removeEmployeeMutation.mutate({
+                                      employee_id: employee.CoreId,
+                                      user_id:employee.user_id
+                                    });
+                                    console.log({
+                                      employee_id: employee.CoreId,
+                                      user_id:employee.user_id
+                                    })
+                                  }}
+                                  className="btn btn-error"
+                                >
+                                  <Image
+                                    src="/icons/deleteicon.svg"
+                                    alt="edit"
+                                    width={20}
+                                    height={20}
+                                  />
+                                  <span> Remove Account</span>
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        )
+                      )}
                     </tbody>
                   </table>
+                  <div className="w-11/12 flex mx-auto">
+                    <div className="join mx-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (employeePage !== 0) {
+                            const newPage = employeePage - 1;
+                            setEmployeePage(newPage);
+                          }
+                        }}
+                        className="join-item btn"
+                      >
+                        «
+                      </button>
+                      <button className="join-item btn">
+                        {EmployeeIsFetching || EmployeeIsLoading ? (
+                          <span className="loading loading-dots loading-md"></span>
+                        ) : (
+                          `Page ${employeePage + 1}`
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (EmployeeData.data.length >= 10) {
+                            const newPage = employeePage + 1;
+                            setEmployeePage(newPage);
+                          } else {
+                            return;
+                          }
+                        }}
+                        className="join-item btn"
+                      >
+                        »
+                      </button>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <></>
