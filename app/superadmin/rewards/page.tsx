@@ -1,25 +1,27 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ErrorMessage, Field, Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
-import Image from "next/image";
 import {
+  QueryClient,
+  dataTagSymbol,
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-
 import { useToast } from "@/hooks/useToast";
+import { act } from "react-dom/test-utils";
+import LabeledSelectInput from "@/components/LabeledSelectInput";
 
-type rewardslist = {
+type Element = {
+  id: number;
   name: string;
   description: string;
-  type: string;
-  quantity: string;
-  created_at: string;
+  reward_type_id: number;
+  quantity: number;
   updated_at: string;
-  removed_at: string;
+  is_exist: number;
 };
 
 export default function Page() {
@@ -27,6 +29,7 @@ export default function Page() {
 
   const [processing, setProcessing] = useState(false);
   const createActionRef = useRef<FormikProps<any>>(null);
+  const editActionRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -122,7 +125,7 @@ export default function Page() {
 
       showToast({
         status: "success",
-        message: "Action Created Successfully",
+        message: "Reward Created Successfully",
       });
 
       RefetchActionPagination();
@@ -144,28 +147,88 @@ export default function Page() {
 
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
 
   const actionValidation = yup.object().shape({
-    type: yup.string().required("Type is required"),
+    reward_type_id: yup.string().required("Type is required"),
     quantity: yup.number().required("Quantity is required"),
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
   });
 
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [rowDataToEdit, setRowDataToEdit] = useState<any | null>(null);
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
 
   // ... other functions ...
-  const initialValues = {
-    name: rowDataToEdit ? rowDataToEdit.name || null : "",
+  const UpdateinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
+    quantity: rowDataToEdit ? rowDataToEdit.quantity : "",
+    reward_type_id: rowDataToEdit ? rowDataToEdit.reward_type_id : "",
+    id : rowDataToEdit ? rowDataToEdit.id : 0,
+    updated_at: new Date().toISOString(),
+    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
     // ... add other fields as needed ...
   };
-  const handleEditClick = (rowData: any) => {
+  const handleEditClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
-    setEditModalOpen(true);
+    setEditModalOpen(false);
   };
+
+  const handleUpdateReward = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setEditModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/editRewards/`, {
+          method: 'POST',
+         
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Reward Updated Successfully',
+        
+        });
+        RefetchActionPagination();
+        setProcessing(false);
+        editActionRef.current?.resetForm();
+        setEditModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef]
+  );
+
+  const onSubmit = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleUpdateReward(values);
+    setEditModalOpen(false);  
+  };  
+
 
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
@@ -173,23 +236,95 @@ export default function Page() {
       createActionRef.current?.setValues({
         name: rowDataToEdit.name,
         description: rowDataToEdit.description,
-        // ... add other fields as needed ...
+        quantity: rowDataToEdit.quantity,
+        reward_type_id: rowDataToEdit.reward_type_id,
+
       });
     }
   }, [rowDataToEdit]);
 
-  const onSubmit = async (values: any) => {
-    console.log("Edit Form submitted with values:", values);
-
-    setEditModalOpen(false);
+  const [selectedValue, setSelectedValue] = useState("");
+  const handleSelectChange = (event: any) => {
+    const newValue = event.target.value;
+    console.log(newValue);
+    setSelectedValue(newValue);
+    createActionRef.current?.setFieldValue("reward_type_id", newValue);
   };
+
+
+  
+  const RemoveinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
+    removed_at: new Date().toISOString(),
+    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+  };
+
+  const handleRemoveClick = (rowData: Element) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setRemoveModalOpen(false);
+  };
+  const handleRemoveAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/removeRewards/`, {
+          method: 'POST',
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Reward Deleted Successfully',
+        
+        });
+        RefetchActionPagination();
+        setProcessing(false);
+        editActionRef.current?.resetForm();
+        setRemoveModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setRemoveModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setRemoveModalOpen, RefetchActionPagination, editActionRef]
+  );
+
+  
+  const onSubmitRemove = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemoveAction(values);
+    setModalOpen(false);  
+  };  
 
   return (
     <div className="pl-10">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
       </label>
-
+      {/* add modal */}
       <input
         type="checkbox"
         id="my_modal_6"
@@ -207,21 +342,19 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Add Action</h3>
+          <h3 className="font-bold text-lg">Add Reward</h3>
           {/* {isLoadingRewardTypePagination ? (
     <p>Loading...</p>
   ) : ( */}
           <Formik
             initialValues={{
               quantity: "",
-              type: "",
+              reward_type_id: "",
               name: "",
               description: "",
               created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              rewardType: "",
             }}
-            ref={createActionRef}
+            innerRef={createActionRef}
             validationSchema={actionValidation}
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
@@ -231,29 +364,32 @@ export default function Page() {
 
               let bodyContent = JSON.stringify({
                 quantity: quantityAsInt,
-                type: values.type,
+                reward_type_id: values.reward_type_id,
                 name: values.name,
                 description: values.description,
                 created_at: values.created_at,
-                updated_at: values.updated_at,
               });
               createActionMutation.mutate(bodyContent);
             }}
           >
-            {({ errors, touched }) => (
+            {({ errors, touched, values, setFieldValue }) => (
               <Form>
                 <select
-                  name="rewardtype"
+                  name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
-                  onChange={(e) => setPage(Number(e.target.value))}
+                  id=""
+                  onChange={handleSelectChange}
+                  value={values.reward_type_id}
                 >
+                  <option disabled value="">
+                    Select Reward Type
+                  </option>
                   {DataRewardTypePagination?.data.map((item: any) => (
                     <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
                   ))}
                 </select>
-
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Quantity
@@ -268,8 +404,8 @@ export default function Page() {
                 <ErrorMessage name="quantity" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
-                      <Image
-                        src="/icons/warning.svg"
+                      <img
+                        src="../icons/warning.svg"
                         width={20}
                         height={20}
                         alt="Error Icon"
@@ -294,8 +430,8 @@ export default function Page() {
                 <ErrorMessage name="name" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
-                      <Image
-                        src="/icons/warning.svg"
+                      <img
+                        src="../icons/warning.svg"
                         width={20}
                         height={20}
                         alt="Error Icon"
@@ -320,8 +456,8 @@ export default function Page() {
                 <ErrorMessage name="description" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
-                      <Image
-                        src="/icons/warning.svg"
+                      <img
+                        src="../icons/warning.svg"
                         width={20}
                         height={20}
                         alt="Error Icon"
@@ -351,6 +487,212 @@ export default function Page() {
         </div>
       </div>
 
+      {/* edit modal */}
+       <input
+        type="checkbox"
+        id="my_modal_7"
+        className="modal-toggle"
+        checked={isEditModalOpen}
+        onChange={() => setEditModalOpen(!isEditModalOpen)}
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+            <label
+              htmlFor="my_modal_7"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+            >
+              ✕
+            </label>
+          </form>
+          <h3 className="font-bold text-lg">Edit Reward</h3>
+       
+          <Formik
+initialValues={UpdateinitialValues}
+enableReinitialize={true}
+onSubmit={onSubmit}>
+   {({ errors, touched, values, setFieldValue }) => (
+           <Form>
+                <select
+                  name="reward_type_id"
+                  className="select select-bordered w-full max-w-xs font-semibold text-base"
+                  id=""
+                  onChange={handleSelectChange}
+                  value={values.reward_type_id}
+                >
+                  <option disabled value="">
+                    Select Reward Type
+                  </option>
+                  {DataRewardTypePagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Quantity
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Quantity"
+                  className="input input-bordered"
+                  name="quantity"
+                />
+                <ErrorMessage name="quantity" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Name"
+                  className="input input-bordered"
+                  name="name"
+                />
+                <ErrorMessage name="name" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Reward Description"
+                  className="input input-bordered"
+                  name="description"
+                />
+                <ErrorMessage name="description" className="flex">
+                  {(msg) => (
+                    <div className="text-red-600 flex">
+                      <img
+                        src="../icons/warning.svg"
+                        width={20}
+                        height={20}
+                        alt="Error Icon"
+                        className="error-icon pr-1"
+                      />
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+                <div className="m-8 " style={{ marginTop: 60 }}>
+                  <div className="absolute bottom-6 right-6">
+                    <label
+                      htmlFor="my_modal_7"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </Form>
+    )}
+              </Formik>
+  </div>
+      </div> 
+              
+        {/* remove modal */}
+        
+{/* delete modal */}
+<input type="checkbox" id="my_modal_8"
+ checked={isRemoveModalOpen}
+        onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
+        className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <form method="dialog">
+          </form>
+          <h3 className="font-bold text-lg">Delete Reward</h3>
+          <Formik
+            initialValues={RemoveinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemove}
+          >
+            <Form>
+              <div className="form-control bg-white">
+              <label className="label">
+    <span className="label-text text-base font-semibold">
+      Are you sure you want to delete the following data?
+    </span>
+  </label>
+  <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none"
+                  name="name"
+                  disabled />
+                </div>
+                <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none text-black"
+                  name="description"
+                  disabled />
+                </div>
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                <label
+                      htmlFor="my_modal_8"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
+        </div>
+      </div>
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -376,31 +718,37 @@ export default function Page() {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td>{element.type}</td>
+                    <td>{element.reward_type_id}</td>
                     <td>{element.quantity}</td>
                     <td>{new Date(element.created_at).toLocaleDateString()}</td>
                     <td>{new Date(element.updated_at).toLocaleDateString()}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <button className="btn btn-sm btn-info mr-2">
-                          <Image
-                            src="/icons/editicon.svg"
+                        <label
+                          htmlFor="my_modal_7"
+                          className="btn btn-sm btn-info mr-2"
+                          onClick={() => handleEditClick(element)}
+                        >
+                          <img
+                            src="../icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
                           />
                           Edit
-                        </button>
-                        <button className="btn btn-sm btn-error">
-                          <Image
-                            src="/icons/deleteicon.svg"
+                        </label>
+                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
+                        onClick={() => handleRemoveClick(element)}
+                        >
+                          <img
+                            src="../icons/deleteicon.svg"
                             width={20}
                             height={20}
                             alt="Delete Icon"
                           />
                           Delete
-                        </button>
+                        </label>
                       </div>
                     </td>
                   </tr>
