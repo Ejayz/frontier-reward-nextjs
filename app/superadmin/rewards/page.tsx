@@ -68,6 +68,8 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+
+
   const {
     data: DataRewardTypePagination,
     isFetching: isFetchingRewardTypePagination,
@@ -592,6 +594,7 @@ onSubmit={onSubmit}>
                   className="input input-bordered"
                   name="description"
                 />
+          
                 <ErrorMessage name="description" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
