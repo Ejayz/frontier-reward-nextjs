@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+
 export default function AdminNavBar() {
-  const navbarActive=usePathname();
-  console.log(navbarActive);
+ 
   return (
     <div className="navbar bg-white  " data-theme="light">
       <div className="flex-1">
