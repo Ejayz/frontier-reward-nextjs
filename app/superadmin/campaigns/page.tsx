@@ -139,13 +139,13 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     start_date: rowDataToEdit && rowDataToEdit.start_date
-      ? new Date(rowDataToEdit.start_date).toISOString()
+      ? new Date(rowDataToEdit.start_date)
       : "",
     end_date: rowDataToEdit && rowDataToEdit.end_date
-      ? new Date(rowDataToEdit.end_date).toISOString()
+      ? new Date(rowDataToEdit.end_date)
       : "",
     id: rowDataToEdit ? rowDataToEdit.id : 0,
-    updated_at: new Date().toISOString(),
+    updated_at: new Date(),
     is_exist: 0,
     // ... add other fields as needed ...
   };
@@ -213,13 +213,13 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     start_date: rowDataToEdit && rowDataToEdit.start_date
-      ? new Date(rowDataToEdit.start_date).toISOString()
+      ? new Date(rowDataToEdit.start_date)
       : "",
     end_date: rowDataToEdit && rowDataToEdit.end_date
-      ? new Date(rowDataToEdit.end_date).toISOString()
+      ? new Date(rowDataToEdit.end_date)
       : "",
     id: rowDataToEdit ? rowDataToEdit.id : 0,
-    removed_at : new Date().toISOString(),
+    removed_at : new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
   const handleRemoveClick = (rowData: Element) => {
@@ -313,9 +313,7 @@ export default function Page() {
               start_date: "",
               end_date: "",
               is_exist: true,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              deleted_at: new Date().toISOString(),
+              created_at: new Date(),
             }}
             ref={createCampaignRef}
             validationSchema={campaignValidation}
@@ -323,16 +321,14 @@ export default function Page() {
               console.log("Form submitted with values:", values);
               setProcessing(true);
               resetForm();
-              values.start_date = new Date(values.start_date).toISOString();
-              values.end_date = new Date(values.end_date).toISOString();
+              values.start_date = values.start_date;
+              values.end_date = values.end_date;
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
                 start_date: values.start_date,
                 end_date: values.end_date,
                 created_at: values.created_at,
-                updated_at: values.updated_at,
-                deleted_at: values.deleted_at,
                 is_exist: values.is_exist,
               });
               createCampaignMutation.mutate(bodyContent);
@@ -701,8 +697,6 @@ export default function Page() {
               <th>Description</th>
               <th>Start Date</th>
               <th>End Date</th>
-              <th>Created</th>
-              <th>Updated</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -719,8 +713,6 @@ export default function Page() {
                     <td>{element.description}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
-                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
-                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">

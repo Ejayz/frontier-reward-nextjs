@@ -24,8 +24,8 @@ export default async function handler(
   try {
     jwt.verify(auth, JWT_SECRET);
     const reqQuery = parseInt(req.query.page as string) || 1;
-    const skip = (reqQuery - 1) * 5;
-    const take = 5;
+    const skip = (reqQuery - 1) * 10;
+    const take = 10;
     const [packagesResult, packagesFields] = await connection.query( `SELECT * FROM package_reward_list WHERE is_exist=1 ORDER BY id DESC LIMIT ?,?`, [skip, take] );
 
     return res.status(200).json({ code: 200, data: packagesResult });

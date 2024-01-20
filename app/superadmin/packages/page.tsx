@@ -20,8 +20,10 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { start } from "repl";
+import { tree } from "next/dist/build/templates/app-page";
 
 type Element = {
+  id: number;
   package_id: number;
   name: string;
   description: string;
@@ -82,7 +84,7 @@ export default function Page() {
     isLoading: isLoadingRewardPagination,
     refetch: RefetchRewardPagination,
   } = useQuery({
-    queryKey: ["getRewardType", page],
+    queryKey: ["getReward", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -115,7 +117,7 @@ export default function Page() {
     isLoading: isLoadingPackageRewardPagination,
     refetch: RefetchPackageRewardPagination,
   } = useQuery({
-    queryKey: ["getRewardType", page],
+    queryKey: ["getPackageReward", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -175,7 +177,7 @@ export default function Page() {
     onSuccess: async (data: any) => {
       setPage(1);
       queryClient.invalidateQueries({
-        queryKey: ["getCampaignPagination"],
+        queryKey: ["getPackagesPagination", page],
       });
 
 
@@ -221,7 +223,7 @@ export default function Page() {
   const CreatePacakgeRewardhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
-      setAddRewardModalOpen(false);
+      setAddRewardModalOpen(true);
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -248,10 +250,10 @@ export default function Page() {
           message: 'Added Reward Successfully',
         
         });
-        RefetchRewardPagination();
+        RefetchPackageRewardPagination();
         setProcessing(false);
         createPackageRewardRef.current?.resetForm();
-        setAddRewardModalOpen(false);
+        setAddRewardModalOpen(true);
       } catch (error) {
         showToast({
           status: 'error',
@@ -262,25 +264,23 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setAddRewardModalOpen, RefetchRewardPagination, createPackageRewardRef]
+    [setProcessing, showToast,setAddRewardModalOpen, RefetchPackageRewardPagination, createPackageRewardRef]
   );
-
   // ... other functions ...
   const initialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
-    package_id : rowDataToEdit ? rowDataToEdit.package_id : 0,
-    update_at: new Date().toISOString(),
+    id : rowDataToEdit ? rowDataToEdit.package_id : 0,
+    update_at: new Date().toLocaleTimeString(),
     reward_id : rowDataToEdit ? rowDataToEdit.reward_id : 0,
-    created_at: new Date().toISOString(),
 
     // ... add other fields as needed ...
   };
   const PackageRewardinitialValues = {
     package_id : rowDataToEdit ? rowDataToEdit.package_id : 0,
     reward_id : rowDataToEdit ? rowDataToEdit.reward_id : 0,
-    created_at: new Date().toISOString(),
+    created_at: new Date().toLocaleTimeString(),
 
     // ... add other fields as needed ...
   };
@@ -299,7 +299,7 @@ export default function Page() {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEdit) {
       createPackageRewardRef.current?.setValues({
-        package_id: rowDataToEdit.package_id,
+        package_id: rowDataToEdit.id,
         reward_id: rowDataToEdit.reward_id,
         created_at: rowDataToEdit.created_at,
       });
@@ -307,7 +307,7 @@ export default function Page() {
   }, [rowDataToEdit]);
 
   return (
-    <div className="w-full h-full overflow-y-scroll pl-10">
+    <div className="w-full h-full pl-10">
     {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
@@ -336,7 +336,7 @@ export default function Page() {
               name: "",
               description: "",
               multiplier: "",
-              created_at: new Date().toISOString(),
+              created_at: new Date().toLocaleTimeString(),
             }}
             ref={createPackageRef}
             validationSchema={PackageValidation}
@@ -464,7 +464,7 @@ export default function Page() {
         onChange={() => setAddRewardModalOpen(!isAddRewardModalOpen)}
       />
 <div className="modal" role="dialog">
-  <div className="modal-box" style={{ width: 800 }}>
+  <div className="modal-box w-11/12 max-w-5xl">
 
           <form method="dialog">
             <label
@@ -497,28 +497,20 @@ export default function Page() {
                   <option  value="">
                     Select Reward Name
                   </option>
-                  {DataPackageRewardPagination?.data.map((item: any) => (
+                  {DataRewardPagination?.data.map((item: any) => (
                     <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
                   ))}
                 </select>
-
-                <label className="label invisible">
-                  <span className="label-text text-base font-semibold">
-                    Package ID
-                  </span>
-                </label>
                     <Field
                     type="text"
                     placeholder="Enter Package Name"
                     className="input input-bordered invisible"
                     name="package_id"
-                    
                   />
-                  
-                <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
+                <div className="m-8 ">
+                  <div className="">
                     <label
                       htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
@@ -530,14 +522,71 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
+                <div className="overflow-x-auto max-h-96">
+  <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
+    <thead>
+      <tr>
+        <th>Reward_id</th> 
+        <td>Package_id</td> 
+        <td>Action</td> 
+      </tr>
+    </thead> 
+          <tbody>
+            {isFetchingPackageRewardPagination ? (
+              <tr className="text-center">
+                <td colSpan={3}>Loading...</td>
+              </tr>
+            ) : (
+              DataPackageRewardPagination.data.map((element: any) => {
+              // console.log(element);
+                return (
+                  <tr key={element.id}>
+                    <td>{element.reward_id}</td>
+                    <td>{element.package_id}</td>
 
+                    <td className="flex">
+                      <div className="flex mx-auto">
 
+                        <label
+                          htmlFor="my_modal_8"
+                          className="btn btn-sm btn-info mr-2"
+                    
+                        >
+                          <Image
+                            src="/icons/editicon.svg"
+                            width={20}
+                            height={20}
+                            alt="Edit Icon"
+                          />
+                          Edit
+                        </label>
+                        <button className="btn btn-sm btn-error"
+                        >
+                          <Image
+                            src="/icons/deleteicon.svg"
+                            width={20}
+                            height={20}
+                            alt="Delete Icon"
+                          />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+  </table>
+</div>
               </Form>
             )}
           </Formik>
           
         </div>
       </div>
+
+{/* packagereward remove */}
 
 
       <div className="overflow-x-auto mt-5 text-black">
@@ -548,8 +597,6 @@ export default function Page() {
               <th>Name</th>
               <th>Description</th>
               <th>Multiplier</th>
-              <th>Created</th>
-              <th>Updated</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -566,8 +613,6 @@ export default function Page() {
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{element.multiplier}</td>
-                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
-                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">
