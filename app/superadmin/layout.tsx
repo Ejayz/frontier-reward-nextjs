@@ -23,7 +23,7 @@ export default function RootLayout({
   const route = useRouter();
 
   const [pageState, setPageState] = useState(false);
-  const [inits, setInit] = useState(false);
+  const [inits, setInit] = useState(true);
   const [cookiesDetails, setCookieDetails] = useState<{
     exp: number;
     iat: number;
@@ -39,7 +39,7 @@ export default function RootLayout({
       if (document.readyState === "complete") {
         setInit(true);
       }
-      let data = await cookie_processor(window.document.cookie);
+      let data = await cookie_processor(window?.document?.cookie);
       if (data == null) {
         route.push("/?error=401");
       } else {

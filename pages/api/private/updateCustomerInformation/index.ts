@@ -43,23 +43,14 @@ export default async function handler(
       points,
       suffix,
     } = req.body;
-    console.log(CoreId,UserId)
+    console.log(CoreId, UserId);
     const getDate = Date.parse(new Date().toString());
 
     const transaction = await await connection.beginTransaction();
     const [UpdateUserAccount] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE customer_info SET first_name=?,middle_name=?,last_name=?,package_id=?,points=?,suffix=?,updated_at=? WHERE id=? and is_exist=1`,
-        [
-          firstName,
-          middleName,
-          lastName,
-          packageId,
-          points,
-          suffix,
-          getDate,
-        CoreId
-        ]
+        `UPDATE customer_info SET first_name=?,middle_name=?,last_name=?,package_id=?,points=?,suffix=?,updated_at=current_timestamp() WHERE id=? and is_exist=1`,
+        [firstName, middleName, lastName, packageId, points, suffix, CoreId]
       )
     );
 
@@ -69,17 +60,8 @@ export default async function handler(
     } else {
       const [UpdateUserAddress] = <RowDataPacket[]>(
         await connection.query(
-          `UPDATE customer_address SET country=?,city=?,zip_code=?,address_1=?,address_2=?,state_province=?,updated_at=? WHERE id=? and is_exist=1`,
-          [
-            country,
-            city,
-            zipCode,
-            address,
-            address2,
-            state_province,
-            getDate,
-            CoreId,
-          ]
+          `UPDATE customer_address SET country=?,city=?,zip_code=?,address_1=?,address_2=?,state_province=?,updated_at=current_timestamp() WHERE id=? and is_exist=1`,
+          [country, city, zipCode, address, address2, state_province, CoreId]
         )
       );
 
@@ -89,18 +71,24 @@ export default async function handler(
           .status(404)
           .json({ code: 404, message: "Customer not found" });
       }
-      const [UpdateUsers]=<RowDataPacket[]>await connection.query(`UPDATE users SET phone_number=?,email=?,updated_at=? WHERE id=? and is_exist=1`,[phoneNumber,email,getDate,UserId]) 
-      if(UpdateUsers.affectedRows==0){
+      const [UpdateUsers] = <RowDataPacket[]>(
+        await connection.query(
+          `UPDATE users SET phone_number=?,email=?,updated_at=current_timestamp()  WHERE id=? and is_exist=1`,
+          [phoneNumber, email, UserId]
+        )
+      );
+      if (UpdateUsers.affectedRows == 0) {
         await connection.rollback();
-        return res.status(404).json({code:404,message:"Customer not found"})
+        return res
+          .status(404)
+          .json({ code: 404, message: "Customer not found" });
       }
       await connection.commit();
       return res.status(200).json({
         code: 200,
         message: "Customer information updated successfully",
       });
-    } 
-
+    }
   } catch (error: any) {
     console.log(error);
 
@@ -117,6 +105,6 @@ export default async function handler(
       });
     }
   } finally {
-   await connection.release();
+    await connection.release();
   }
 }
