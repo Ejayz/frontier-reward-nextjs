@@ -59,7 +59,7 @@ const ForgotPassword = ({
               href={forgot_password_link}
               className="text-lg font-bold p-4 bg-yellow-500 text-black font-sans rounded-full "
             >
-              Verify Email
+           Forgot Password
             </Button>
           </Section>
           <Text key="ins1" className="text-lg font-sans">

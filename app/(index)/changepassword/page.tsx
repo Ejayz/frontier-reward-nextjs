@@ -46,12 +46,7 @@ export default function Page() {
     const data = await response.json();
     if (data.code == 200) {
       toast.success(data.message);
-      setTimeout(() => {
-        open("/", "_blank");
-        setTimeout(() => {
-          window.close();
-        }, 200);
-      }, 1000);
+      open("/", "_self");
     } else {
       toast.error(data.message);
     }

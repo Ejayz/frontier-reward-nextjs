@@ -17,17 +17,20 @@ export default async function handler(
       message: "Invalid method. This endpoint only accept GET method",
     });
   }
-  const connection=await instance.getConnection();
+  const connection = await instance.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
   try {
     jwt.verify(auth, JWT_SECRET);
     const reqQuery = parseInt(req.query.page as string) || 1;
     const skip = (reqQuery - 1) * 10;
     const take = 10;
-    const [packagesResult, packagesFields] = await connection.query( `SELECT * FROM packages WHERE is_exist=1 ORDER BY id DESC LIMIT ?,?`, [skip, take] );
+    const [packagesResult, packagesFields] = await connection.query(
+      `SELECT *,packages.id as value , packages.name as text FROM packages WHERE is_exist=1 `
+    );
 
     return res.status(200).json({ code: 200, data: packagesResult });
   } catch (e: any) {
+    console.log(e);
     if (e.name === "TokenExpiredError") {
       return res.status(401).json({ code: 401, message: "Token Expired" });
     } else if (e.name === "JsonWebTokenError") {

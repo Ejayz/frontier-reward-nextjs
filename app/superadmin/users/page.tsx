@@ -987,7 +987,7 @@ export default function Page() {
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
 
-      let response = await fetch("/api/private/getPackages", {
+      let response = await fetch("/api/private/displayPackages", {
         method: "GET",
         headers: headersList,
       });
@@ -2092,12 +2092,12 @@ export default function Page() {
                                   onClick={() => {
                                     removeEmployeeMutation.mutate({
                                       employee_id: employee.CoreId,
-                                      user_id:employee.user_id
+                                      user_id: employee.user_id,
                                     });
                                     console.log({
                                       employee_id: employee.CoreId,
-                                      user_id:employee.user_id
-                                    })
+                                      user_id: employee.user_id,
+                                    });
                                   }}
                                   className="btn btn-error"
                                 >
