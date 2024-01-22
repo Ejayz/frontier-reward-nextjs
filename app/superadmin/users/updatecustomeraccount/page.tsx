@@ -901,7 +901,7 @@ export default function Page() {
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
 
-      let response = await fetch("/api/private/getPackages", {
+      let response = await fetch("/api/private/displayPackages", {
         method: "GET",
         headers: headersList,
       });
@@ -1029,7 +1029,8 @@ export default function Page() {
           : CustomerInfo.data[0].suffix
         : "",
   };
-
+console.log(CustomerInfo)
+console.log(data)
   if (!toShow) {
     return <Loading />;
   } else {
