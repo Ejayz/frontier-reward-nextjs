@@ -46,8 +46,8 @@ export default async function handler(
     }
     const [UpdateUserResult] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE users SET email=?, phone_number=? WHERE id=?`,
-        [email, phone_number, User_Id]
+        `UPDATE users SET email=?, phone_number=? ,user_type=? WHERE id=?`,
+        [email, phone_number, employee_type, User_Id]
       )
     );
     if (UpdateUserResult.affectedRows === 0) {
@@ -58,16 +58,17 @@ export default async function handler(
     }
     const [UpdateEmployeeResult] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE employee_info SET first_name=?, middle_name=?, last_name=?, suffix=? WHERE id=? `,
+        `UPDATE employee_info  SET first_name=?, middle_name=?, last_name=?, suffix=? WHERE id=? `,
         [first_name, middle_name, last_name, suffix, CoreId]
       )
     );
-    console.log(first_name, middle_name, last_name, suffix, CoreId)
+
     if (UpdateEmployeeResult.affectedRows === 0) {
       connection.rollback();
-      return res
-        .status(500)
-        .json({ code: 500, message: "Unable to update employee info details." });
+      return res.status(500).json({
+        code: 500,
+        message: "Unable to update employee info details.",
+      });
     }
     await connection.commit();
     return res.status(200).json({ code: 200, message: "Success" });

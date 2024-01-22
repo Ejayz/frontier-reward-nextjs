@@ -134,7 +134,7 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     id:rowDataToEdit? rowDataToEdit.id:0,
-    updated_at: new Date().toISOString(),
+    updated_at: new Date(),
     is_exist: 0,
     // ... add other fields as needed ...
   };
@@ -203,7 +203,7 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     id: rowDataToEdit ? rowDataToEdit.id : 0,
-    removed_at: new Date().toISOString(),
+    removed_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
   const handleRemoveClick = (rowData: Element) => {
@@ -294,7 +294,7 @@ export default function Page() {
             initialValues={{
               name: "",
               description: "",
-              created_at: new Date().toISOString(),
+              created_at: new Date(),
             }}
             ref={createActionRef}
             validationSchema={actionValidation}
@@ -459,7 +459,7 @@ export default function Page() {
         <div className="modal-box">
           <form method="dialog">
           </form>
-          <h3 className="font-bold text-lg">Delete Action</h3>
+
           <Formik
             initialValues={RemoveinitialValues}
             enableReinitialize={true}
@@ -467,12 +467,12 @@ export default function Page() {
           >
             <Form>
               <div className="form-control bg-white">
-              <label className="label">
+              <label className="label text-center">
     <span className="label-text text-base font-semibold">
       Are you sure you want to delete the following data?
     </span>
   </label>
-  <div className="flex">
+  <div className="flex mb-5">
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Name:
@@ -524,8 +524,6 @@ export default function Page() {
             <tr className="rounded-lg">
               <th>Name</th>
               <th>Description</th>
-              <th>Created At</th>
-              <th>Updated At</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -540,8 +538,6 @@ export default function Page() {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
-                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">

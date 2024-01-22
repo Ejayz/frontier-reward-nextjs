@@ -68,6 +68,8 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+
+
   const {
     data: DataRewardTypePagination,
     isFetching: isFetchingRewardTypePagination,
@@ -166,7 +168,7 @@ export default function Page() {
     quantity: rowDataToEdit ? rowDataToEdit.quantity : "",
     reward_type_id: rowDataToEdit ? rowDataToEdit.reward_type_id : "",
     id : rowDataToEdit ? rowDataToEdit.id : 0,
-    updated_at: new Date().toISOString(),
+    updated_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
     // ... add other fields as needed ...
   };
@@ -257,7 +259,7 @@ export default function Page() {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
     id: rowDataToEdit ? rowDataToEdit.id : 0,
-    removed_at: new Date().toISOString(),
+    removed_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
 
@@ -352,7 +354,7 @@ export default function Page() {
               reward_type_id: "",
               name: "",
               description: "",
-              created_at: new Date().toISOString(),
+              created_at: new Date(),
             }}
             innerRef={createActionRef}
             validationSchema={actionValidation}
@@ -592,6 +594,7 @@ onSubmit={onSubmit}>
                   className="input input-bordered"
                   name="description"
                 />
+          
                 <ErrorMessage name="description" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
@@ -702,8 +705,6 @@ onSubmit={onSubmit}>
               <th>Description</th>
               <th>Type</th>
               <th>QTY</th>
-              <th>Created</th>
-              <th>Updated</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -720,8 +721,6 @@ onSubmit={onSubmit}>
                     <td>{element.description}</td>
                     <td>{element.reward_type_id}</td>
                     <td>{element.quantity}</td>
-                    <td>{new Date(element.created_at).toLocaleDateString()}</td>
-                    <td>{new Date(element.updated_at).toLocaleDateString()}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">
