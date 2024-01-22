@@ -22,8 +22,8 @@ export default function RootLayout({
 }) {
   const route = useRouter();
 
-  const [pageState, setPageState] = useState(false);
-  const [inits, setInit] = useState(false);
+  const [pageState, setPageState] = useState(true);
+  const [inits, setInit] = useState(true);
   const [cookiesDetails, setCookieDetails] = useState<{
     exp: number;
     iat: number;
