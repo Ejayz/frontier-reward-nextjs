@@ -21,18 +21,25 @@ import {
 } from "@tanstack/react-query";
 import { start } from "repl";
 import { tree } from "next/dist/build/templates/app-page";
+import { create } from "domain";
 
 type Element = {
   id: number;
   package_id: number;
+  reward_id: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type PackageElement = {
+  id: number;
   name: string;
   description: string;
   multiplier: number;
   updated_at: string;
-  reward_id: number;
   created_at: string;
+  is_exist: number;
 };
-
 export default function Page() {
 
   const [processing, setProcessing] = useState(false);
@@ -156,8 +163,6 @@ export default function Page() {
   createPackageRewardRef.current?.setFieldValue("reward_id", numericValue);
 };
 
-
-
   const createPackageMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -204,7 +209,6 @@ export default function Page() {
   });
 
 
-
   const queryClient = useQueryClient();
 
   const PackageValidation = yup.object().shape({
@@ -217,8 +221,15 @@ export default function Page() {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
   const [isAddRewardModalOpen, setAddRewardModalOpen] = useState(false);
-  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+  const [rowDataToEdit, setRowDataToEdit] = useState<PackageElement | null>(null);
+  const [rowDataToEditPR, setRowDataToEditPR] = useState<Element | null>(null);
 
+
+  const handleAddRewardClick = (rowData: Element) => {
+    console.log("PackeReward Edit clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+    setEditModalOpen(false);
+  };
 
   const CreatePacakgeRewardhandle = useCallback(
     async (values: any) => {
@@ -266,20 +277,145 @@ export default function Page() {
     },
     [setProcessing, showToast,setAddRewardModalOpen, RefetchPackageRewardPagination, createPackageRewardRef]
   );
-  // ... other functions ...
-  const initialValues = {
+
+  const UpdateinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
-    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : "",
-    id : rowDataToEdit ? rowDataToEdit.package_id : 0,
-    update_at: new Date().toLocaleTimeString(),
-    reward_id : rowDataToEdit ? rowDataToEdit.reward_id : 0,
-
+    id:rowDataToEdit? rowDataToEdit.id:0,
+    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : 0,
+    updated_at: new Date(),
+    is_exist: 0,
     // ... add other fields as needed ...
   };
+  const handleEditClick = (rowData: PackageElement) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setEditModalOpen(false);
+  };
+  
+  const handleUpdatePackage = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setEditModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/editPackage/`, {
+          method: 'POST',
+         
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Package Updated Successfully',
+        
+        });
+        RefetchPackagesPagination();
+        setProcessing(false);
+        editPackageRef.current?.resetForm();
+        setEditModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setEditModalOpen, RefetchPackagesPagination, editPackageRef]
+  );
+
+  const onSubmitEditPackage = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleUpdatePackage(values);
+    setEditModalOpen(false);  
+  };  
+
+  
+  const RemoveinitialValues = {
+    name: rowDataToEdit ? rowDataToEdit.name : "",
+    description: rowDataToEdit ? rowDataToEdit.description : "",
+    multiplier: rowDataToEdit ? rowDataToEdit.multiplier : 0,
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
+    removed_at: new Date(),
+    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+  };
+  const handleRemoveClick = (rowData: PackageElement) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEdit(rowData);
+    setRemoveModalOpen(false);
+  };
+  const handleRemoveAction = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpen(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/removePackage/`, {
+          method: 'POST',
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Package Deleted Successfully',
+        
+        });
+        RefetchPackagesPagination();
+        setProcessing(false);
+        editPackageRef.current?.resetForm();
+        setRemoveModalOpen(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setRemoveModalOpen(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setRemoveModalOpen, RefetchPackagesPagination, editPackageRef]
+  );
+
+  const onSubmitRemove = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemoveAction(values);
+    setModalOpen(false);  
+  };  
+
+
   const PackageRewardinitialValues = {
-    package_id : rowDataToEdit ? rowDataToEdit.package_id : 0,
-    reward_id : rowDataToEdit ? rowDataToEdit.reward_id : 0,
+    package_id : rowDataToEditPR ? rowDataToEditPR.package_id : 0,
+    reward_id : rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
     created_at: new Date().toLocaleTimeString(),
 
     // ... add other fields as needed ...
@@ -287,8 +423,8 @@ export default function Page() {
 
   const handlegetProduct_idClick = (rowData: Element) => {
     console.log("Add reward clicked for row:", rowData);
-    setRowDataToEdit(rowData);
-    setAddRewardModalOpen(false);
+    setRowDataToEditPR(rowData);
+    setAddRewardModalOpen(false); 
   };
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
@@ -297,14 +433,15 @@ export default function Page() {
   };  
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEdit) {
+    if (rowDataToEditPR) {
       createPackageRewardRef.current?.setValues({
-        package_id: rowDataToEdit.id,
-        reward_id: rowDataToEdit.reward_id,
-        created_at: rowDataToEdit.created_at,
+        package_id: rowDataToEditPR.id,
+        reward_id: rowDataToEditPR.reward_id,
+        created_at: rowDataToEditPR.created_at,
       });
     }
-  }, [rowDataToEdit]);
+  }, [rowDataToEditPR]);
+
 
   return (
     <div className="w-full h-full pl-10">
@@ -319,8 +456,8 @@ export default function Page() {
         checked={isModalOpen}
         onChange={() => setModalOpen(!isModalOpen)}
       />
-<div className="modal" role="dialog">
-  <div className="modal-box" style={{ width: 800 }}>
+      <div className="modal" role="dialog">
+        <div className="modal-box" style={{ width: 800 }}>
 
           <form method="dialog">
             <label
@@ -506,7 +643,7 @@ export default function Page() {
                     <Field
                     type="text"
                     placeholder="Enter Package Name"
-                    className="input input-bordered invisible"
+                    className="input input-bordered"
                     name="package_id"
                   />
                 <div className="m-8 ">
@@ -586,9 +723,219 @@ export default function Page() {
         </div>
       </div>
 
-{/* packagereward remove */}
+{/* edit modal */}
+<input
+  type="checkbox"
+  id="my_modal_8"
+  className="modal-toggle"
+  checked={isEditModalOpen}
+  onChange={() => setEditModalOpen(!isEditModalOpen)}
+/>
 
+<div className="modal" role="dialog">
+  <div className="modal-box" style={{ width: 800 }}>
+    <form method="dialog">
+      <label
+        htmlFor="my_modal_8"
+        className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+      >
+        ✕
+      </label>
+    </form>
+    <h3 className="font-bold text-lg">Edit Package</h3>
+    <Formik
+      initialValues={UpdateinitialValues}
+      enableReinitialize={true}
+      onSubmit={onSubmitEditPackage}
+    >
+      {({ errors, touched }) => (
+        <Form>
+          <div className="form-control bg-white">
+            <label className="label">
+              <span className="label-text text-base font-semibold">
+                Name
+              </span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Name"
+              className="input input-bordered"
+              name="name"
+            />
+            <ErrorMessage name="name" className="flex">
+              {(msg) => (
+                <div className="text-red-600 flex">
+                  <Image
+                    src="/icons/warning.svg"
+                    width={20}
+                    height={20}
+                    alt="Error Icon"
+                    className="error-icon pr-1"
+                  />
+                  {msg}
+                </div>
+              )}
+            </ErrorMessage>
+            
+            <label className="label">
+              <span className="label-text text-base font-semibold">
+                Description
+              </span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Description"
+              className="input input-bordered"
+              name="description"
+            />
+            <ErrorMessage name="description" className="flex">
+              {(msg) => (
+                <div className="text-red-600 flex">
+                  <Image
+                    src="/icons/warning.svg"
+                    width={20}
+                    height={20}
+                    alt="Error Icon"
+                    className="error-icon pr-1"
+                  />
+                  {msg}
+                </div>
+              )}
+            </ErrorMessage>
 
+            <label className="label">
+              <span className="label-text text-base font-semibold">
+                Multiplier
+              </span>
+            </label>
+            <Field
+              type="text"
+              placeholder="Enter Package Multiplier"
+              className="input input-bordered"
+              name="multiplier"
+            />
+            <ErrorMessage name="multiplier" className="flex">
+              {(msg) => (
+                <div className="text-red-600 flex">
+                  <Image
+                    src="/icons/warning.svg"
+                    width={20}
+                    height={20}
+                    alt="Error Icon"
+                    className="error-icon pr-1"
+                  />
+                  {msg}
+                </div>
+              )}
+            </ErrorMessage>
+          </div>
+          <div className="m-8 " style={{ marginTop: 60 }}>
+            <div className="absolute bottom-6 right-6">
+              <label
+                htmlFor="my_modal_8"
+                className="btn btn-neutral mr-2"
+              >
+                Cancel
+              </label>
+              <button type="submit" className="btn btn-primary">
+                Submit
+              </button>
+            </div>
+          </div>
+        </Form>
+      )}
+    </Formik>
+  </div>
+</div>
+
+{/* remove modal */}
+<input
+  type="checkbox"
+  id="my_modal_9"
+  className="modal-toggle"
+  checked={isRemoveModalOpen}
+  onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
+/>
+<div className="modal" role="dialog">
+  <div className="modal-box" style={{ width: 400 }}>
+    <form method="dialog">
+      <label
+        htmlFor="my_modal_9"
+        className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+      >
+        ✕
+      </label>
+    </form>
+   
+    <Formik
+            initialValues={RemoveinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemove}
+          >
+            <Form>
+              <div className="form-control bg-white">
+              <label className="label text-center">
+    <span className="label-text text-base font-semibold">
+      Are you sure you want to delete the following data?
+    </span>
+  </label>
+  <div className="flex mb-5">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Name:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none"
+                  name="name"
+                  disabled />
+                </div>
+                <div className="flex mb-5">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Description:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none text-black"
+                  name="description"
+                  disabled />
+                </div>
+                <div className="flex">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Multiplier
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none text-black"
+                  name="multiplier"
+                  disabled />
+                  </div>
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                <label
+                      htmlFor="my_modal_9"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
+  </div>
+</div>
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -609,7 +956,7 @@ export default function Page() {
               DataPackagesPagination.data.map((element: any) => {
               // console.log(element);
                 return (
-                  <tr key={element.package_id}>
+                  <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{element.multiplier}</td>
@@ -620,7 +967,7 @@ export default function Page() {
                       <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-accent mr-2"
-                        onClick={() => handlegetProduct_idClick(element)}
+                          onClick={() => handlegetProduct_idClick(element)}
                         >
                           <Image
                             src="/icons/addrewards.svg"
@@ -634,7 +981,7 @@ export default function Page() {
                         <label
                           htmlFor="my_modal_8"
                           className="btn btn-sm btn-info mr-2"
-                    
+                          onClick={() => handleEditClick(element)}
                         >
                           <Image
                             src="/icons/editicon.svg"
@@ -644,7 +991,9 @@ export default function Page() {
                           />
                           Edit
                         </label>
-                        <button className="btn btn-sm btn-error"
+                        <label className="btn btn-sm btn-error"
+                          htmlFor="my_modal_9"
+                          onClick={() => handleRemoveClick(element)}
                         >
                           <Image
                             src="/icons/deleteicon.svg"
@@ -653,7 +1002,7 @@ export default function Page() {
                             alt="Delete Icon"
                           />
                           Delete
-                        </button>
+                        </label>
                       </div>
                     </td>
                   </tr>

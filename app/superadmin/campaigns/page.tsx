@@ -138,12 +138,8 @@ export default function Page() {
   const UpdateinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
-    start_date: rowDataToEdit && rowDataToEdit.start_date
-      ? new Date(rowDataToEdit.start_date)
-      : "",
-    end_date: rowDataToEdit && rowDataToEdit.end_date
-      ? new Date(rowDataToEdit.end_date)
-      : "",
+    start_date: rowDataToEdit ? new Date(rowDataToEdit.start_date).toLocaleDateString() : "",
+    end_date: rowDataToEdit ? new Date(rowDataToEdit.end_date).toLocaleDateString() : "",
     id: rowDataToEdit ? rowDataToEdit.id : 0,
     updated_at: new Date(),
     is_exist: 0,
@@ -280,7 +276,9 @@ export default function Page() {
     setModalOpen(false);  
   };  
 
-
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + 1); // Add one day to exclude yesterday
+  const formattedCurrentDate = currentDate.toISOString().split('T')[0];
 
   return (
     <div className="pl-10">
@@ -395,14 +393,14 @@ export default function Page() {
                     </span>
                   </label>
                   <Field
-          type="date"
-          id="start_date"
-          name="start_date"
-          className={`input input-bordered ${
-            touched.start_date && errors.start_date ? "input-error" : ""
-          }`}
-          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
-        />
+  type="date"
+  id="start_date"
+  name="start_date"
+  className={`input input-bordered ${
+    touched.start_date && errors.start_date ? "input-error" : ""
+  }`}
+  min={formattedCurrentDate} // Set min attribute to today's date
+/>
                   <ErrorMessage name="start_date" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -429,9 +427,9 @@ export default function Page() {
           className={`input input-bordered ${
             touched.end_date && errors.end_date ? "input-error" : ""
           }`}
-          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+          min={formattedCurrentDate} // Set min attribute to today's date
         />
-                  <ErrorMessage name="end_date" className="flex">
+                  <ErrorMessage name="end_date" className="flex"> 
                     {(msg) => (
                       <div className="text-red-600 flex">
                         <Image
@@ -557,7 +555,9 @@ export default function Page() {
           className={`input input-bordered ${
             touched.start_date && errors.start_date ? "input-error" : ""
           }`}
-          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+          min={new Date().toISOString().split('T')[0]}
+          value={new Date(UpdateinitialValues.start_date).toLocaleDateString('en-CA')} // Set initial value to today's date 
+          readonly = "true"
         />
                   <ErrorMessage name="start_date" className="flex">
                     {(msg) => (
@@ -586,6 +586,8 @@ export default function Page() {
             touched.end_date && errors.end_date ? "input-error" : ""
           }`}
           min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+          value={new Date(UpdateinitialValues.end_date).toLocaleDateString('en-CA')} // Set initial value to today's date 
+          readonly = "true"
         />
                   <ErrorMessage name="end_date" className="flex">
                     {(msg) => (
@@ -688,6 +690,8 @@ export default function Page() {
           </Formik>
         </div>
       </div>
+
+
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}

@@ -459,7 +459,7 @@ export default function Page() {
         <div className="modal-box">
           <form method="dialog">
           </form>
-          <h3 className="font-bold text-lg">Delete Action</h3>
+
           <Formik
             initialValues={RemoveinitialValues}
             enableReinitialize={true}
@@ -467,12 +467,12 @@ export default function Page() {
           >
             <Form>
               <div className="form-control bg-white">
-              <label className="label">
+              <label className="label text-center">
     <span className="label-text text-base font-semibold">
       Are you sure you want to delete the following data?
     </span>
   </label>
-  <div className="flex">
+  <div className="flex mb-5">
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Name:
