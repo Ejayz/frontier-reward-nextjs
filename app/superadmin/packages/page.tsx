@@ -28,7 +28,7 @@ type Element = {
   package_id: number;
   reward_id: number;
   created_at: string;
-  updated_at: string;
+  is_exist: number;
 };
 
 type PackageElement = {
@@ -221,6 +221,7 @@ export default function Page() {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
   const [isAddRewardModalOpen, setAddRewardModalOpen] = useState(false);
+  const [isRemoveModalOpenPackageReward, setRemoveModalOpenPackageReward] = useState(false);  
   const [rowDataToEdit, setRowDataToEdit] = useState<PackageElement | null>(null);
   const [rowDataToEditPR, setRowDataToEditPR] = useState<Element | null>(null);
 
@@ -443,6 +444,71 @@ export default function Page() {
   }, [rowDataToEditPR]);
 
 
+
+  const RemovePackageRewardinitialValues = {
+    id: rowDataToEditPR ? rowDataToEditPR.id : 0,
+    package_id: rowDataToEditPR ? rowDataToEditPR.package_id : 0,
+    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
+    removed_at: new Date(),
+    is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
+  };
+  const handleRemoveClickPackageReward = (rowData: Element) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+    setRemoveModalOpenPackageReward(false);
+  };
+  const handleRemovePackageReward = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpenPackageReward(false);
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json',
+      };
+  
+      try {
+        console.log("the values are: ",values);
+        const response = await fetch(`/api/private/removePackageReward/`, {
+          method: 'POST',
+          body: JSON.stringify(values), 
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+  
+        showToast({
+          status: 'success',
+          message: 'Package Reward Deleted Successfully',
+        
+        });
+        RefetchPackageRewardPagination();
+        setProcessing(false);
+        editPackageRef.current?.resetForm();
+        setRemoveModalOpenPackageReward(false);
+      } catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setRemoveModalOpenPackageReward(false);
+        console.error(error);
+      }
+    },
+    [setProcessing, showToast,setRemoveModalOpenPackageReward, RefetchPackageRewardPagination, editPackageRef]
+  );
+
+  const onSubmitRemovePackageReward = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemovePackageReward(values);
+    setRemoveModalOpenPackageReward(false);  
+  };  
+
   return (
     <div className="w-full h-full pl-10">
     {/* add modal */}
@@ -643,7 +709,7 @@ export default function Page() {
                     <Field
                     type="text"
                     placeholder="Enter Package Name"
-                    className="input input-bordered"
+                    className="input input-bordered invisible"
                     name="package_id"
                   />
                 <div className="m-8 ">
@@ -659,7 +725,7 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
-                <div className="overflow-x-auto max-h-96">
+                <div className="overflow-x-auto max-h-96 items-center">
   <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
     <thead>
       <tr>
@@ -680,24 +746,11 @@ export default function Page() {
                   <tr key={element.id}>
                     <td>{element.reward_id}</td>
                     <td>{element.package_id}</td>
-
                     <td className="flex">
                       <div className="flex mx-auto">
-
-                        <label
-                          htmlFor="my_modal_8"
-                          className="btn btn-sm btn-info mr-2"
-                    
-                        >
-                          <Image
-                            src="/icons/editicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Edit Icon"
-                          />
-                          Edit
-                        </label>
-                        <button className="btn btn-sm btn-error"
+                      <label className="btn btn-sm btn-error"
+                          htmlFor="my_modal_10"
+                          onClick={() => handleRemoveClickPackageReward(element)}
                         >
                           <Image
                             src="/icons/deleteicon.svg"
@@ -706,7 +759,7 @@ export default function Page() {
                             alt="Delete Icon"
                           />
                           Delete
-                        </button>
+                        </label>
                       </div>
                     </td>
                   </tr>
@@ -936,6 +989,76 @@ export default function Page() {
           </Formik>
   </div>
 </div>
+
+{/* removePackageReward */}
+<input
+  type="checkbox"
+  id="my_modal_10"
+  className="modal-toggle"
+  checked={isRemoveModalOpenPackageReward}
+  onChange={() => setRemoveModalOpenPackageReward(!isRemoveModalOpenPackageReward)}
+/>
+<div className="modal" role="dialog">
+  <div className="modal-box" style={{ width: 400 }}>
+   
+    <Formik
+            initialValues={RemovePackageRewardinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemovePackageReward}
+          >
+            <Form>
+              <div className="form-control bg-white">
+              <label className="label text-center">
+    <span className="label-text text-base font-semibold">
+      Are you sure you want to delete the following data?
+    </span>
+  </label>
+  <div className="flex mb-5">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Package ID:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none"
+                  name="package_id"
+                  disabled />
+                </div>
+                <div className="flex mb-5">
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                  Reward ID:
+                  </span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input border-none text-black"
+                  name="reward_id"
+                  disabled />
+                </div>
+                
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                <label
+                      htmlFor="my_modal_10"
+                      className="btn btn-neutral mr-2"
+                    >
+                      Cancel
+                    </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
+  </div>
+</div>
+
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
