@@ -89,7 +89,7 @@ export default async function handler(
           .status(404)
           .json({ code: 404, message: "Customer not found" });
       }
-      const [UpdateUsers]=<RowDataPacket[]>await connection.query(`UPDATE users SET phone_number=?,email=?,updated_at=current_timestamp() WHERE id=? and is_exist=1`,[phoneNumber,email,UserId]) 
+      const [UpdateUsers]=<RowDataPacket[]>await connection.query(`UPDATE users SET phone_number=?,email=?,updated_at=current_timestamp()  WHERE id=? and is_exist=1`,[phoneNumber,email,UserId]) 
       if(UpdateUsers.affectedRows==0){
         await connection.rollback();
         return res.status(404).json({code:404,message:"Customer not found"})
