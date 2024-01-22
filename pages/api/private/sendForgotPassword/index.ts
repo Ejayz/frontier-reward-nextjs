@@ -31,7 +31,7 @@ export default async function handler(
         [email]
       )
     );
-console.log(UsersAccountResult)
+    console.log(UsersAccountResult);
     if (UsersAccountFields.length == 0) {
       return res
         .status(404)
@@ -94,6 +94,6 @@ console.log(UsersAccountResult)
       return res.status(500).json({ code: 500, message: error.message });
     }
   } finally {
-  await connection.release();
+    await connection.release();
   }
 }

@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import * as bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
-import  instance  from "../../db";
+import instance from "../../db";
 import { RowDataPacket } from "mysql2";
 dotenv.config();
 const jwt_secret = process.env.JWT_SECRET || "";
@@ -10,7 +10,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-
   const connection = await instance.getConnection();
   let token;
 
@@ -29,7 +28,8 @@ export default async function handler(
   try {
     const [results] = <RowDataPacket[]>(
       await connection.query(
-        `SELECT *,employee_info.id AS employee_id , customer_info.id AS customer_id,users.id as core_id  FROM users LEFT JOIN user_type ON user_type.id=users.user_type LEFT JOIN customer_info ON customer_info.user_id=users.id LEFT JOIN employee_info ON employee_info.user_id= users.id WHERE users.email='${email}' AND users.is_exist=1`
+        `SELECT *,employee_info.id AS employee_id , customer_info.id AS customer_id,users.id as core_id  FROM users LEFT JOIN user_type ON user_type.id=users.user_type LEFT JOIN customer_info ON customer_info.user_id=users.id LEFT JOIN employee_info ON employee_info.user_id= users.id WHERE users.email=? AND users.is_exist=1`,
+        [email]
       )
     );
 
@@ -135,7 +135,7 @@ export default async function handler(
       });
   } catch (error: any) {
     res.status(500).json({ code: 500, message: error.message });
-  }finally{
+  } finally {
     await connection.release();
   }
 }

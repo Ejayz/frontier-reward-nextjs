@@ -10,6 +10,7 @@ import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Loading from "../loading";
 import { randomUUID } from "crypto";
+import { toast } from "react-toastify";
 
 type rewardslist = {
   name: string;
@@ -27,8 +28,70 @@ export default function Page() {
   const [campaignPage, setCampaignPage] = useState(0);
   const [keyword, setKeyword] = useState("");
   const showConfirmCampaignTransaction = useRef<HTMLDialogElement>(null);
+  const showRedeemTransaction = useRef<HTMLDialogElement>(null);
   const [campaignTransactionId, setCampaignTransactionID] = useState<any>();
+  const [redeemtransactionId, setRedeemTransactionID] = useState<any>();
   const [showPage, setShowPage] = useState(false);
+  const [redeemPage, setRedeemPage] = useState(0);
+  const {
+    data: RedeemTransactionInfo,
+    isLoading: RedeemTransactionInfoIsLoading,
+    isFetching: RedeemTransactionInfoIsFetching,
+    refetch: RedeemTransactionInfoRefetch,
+  } = useQuery({
+    queryKey: ["redeemtransactioninfo", redeemtransactionId != null],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(
+        `/api/private/getRedeemTransactionInfo?id=${redeemtransactionId}`,
+        {
+          method: "GET",
+          headers: headersList,
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+      if (data.code == 401) {
+        nav.push("/login");
+      }
+      return data;
+    },
+    enabled: false,
+    refetchOnWindowFocus: false,
+  });
+  const {
+    data: RedeemTransaction,
+    isLoading: RedeemTransactionIsLoading,
+    isFetching: RedeemTransactionIsFetching,
+    refetch: RedeemTransactionRefetch,
+  } = useQuery({
+    queryKey: [
+      "redeemtransaction",
+      searchForm.current?.values.keyword,
+      redeemPage,
+    ],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch(
+        `http://localhost:3000/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
+        {
+          method: "GET",
+          headers: headersList,
+        }
+      );
+
+      let data = await response.json();
+      return data;
+    },
+  });
+
   const {
     data: CampaignData,
     isLoading: campaignIsLoading,
@@ -53,7 +116,7 @@ export default function Page() {
       if (data.code == 200) {
         setShowPage(true);
       } else if (data.code == 401) {
-        nav.push("/login");
+        nav.push("/?error=401");
       }
       return data;
     },
@@ -120,7 +183,38 @@ export default function Page() {
       }
     },
   });
-
+  const denyRedeemTransactionMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch(`/api/private/denyRedeemTransaction`, {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+      if (data.code == 401) {
+        nav.push("/login");
+      }
+      return data;
+    },
+    onSuccess: (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        setRedeemTransactionID(null);
+        RedeemTransactionRefetch();
+        showRedeemTransaction.current?.close();
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (data: any) => {
+      toast.error(data.message);
+    },
+  });
   const updateCampaignTransaction = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -154,6 +248,123 @@ export default function Page() {
   } else {
     return (
       <div className="overflow-x-auto mt-5 text-black">
+        <dialog ref={showRedeemTransaction} id="my_modal_1" className="modal">
+          <div className="modal-box">
+            <form method="dialog">
+              <button className="btn btn-sm btn-circle btn-ghost text-black absolute right-2 top-2">
+                ✕
+              </button>
+            </form>
+            <div className="flex flex-col w-full">
+              <h3 className="font-bold text-xl">Campaign Transaction</h3>
+              <span className=" text-gray-500 text-base">
+                #
+                {RedeemTransactionInfoIsFetching ||
+                RedeemTransactionInfoIsLoading ? (
+                  <>...</>
+                ) : RedeemTransactionInfo != null ? (
+                  RedeemTransactionInfo.transaction_no
+                ) : (
+                  <></>
+                )}
+              </span>
+              <br></br>
+              <h2 className="mb-2.5 text-xs font-bold uppercase tracking-wide text-gray-500">
+                Redeem Rewards
+              </h2>
+
+              <div className="flex flex-col gap-2.5">
+                {RedeemTransactionInfoIsFetching ||
+                RedeemTransactionInfoIsLoading ? (
+                  <>...</>
+                ) : RedeemTransactionInfo != null ? (
+                  <>
+                    {RedeemTransactionInfo.data.map(
+                      (action: any, index: number) => (
+                        <div
+                          className="grid grid-cols-1 gap-2  rounded-md border p-5 cursor-pointer"
+                          key={index}
+                        >
+                          <h3 className="mb-1.5 font-semibold leading-none">
+                            {action.redeem_name}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {action.redeem_description}
+                          </p>
+                          <ul className="mt-2.5 flex flex-col gap-1.5 text-xs font-medium ">
+                            <li className="py-2" key={index}>
+                              <Image
+                                src="/images/reward.png"
+                                width={25}
+                                height={25}
+                                className="mr-1.5 inline-block"
+                                alt="reward"
+                              />
+                              {action.RewardName}
+                            </li>
+                          </ul>
+                        </div>
+                      )
+                    )}
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
+              <div className="mt-5 grid w-full grid-cols-4 gap-2.5">
+                <button
+                  onClick={() => {
+                    denyRedeemTransactionMutation.mutate({
+                      id: RedeemTransactionInfo.data[0].CoreID,
+                      transaction_no:
+                        RedeemTransactionInfo.data[0].transaction_no,
+                    });
+                  }}
+                  className={`${
+                    RedeemTransactionInfoIsLoading ||
+                    RedeemTransactionInfoIsFetching ? (
+                      <>...</>
+                    ) : RedeemTransactionInfo != null ? (
+                      RedeemTransactionInfo.data[0].Status == "pending" ? (
+                        "btn-success"
+                      ) : (
+                        "btn-disabled"
+                      )
+                    ) : (
+                      ""
+                    )
+                  } btn btn-error rounded-full`}
+                >
+                  Deny
+                </button>
+                <button
+                  onClick={() => {
+                    updateCampaignTransaction.mutate({
+                      campaign_transaction_id: campaignTransactionId,
+                      transaction_no: CampaignTransactionInfo.transaction_no,
+                    });
+                  }}
+                  className={`${
+                    CampaignTransactionInfoIsFetching ||
+                    CampaignTransactionInfoIsLoading ? (
+                      <>...</>
+                    ) : CampaignTransactionInfo != null ? (
+                      CampaignTransactionInfo.status == "pending" ? (
+                        "btn-success"
+                      ) : (
+                        "btn-disabled"
+                      )
+                    ) : (
+                      ""
+                    )
+                  } btn  col-span-3 rounded-full border px-5 py-2.5 text-sm font-medium shadow-sm transition hover:border-white hover:bg-neutral-800 hover:text-white`}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </dialog>
         <dialog
           ref={showConfirmCampaignTransaction}
           id="my_modal_1"
@@ -334,7 +545,18 @@ export default function Page() {
                       />
 
                       <div className="indicator">
-                        <button className="btn join-item">Search</button>
+                        <button
+                          onClick={() => {
+                            if (values.selected == "campaign") {
+                              campaignRefetch();
+                            } else if (values.selected == "redeem") {
+                              RedeemTransactionRefetch();
+                            }
+                          }}
+                          className="btn join-item"
+                        >
+                          Search
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -486,108 +708,98 @@ export default function Page() {
                       {/* head */}
                       <thead className="bg-gray-900 rounded-lg text-white font-semibold">
                         <tr className="rounded-lg">
-                          <th>ID</th>
-                          <th>Name</th>
-                          <th>Type</th>
-                          <th>Email</th>
-                          <th>Phone</th>
+                          <th>Transaction #</th>
+                          <th>Redeem Name</th>
+                          <th>Customer Name</th>
+                          <th>Points</th>
+                          <th>Status</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {/* {EmployeeIsFetching || EmployeeIsLoading ? (
-                        <tr className="text-center">
-                          <td colSpan={6}>Getting employee list.</td>
-                        </tr>
-                      ) : EmployeeData.data.length == 0 ? (
-                        <tr className="text-center">
-                          <td colSpan={6}>No employee found.</td>
-                        </tr>
-                      ) : (
-                        EmployeeData.data.map(
-                          (employee: any, index: number) => (
-                            <tr key={index} className="row">
-                              <th>{index + 1}</th>
-                              <td>
-                                {employee.first_name} {employee.middle_name}{" "}
-                                {employee.last_name}{" "}
-                                {employee.suffix == "" ||
-                                employee.suffix == "N/A" ||
-                                employee == null
-                                  ? ""
-                                  : employee.suffix}
-                              </td>
-                              <td>{employee.name}</td>
-                              <td>{employee.email}</td>
-                              <td>{employee.phone_number}</td>
-                              <td>
-                                <button
-                                  // onClick={() => {
-                                  //   nav.push(
-                                  //     `/superadmin/users/updateemployee/?user_id=${employee.CoreId}`
-                                  //   );
-                                  // }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-user.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Account</span>
-                                </button>
-                                <button
-                                  // onClick={() => {
-                                  //   removeEmployeeMutation.mutate({
-                                  //     employee_id: employee.CoreId,
-                                  //     user_id:employee.user_id
-                                  //   });
-                                  //   console.log({
-                                  //     employee_id: employee.CoreId,
-                                  //     user_id:employee.user_id
-                                  //   })
-                                  // }}
-                                  className="btn btn-error"
-                                >
-                                  <Image
-                                    src="/icons/deleteicon.svg"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Remove Account</span>
-                                </button>
-                              </td>
-                            </tr>
+                        {RedeemTransactionIsFetching ||
+                        RedeemTransactionIsLoading ? (
+                          <tr className="text-center">
+                            <td colSpan={6}>
+                              Getting Redeem Transaction List.
+                            </td>
+                          </tr>
+                        ) : RedeemTransaction?.data?.length === 0 ? (
+                          <tr className="text-center">
+                            <td colSpan={6}>No Redeem Transaction Found.</td>
+                          </tr>
+                        ) : (
+                          RedeemTransaction.data.map(
+                            (redeem_transaction: any, index: number) => (
+                              <tr key={index} className="row">
+                                <th>{redeem_transaction.transaction_no}</th>
+                                <td>{redeem_transaction.redeem_name}</td>
+                                <td>{redeem_transaction.customer_name}</td>
+                                <td>{redeem_transaction.point_cost}</td>
+                                <td className="uppercase">
+                                  {redeem_transaction.Status}
+                                </td>
+                                <td>
+                                  <button
+                                    onClick={async () => {
+                                      await setRedeemTransactionID(
+                                        redeem_transaction.CoreID
+                                      );
+                                      await RedeemTransactionInfoRefetch();
+                                      showRedeemTransaction.current?.showModal();
+                                    }}
+                                    type="button"
+                                    className="btn btn-info mr-5"
+                                  >
+                                    <Image
+                                      src="/images/update-user.png"
+                                      alt="edit"
+                                      width={20}
+                                      height={20}
+                                    />
+                                    <span>Show Transaction</span>
+                                  </button>
+                                </td>
+                              </tr>
+                            )
                           )
-                        )
-                      )} */}
+                        )}
                       </tbody>
                     </table>
                     <div className="w-11/12 flex mx-auto">
                       <div className="join mx-auto">
                         <button
                           type="button"
-                          // onClick={() => {
-                          //   if (employeePage !== 0) {
-                          //     const newPage = employeePage - 1;
-                          //     setEmployeePage(newPage);
-                          //   }
-                          // }}
+                          onClick={() => {
+                            if (redeemPage !== 0) {
+                              const newPage = redeemPage - 1;
+                              setRedeemPage(newPage);
+                            }
+                          }}
                           className="join-item btn"
                         >
                           «
                         </button>
                         <button className="join-item btn">
-                          {/* {EmployeeIsFetching || EmployeeIsLoading ? (
-                          <span className="loading loading-dots loading-md"></span>
-                        ) : (
-                          `Page ${  1}`
-                        )} */}
+                          {RedeemTransactionIsFetching ||
+                          RedeemTransactionIsLoading ? (
+                            <span className="loading loading-dots loading-md"></span>
+                          ) : (
+                            `Page ${1}`
+                          )}
                         </button>
-                        <button type="button" className="join-item btn">
+                        <button
+                          onClick={() => {
+                            if (RedeemTransaction?.data?.length >= 10) {
+                              const newPage = redeemPage + 1;
+                              setRedeemPage(newPage);
+                            } else {
+                              return;
+                            }
+                          }}
+                          type="button"
+                          className="join-item btn"
+                        >
                           »
                         </button>
                       </div>

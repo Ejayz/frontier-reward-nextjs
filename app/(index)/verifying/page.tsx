@@ -36,10 +36,7 @@ export default function Page() {
     if (isFetching || isLoading) {
     } else {
       if (confirmingEmail.code == 200) {
-        open("/newaccountpasswordsetup", "_blank");
-        setTimeout(() => {
-          window.close();
-        }, 1000);
+        open("/newaccountpasswordsetup", "_self");
       }
     }
   }, [confirmingEmail]);
