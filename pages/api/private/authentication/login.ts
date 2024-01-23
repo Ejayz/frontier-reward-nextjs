@@ -38,12 +38,13 @@ export default async function handler(
         .status(404)
         .json({ code: 404, message: "Invalid credentials used." });
     }
-
+    console.log(results);
     const passwordValid = await bcrypt.compare(password, results[0].password);
     if (!passwordValid) {
       res.status(401).json({ code: 401, message: "Invalid credentials used." });
       return;
     }
+
     if (
       results[0].code == "(NULL)" ||
       results[0].code == undefined ||
