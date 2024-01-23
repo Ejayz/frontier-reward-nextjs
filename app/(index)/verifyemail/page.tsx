@@ -16,7 +16,7 @@ export default function Page() {
           "Content-Type": "application/json",
         },
       });
-      return response;
+      return response.json();
     },
     refetchOnWindowFocus: false,
   });
@@ -27,8 +27,16 @@ export default function Page() {
       <span className="top-shape"></span>
       <span className="bottom-shape"></span>
       <div className="hero min-h-screen">
-        <div className="card w-1/2 z-50 bg-base-100 shadow-2xl text-black ">
-          <div className="card-body">
+        <div
+          className={`card w-1/2  z-50 ${
+            isLoading || isFetching
+              ? "bg-base-100"
+              : data.code != 200
+              ? "bg-error"
+              : "bg-base-100"
+          } shadow-2xl text-black `}
+        >
+          <div className="card-body ">
             {isLoading || isFetching ? (
               <>
                 <h2 className="card-title">Sending Email ...</h2>
@@ -37,6 +45,11 @@ export default function Page() {
                   confirmation email will be valid for 15 minutes. You can
                   request another email by logging in again after this period.
                 </p>
+              </>
+            ) : data.code != 200 ? (
+              <>
+                <h2 className="card-title">Error</h2>
+                <p>{data.message}</p>
               </>
             ) : (
               <>

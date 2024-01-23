@@ -1048,9 +1048,9 @@ export default function Page() {
         `Enter a valid phone number for ${adminPhone?.name}`
       )
       .required("Phone Number is required."),
-    first_name: yup.string().required("First Name is required."),
-    middle_name: yup.string(),
-    last_name: yup.string().required("Last Name is required."),
+    firstName: yup.string().required("First Name is required."),
+    middleName: yup.string(),
+    lastName: yup.string().required("Last Name is required."),
     email: yup.string().email().required("Email is required."),
   });
 
@@ -1663,7 +1663,7 @@ export default function Page() {
                     middleName: "",
                     lastName: "",
                     email: "",
-                    phone_nuber: "",
+                    phone_number: "",
                     employee_type: "",
                     suffix: "",
                   }}
@@ -1772,7 +1772,14 @@ export default function Page() {
                               employee_type: values.employee_type,
                               suffix: values.suffix,
                             };
-                            CreateEmployeeMutation.mutate(bodyContent);
+                            console.log(EmployeeForm.current);
+                            if (EmployeeForm.current?.isValid) {
+                              CreateEmployeeMutation.mutate(bodyContent);
+                            } else {
+                              toast.error(
+                                "Please fill up all the required fields"
+                              );
+                            }
                           }}
                           type="submit"
                           className="btn btn-primary"
