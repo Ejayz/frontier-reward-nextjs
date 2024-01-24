@@ -241,7 +241,7 @@ export default function Page() {
 
       try {
         console.log("the values are: ", values);
-        const response = await fetch(`/api/private/createPackageReward/`, {
+        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
 
           body: JSON.stringify(values),
