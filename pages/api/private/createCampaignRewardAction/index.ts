@@ -47,7 +47,7 @@ export default async function handler(
         [quantity, "pending", action_id, reward_id, current_user, campaign_id, created_at, 1]
       )
     );
-    if (results.affectedRows > 0) {
+    if (results.affectedRows > 0) { 
       res
         .status(201)
         .json({ code: 201, message: "Action created successfully" });

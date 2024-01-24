@@ -219,6 +219,9 @@ export default function Page() {
         const availableQuantity = selectedRewardData?.quantity; // Get available quantity from selected reward
         return validateQuantity(value || 0, availableQuantity) === undefined;
       }),
+      action_id: yup.number().required('Action Name is required'),
+      reward_id: yup.number().required('Reward Name is required'),
+
   });
 
   // ... other functions ...
@@ -363,12 +366,16 @@ export default function Page() {
   };  
 
 
-  
-
-
   const [selectedValueAction, setSelectedValueAction] = useState("");
   const [selectedValueReward, setSelectedValueReward] = useState("");
   const [selectedRewardData, setSelectedRewardData] = useState<RewardActionElement | null>(null);
+  const RewardActioninitialValues = {
+    action_id: selectedValueAction || (rowDataToEditPR ? rowDataToEditPR.action_id : 0),
+    reward_id: selectedValueReward || (rowDataToEditPR ? rowDataToEditPR.reward_id : 0),
+    created_at: new Date().toLocaleTimeString(),
+    campaign_id: rowDataToEditPR ? rowDataToEditPR.id : 0, // Use the correct value here
+    quantity: rowDataToEditPR ? rowDataToEditPR.quantity : 0,
+  };
   const handleSelectChangeAction = (event: any) => {
     const newValueAction = event.target.value;
     console.log(newValueAction);
@@ -376,10 +383,9 @@ export default function Page() {
   
     // Convert the string to a number using parseInt or the unary plus operator
     const numericValueAction = parseInt(newValueAction, 10);
-    // const numericValue = +newValue;
     createCampaignRewardRef.current?.setFieldValue("action_id", numericValueAction);
   };
-
+  
   const handleSelectChangeReward = (event: any) => {
     const newValueReward = event.target.value;
     console.log(newValueReward);
@@ -393,47 +399,46 @@ export default function Page() {
   
     // Convert the string to a number using parseInt or the unary plus operator
     const numericValueReward = parseInt(newValueReward, 10);
-    // const numericValue = +newValue;
-  
     createCampaignRewardRef.current?.setFieldValue("reward_id", numericValueReward);
   };
 
-  const RewardActioninitialValues = {
-    action_id: rowDataToEditPR ? rowDataToEditPR.action_id : 0,
-    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
-    created_at: new Date().toLocaleTimeString(),
-    campaign_id: rowDataToEditPR ? rowDataToEditPR.id : 0, // Use the correct value here
-    quantity: rowDataToEditPR ? rowDataToEditPR.quantity : 0,
-  };
+  
+  
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
       setAddRewardActionModalOpen(true);
-      const headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-        "Content-Type": "application/json",
-      };
-
+  
       try {
-        console.log("the values are: ", values);
+        console.log("Form values:", values);
+  
+
+  
+        console.log("Action ID:", values.action_id);
+        console.log("Reward ID:", values.reward_id);
+        console.log("Quantity:", values.quantity);
+  
         const response = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
-
           body: JSON.stringify(values),
-          headers: headersList,
+          headers: {
+            Accept: "*/*",
+            "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+            "Content-Type": "application/json",
+          },
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
-
+  
         showToast({
           status: "success",
           message: "Added Reward And Action Successfully",
         });
+  
         RefetchActionPagination();
         RefetchRewardPagination();
         setProcessing(false);
@@ -467,6 +472,19 @@ export default function Page() {
     await CreateCampaignRewardActionhandle(values);
     setEditModalOpen(false);
   };
+  useEffect(() => {
+    console.log("Row data updated:", rowDataToEdit);
+    if (rowDataToEditPR) {
+      createCampaignRewardRef.current?.setValues({
+        action_id: rowDataToEditPR.action_id,
+        reward_id: rowDataToEditPR.reward_id,
+        quantity: rowDataToEditPR.quantity,
+        campaign_id: rowDataToEditPR.id,
+        created_at: rowDataToEditPR.created_at,
+      
+      });
+    }
+  }, [rowDataToEditPR]);
 
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + 1); // Add one day to exclude yesterday
@@ -753,7 +771,7 @@ export default function Page() {
           }`}
           min={new Date().toISOString().split('T')[0]}
           value={new Date(UpdateinitialValues.start_date).toLocaleDateString('en-CA')} // Set initial value to today's date 
-          readonly = "true"
+          readOnly
         />
                   <ErrorMessage name="start_date" className="flex">
                     {(msg) => (
@@ -783,7 +801,7 @@ export default function Page() {
           }`}
           min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
           value={new Date(UpdateinitialValues.end_date).toLocaleDateString('en-CA')} // Set initial value to today's date 
-          readonly = "true"
+          readOnly
         />
                   <ErrorMessage name="end_date" className="flex">
                     {(msg) => (
@@ -904,14 +922,13 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Add Reward and Action</h3>
           <Formik
-  initialValues={RewardActioninitialValues}
-  enableReinitialize={true}
-  innerRef={createCampaignRewardRef}
-  validationSchema={campaignValidation}
-  onSubmit={onSubmitRewardAction}
->
-  {({ errors, touched, values, setFieldValue }) => (
-    <Form>
+            initialValues={RewardActioninitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRewardAction}
+            
+          >
+            {({errors, touched, values,setFieldValue}) => (
+            <Form>
               <div className="form-control bg-white">
               <label className="label">
                   <span className="label-text text-base font-semibold">
@@ -923,7 +940,7 @@ export default function Page() {
   className="select select-bordered w-full max-w-xs font-semibold text-base"
   id=""
   onChange={handleSelectChangeAction}
-  value={selectedValueAction}
+  value={values.action_id}
 >
   <option value="">Select Action Name</option>
   {DataActionPagination?.data.map((item: any) => (
@@ -942,7 +959,7 @@ export default function Page() {
   className="select select-bordered w-full max-w-xs font-semibold text-base"
   id=""
   onChange={handleSelectChangeReward}
-  value={selectedValueReward}
+  value={values.reward_id}
 >
   <option value="">Select Reward Name</option>
   {DataRewardPagination?.data.map((item: any) => (
@@ -983,7 +1000,7 @@ export default function Page() {
                   className="input input-bordered"
                   name="campaign_id"
                 />
-</div>
+
             <div className="m-8 " style={{ marginTop: 60 }}>
                 <div className="absolute bottom-6 right-6">
                 <label
@@ -997,7 +1014,7 @@ export default function Page() {
                   </button>
                 </div>
               </div>  
-            
+            </div>
             </Form>
             )}
           </Formik>

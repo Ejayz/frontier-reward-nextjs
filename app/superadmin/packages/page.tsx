@@ -150,7 +150,6 @@ export default function Page() {
   const [selectedValue, setSelectedValue] = useState("");
   const handleSelectChange = (event: any) => {
     const newValue = event.target.value;
-
     console.log(newValue);
     setSelectedValue(newValue);
     // Convert the string to a number using parseInt or the unary plus operator
