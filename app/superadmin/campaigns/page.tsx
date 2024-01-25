@@ -146,6 +146,39 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
+  
+  const {
+    data: DataPackageRewardPagination,
+    isFetching: isFetchingPackageRewardPagination,
+    isLoading: isLoadingPackageRewardPagination,
+    refetch: RefetchPackageRewardPagination,
+  } = useQuery({
+    queryKey: ["getPackageReward", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getCampaignRewardAction`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+
   const createCampaignMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -204,24 +237,26 @@ export default function Page() {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
   const [isAddRewardActionModalOpen, setAddRewardActionModalOpen] = useState(false);
-   const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
-   const [rowDataToEditPR, setRowDataToEditPR] = useState<RewardActionElement | null>(null);
+  const [isRemoveModalOpenRewardAction, setRemoveModalOpenRewardAction] = useState(false);
+  const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
+  const [rowDataToEditPR, setRowDataToEditPR] = useState<RewardActionElement | null>(null);
 
    const campaignValidation = yup.object().shape({
     name: yup.string().required('Name is required'),
     description: yup.string().required('Description is required'),
     start_date: yup.date().required('Start Date is required'),
     end_date: yup.date().required('End Date is required'),
+  });
+  const campaignRewardActionValidation = yup.object().shape({
     quantity: yup
-      .number()
-      .required('Quantity is required')
-      .test('validate-quantity', 'Quantity cannot be greater than available quantity', function (value) {
-        const availableQuantity = selectedRewardData?.quantity; // Get available quantity from selected reward
-        return validateQuantity(value || 0, availableQuantity) === undefined;
-      }),
-      action_id: yup.number().required('Action Name is required'),
-      reward_id: yup.number().required('Reward Name is required'),
-
+    .number()
+    .required('Quantity is required')
+    .test('validate-quantity', 'Quantity cannot be greater than available quantity', function (value) {
+      const availableQuantity = selectedRewardData?.quantity; // Get available quantity from selected reward
+      return validateQuantity(value || 0, availableQuantity) === undefined;
+    }),
+    action_id: yup.number().required('Action Name is required'),
+    reward_id: yup.number().required('Reward Name is required'),
   });
 
   // ... other functions ...
@@ -365,7 +400,6 @@ export default function Page() {
     setModalOpen(false);  
   };  
 
-
   const [selectedValueAction, setSelectedValueAction] = useState("");
   const [selectedValueReward, setSelectedValueReward] = useState("");
   const [selectedRewardData, setSelectedRewardData] = useState<RewardActionElement | null>(null);
@@ -407,7 +441,7 @@ export default function Page() {
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
-      setAddRewardActionModalOpen(true);
+      setAddRewardActionModalOpen(false);
   
       try {
         console.log("Form values:", values);
@@ -494,6 +528,76 @@ export default function Page() {
       return 'Quantity cannot be greater than available quantity';
     }
     return undefined; // No validation error
+  };
+
+
+  const RemovePackageRewardinitialValues = {
+    id: rowDataToEditPR ? rowDataToEditPR.id : 0,
+    action_id: rowDataToEditPR ? rowDataToEditPR.action_id : 0,
+    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
+    removed_at: new Date(),
+    is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
+  };
+  const handleRemoveClickPackageReward = (rowData: RewardActionElement) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+    setRemoveModalOpenRewardAction(false);
+  };
+  const handleRemovePackageReward = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpenRewardAction(false);
+      const headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+
+      try {
+        console.log("the values are: ", values);
+        const response = await fetch(`/api/private/removeCampaignRewardAction/`, {
+          method: "POST",
+          body: JSON.stringify(values),
+          headers: headersList,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        showToast({
+          status: "success",
+          message: "Package Reward Deleted Successfully",
+        });
+        RefetchPackageRewardPagination();
+        setProcessing(false);
+        editCampaignRef.current?.resetForm();
+        setRemoveModalOpenRewardAction(false);
+      } catch (error) {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+        setRemoveModalOpenRewardAction(false);
+        console.error(error);
+      }
+    },
+    [
+      setProcessing,
+      showToast,
+      setRemoveModalOpenRewardAction,
+      RefetchPackageRewardPagination,
+      editCampaignRef,
+    ]
+  );
+
+  const onSubmitRemovePackageReward = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemovePackageReward(values);
+    setRemoveModalOpenRewardAction(false);
   };
   return (
     <div className="pl-10">
@@ -922,9 +1026,10 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Add Reward and Action</h3>
           <Formik
+            validationSchema={campaignRewardActionValidation}
             initialValues={RewardActioninitialValues}
-            enableReinitialize={true}
             onSubmit={onSubmitRewardAction}
+            innerRef={createCampaignRewardRef}
             
           >
             {({errors, touched, values,setFieldValue}) => (
@@ -997,14 +1102,14 @@ export default function Page() {
                   <Field
                   type="text"
                   placeholder="Enter Package Name"
-                  className="input input-bordered"
+                  className="input input-bordered invisible"
                   name="campaign_id"
                 />
-
-            <div className="m-8 " style={{ marginTop: 60 }}>
-                <div className="absolute bottom-6 right-6">
+</div>
+            <div className="m-8 ">
+                <div className="">
                 <label
-                      htmlFor="my_modal_8"
+                      htmlFor="my_modal_10"
                       className="btn btn-neutral mr-2"
                     >
                       Cancel
@@ -1014,7 +1119,54 @@ export default function Page() {
                   </button>
                 </div>
               </div>  
-            </div>
+            
+               <div className="overflow-x-auto max-h-96 items-center">
+                  <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
+                    <thead>
+                      <tr>
+                        <th>Reward_id</th>
+                        <td>Package_id</td>
+                        <td>Action</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {isFetchingPackageRewardPagination ? (
+                        <tr className="text-center">
+                          <td colSpan={3}>Loading...</td>
+                        </tr>
+                      ) : (
+                        DataPackageRewardPagination.data.map((element: any) => {
+                          // console.log(element);
+                          return (
+                            <tr key={element.id}>
+                              <td>{element.reward_id}</td>
+                              <td>{element.action_id}</td>
+                              <td className="flex">
+                                <div className="flex mx-auto">
+                                  <label
+                                    className="btn btn-sm btn-error"
+                                    htmlFor="my_modal_11"
+                                    onClick={() =>
+                                      handleRemoveClickPackageReward(element)
+                                    }
+                                  >
+                                    <Image
+                                      src="/icons/deleteicon.svg"
+                                      width={20}
+                                      height={20}
+                                      alt="Delete Icon"
+                                    />
+                                    Delete
+                                  </label>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
             </Form>
             )}
           </Formik>
@@ -1022,6 +1174,73 @@ export default function Page() {
       </div>
 
 
+  {/* removePackageReward */}
+  <input
+        type="checkbox"
+        id="my_modal_11"
+        className="modal-toggle"
+        checked={isRemoveModalOpenRewardAction}
+        onChange={() =>
+          setRemoveModalOpenRewardAction(!isRemoveModalOpenRewardAction)
+        }
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box" style={{ width: 400 }}>
+          <Formik
+            initialValues={RemovePackageRewardinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemovePackageReward}
+          >
+            <Form>
+              <div className="form-control bg-white">
+                <label className="label text-center">
+                  <span className="label-text text-base font-semibold">
+                    Are you sure you want to delete the following data?
+                  </span>
+                </label>
+                <div className="flex mb-5">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Reward ID:
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Name"
+                    className="input border-none"
+                    name="reward_id"
+                    disabled
+                  />
+                </div>
+                <div className="flex mb-5">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Action ID:
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Name"
+                    className="input border-none text-black"
+                    name="action_id"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                  <label htmlFor="my_modal_10" className="btn btn-neutral mr-2">
+                    Cancel
+                  </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
+          </Formik>
+        </div>
+      </div>
 
       {/* table */}
       <div className="overflow-x-auto mt-5 text-black">
