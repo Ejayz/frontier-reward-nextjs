@@ -96,18 +96,23 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/users") ? "bg-yellow-400" : ""
+            navbarActive?.includes("/superadmin/redeem")
+              ? "bg-yellow-400"
+              : ""
           }`}
         >
-          <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+          <Link
+            href={"/superadmin/redeem"}
+            className="text-2xl font-bold"
+          >
             <Image
-              src="/icons/users.svg"
+              src="/icons/redeem-points.png"
               className="mr-2"
               alt=""
               width={30}
               height={30}
-            />
-            Users
+            />{" "}
+            Redeem
           </Link>
         </li>
         <li
@@ -131,6 +136,23 @@ export default function AdminSideBar() {
             Transactions
           </Link>
         </li>
+        <li
+          className={`${
+            navbarActive?.includes("/superadmin/users") ? "bg-yellow-400" : ""
+          }`}
+        >
+          <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+            <Image
+              src="/icons/users.svg"
+              className="mr-2"
+              alt=""
+              width={30}
+              height={30}
+            />
+            Users
+          </Link>
+        </li>
+      
       </ul>
     </div>
   );

@@ -121,6 +121,8 @@ export default function Page() {
       return data;
     },
     placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+    staleTime: 0,
   });
   useEffect(() => {
     console.log(CampaignData);
@@ -180,6 +182,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
+        toast.success(data.message)
       }
     },
   });
@@ -207,6 +210,40 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
+        toast.success(data.message)
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (data: any) => {
+      toast.error(data.message);
+    },
+  });
+  const confirmRedeemTransactionMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch(`/api/private/confirmRedeemTransaction`, {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+      if (data.code == 401) {
+        nav.push("/login");
+      }
+      return data;
+    },
+    onSuccess: (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        setRedeemTransactionID(null);
+        RedeemTransactionRefetch();
+        showRedeemTransaction.current?.close();
+        toast.success(data.message)
       } else {
         toast.error(data.message);
       }
@@ -239,6 +276,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
+        toast.success(data.message)
       }
     },
   });
@@ -256,7 +294,7 @@ export default function Page() {
               </button>
             </form>
             <div className="flex flex-col w-full">
-              <h3 className="font-bold text-xl">Campaign Transaction</h3>
+              <h3 className="font-bold text-xl">Redeem Transaction</h3>
               <span className=" text-gray-500 text-base">
                 #
                 {RedeemTransactionInfoIsFetching ||
@@ -339,17 +377,18 @@ export default function Page() {
                 </button>
                 <button
                   onClick={() => {
-                    updateCampaignTransaction.mutate({
-                      campaign_transaction_id: campaignTransactionId,
-                      transaction_no: CampaignTransactionInfo.transaction_no,
+                    confirmRedeemTransactionMutation.mutate({
+                      id: RedeemTransactionInfo.data[0].CoreID,
+                      transaction_no:
+                        RedeemTransactionInfo.data[0].transaction_no,
                     });
                   }}
                   className={`${
-                    CampaignTransactionInfoIsFetching ||
-                    CampaignTransactionInfoIsLoading ? (
+                    RedeemTransactionInfoIsFetching ||
+                    RedeemTransactionInfoIsLoading ? (
                       <>...</>
-                    ) : CampaignTransactionInfo != null ? (
-                      CampaignTransactionInfo.status == "pending" ? (
+                    ) : RedeemTransactionInfo != null ? (
+                      RedeemTransactionInfo.data[0].Status == "pending" ? (
                         "btn-success"
                       ) : (
                         "btn-disabled"
