@@ -65,6 +65,7 @@ export default function Page() {
               onSubmit={async (values) => {
                 const isLoggedIn = await login(values.email, values.password);
                 const data = await isLoggedIn.json();
+                console.log(data)
                 if (isLoggedIn.ok) {
                   toast.success(data.message);
                   if (
