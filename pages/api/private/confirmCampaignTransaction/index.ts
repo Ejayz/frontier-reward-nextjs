@@ -40,7 +40,7 @@ export default async function handler(
     }
     return res
       .status(200)
-      .json({ code: 200, message: "Transaction confirmed" });
+      .json({ code: 200, message: "Campaign transaction confirmed successfully." });
   } catch (error: any) {
     console.log(error);
 

@@ -51,6 +51,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" data-theme="light">
+      <title>Point and Perks</title>
       <body className="overflow-hidden bg-white">
         {" "}
         <ToastContainer

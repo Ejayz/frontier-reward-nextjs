@@ -26,11 +26,11 @@ export default async function handler(
     }
     const [rows] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE redeem_transaction SET status="denied" WHERE id=? and is_exist =1 and transaction_no=?`,
+        `UPDATE redeem_transaction SET status="confirmed" WHERE id=? and is_exist =1 and transaction_no=?`,
         [id,transaction_no]
       )
     );
-    return res.status(200).json({ code: 200, message: "Redeem transaction denied successfully.", data: rows });
+    return res.status(200).json({ code: 200, message: "Redeem transaction confirmed successfully.", data: rows });
   } catch (error: any) {
     console.log(error);
     if (error.name === "TokenExpiredError") {
