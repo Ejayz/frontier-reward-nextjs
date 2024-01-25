@@ -24,16 +24,16 @@ type Element = {
   id: number;
 };
 type RewardActionElement = {
-  id: number;
-  quantity: number;
-  status: string;
-  action_id: number;
-  reward_id: number;
-  campaign_id: number;
-  updated_at: string;
-  remove_at: string;
-  is_exist: number;
-  created_at: string;
+id: number;
+quantity: number;
+status: string;
+action_id: number;
+reward_id: number;
+campaign_id: number;
+updated_at: string;
+remove_at: string;
+is_exist: number;
+created_at: string;
 };
 export default function Page() {
   const myDiv = document.getElementById("mydiv");
@@ -145,6 +145,39 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
+  
+  const {
+    data: DataPackageRewardPagination,
+    isFetching: isFetchingPackageRewardPagination,
+    isLoading: isLoadingPackageRewardPagination,
+    refetch: RefetchPackageRewardPagination,
+  } = useQuery({
+    queryKey: ["getPackageReward", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getCampaignRewardAction`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+
   const createCampaignMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -202,28 +235,27 @@ export default function Page() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
-  const [isAddRewardActionModalOpen, setAddRewardActionModalOpen] =
-    useState(false);
+  const [isAddRewardActionModalOpen, setAddRewardActionModalOpen] = useState(false);
+  const [isRemoveModalOpenRewardAction, setRemoveModalOpenRewardAction] = useState(false);
   const [rowDataToEdit, setRowDataToEdit] = useState<Element | null>(null);
-  const [rowDataToEditPR, setRowDataToEditPR] =
-    useState<RewardActionElement | null>(null);
+  const [rowDataToEditPR, setRowDataToEditPR] = useState<RewardActionElement | null>(null);
 
-  const campaignValidation = yup.object().shape({
-    name: yup.string().required("Name is required"),
-    description: yup.string().required("Description is required"),
-    start_date: yup.date().required("Start Date is required"),
-    end_date: yup.date().required("End Date is required"),
+   const campaignValidation = yup.object().shape({
+    name: yup.string().required('Name is required'),
+    description: yup.string().required('Description is required'),
+    start_date: yup.date().required('Start Date is required'),
+    end_date: yup.date().required('End Date is required'),
+  });
+  const campaignRewardActionValidation = yup.object().shape({
     quantity: yup
-      .number()
-      .required("Quantity is required")
-      .test(
-        "validate-quantity",
-        "Quantity cannot be greater than available quantity",
-        function (value) {
-          const availableQuantity = selectedRewardData?.quantity; // Get available quantity from selected reward
-          return validateQuantity(value || 0, availableQuantity) === undefined;
-        }
-      ),
+    .number()
+    .required('Quantity is required')
+    .test('validate-quantity', 'Quantity cannot be greater than available quantity', function (value) {
+      const availableQuantity = selectedRewardData?.quantity; // Get available quantity from selected reward
+      return validateQuantity(value || 0, availableQuantity) === undefined;
+    }),
+    action_id: yup.number().required('Action Name is required'),
+    reward_id: yup.number().required('Reward Name is required'),
   });
 
   // ... other functions ...
@@ -375,7 +407,7 @@ export default function Page() {
       editCampaignRef,
     ]
   );
-
+  
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleRemoveAction(values);
@@ -500,17 +532,204 @@ export default function Page() {
     setEditModalOpen(false);
   };
 
+  const [selectedValueAction, setSelectedValueAction] = useState("");
+  const [selectedValueReward, setSelectedValueReward] = useState("");
+  const [selectedRewardData, setSelectedRewardData] = useState<RewardActionElement | null>(null);
+  const RewardActioninitialValues = {
+    action_id: selectedValueAction || (rowDataToEditPR ? rowDataToEditPR.action_id : 0),
+    reward_id: selectedValueReward || (rowDataToEditPR ? rowDataToEditPR.reward_id : 0),
+    created_at: new Date().toLocaleTimeString(),
+    campaign_id: rowDataToEditPR ? rowDataToEditPR.id : 0, // Use the correct value here
+    quantity: rowDataToEditPR ? rowDataToEditPR.quantity : 0,
+  };
+  const handleSelectChangeAction = (event: any) => {
+    const newValueAction = event.target.value;
+    console.log(newValueAction);
+    setSelectedValueAction(newValueAction);
+  
+    // Convert the string to a number using parseInt or the unary plus operator
+    const numericValueAction = parseInt(newValueAction, 10);
+    createCampaignRewardRef.current?.setFieldValue("action_id", numericValueAction);
+  };
+  
+  const handleSelectChangeReward = (event: any) => {
+    const newValueReward = event.target.value;
+    console.log(newValueReward);
+    setSelectedValueReward(newValueReward);
+  
+    const selectedReward = DataRewardPagination?.data.find((item: any) => item.id === parseInt(newValueReward, 10));
+    setSelectedRewardData(selectedReward);
+  
+    // Console.log the quantity of the selected reward
+    console.log("Quantity:", selectedReward?.quantity);
+  
+    // Convert the string to a number using parseInt or the unary plus operator
+    const numericValueReward = parseInt(newValueReward, 10);
+    createCampaignRewardRef.current?.setFieldValue("reward_id", numericValueReward);
+  };
+
+  
+  
+  const CreateCampaignRewardActionhandle = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setAddRewardActionModalOpen(false);
+  
+      try {
+        console.log("Form values:", values);
+  
+
+  
+        console.log("Action ID:", values.action_id);
+        console.log("Reward ID:", values.reward_id);
+        console.log("Quantity:", values.quantity);
+  
+        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+          method: "POST",
+          body: JSON.stringify(values),
+          headers: {
+            Accept: "*/*",
+            "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+            "Content-Type": "application/json",
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        showToast({
+          status: "success",
+          message: "Added Reward And Action Successfully",
+        });
+  
+        RefetchActionPagination();
+        RefetchRewardPagination();
+        setProcessing(false);
+        createCampaignRewardRef.current?.resetForm();
+        setAddRewardActionModalOpen(true);
+      } catch (error) {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+        setAddRewardActionModalOpen(false);
+        console.error(error);
+      }
+    },
+    [
+      setProcessing,
+      showToast,
+      setAddRewardActionModalOpen,
+      RefetchRewardPagination,
+      createCampaignRewardRef,
+    ]
+  );
+  const handlegetProduct_idClick = (rowData: RewardActionElement) => {
+    console.log("Add reward clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+    setAddRewardActionModalOpen(false);
+  };
+  const onSubmitRewardAction = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await CreateCampaignRewardActionhandle(values);
+    setEditModalOpen(false);
+  };
+  useEffect(() => {
+    console.log("Row data updated:", rowDataToEdit);
+    if (rowDataToEditPR) {
+      createCampaignRewardRef.current?.setValues({
+        action_id: rowDataToEditPR.action_id,
+        reward_id: rowDataToEditPR.reward_id,
+        quantity: rowDataToEditPR.quantity,
+        campaign_id: rowDataToEditPR.id,
+        created_at: rowDataToEditPR.created_at,
+      
+      });
+    }
+  }, [rowDataToEditPR]);
+
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + 1); // Add one day to exclude yesterday
-  const formattedCurrentDate = currentDate.toISOString().split("T")[0];
-  const validateQuantity = (
-    value: number,
-    availableQuantity: number | undefined
-  ) => {
-    if (typeof availableQuantity === "number" && value > availableQuantity) {
-      return "Quantity cannot be greater than available quantity";
+  const formattedCurrentDate = currentDate.toISOString().split('T')[0];
+  const validateQuantity = (value: number, availableQuantity: number | undefined) => {
+    if (typeof availableQuantity === 'number' && value > availableQuantity) {
+      return 'Quantity cannot be greater than available quantity';
     }
     return undefined; // No validation error
+  };
+
+
+  const RemovePackageRewardinitialValues = {
+    id: rowDataToEditPR ? rowDataToEditPR.id : 0,
+    action_id: rowDataToEditPR ? rowDataToEditPR.action_id : 0,
+    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
+    removed_at: new Date(),
+    is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
+  };
+  const handleRemoveClickPackageReward = (rowData: RewardActionElement) => {
+    console.log("Edit clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+    setRemoveModalOpenRewardAction(false);
+  };
+  const handleRemovePackageReward = useCallback(
+    async (values: any) => {
+      setProcessing(true);
+      setRemoveModalOpenRewardAction(false);
+      const headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+
+      try {
+        console.log("the values are: ", values);
+        const response = await fetch(`/api/private/removeCampaignRewardAction/`, {
+          method: "POST",
+          body: JSON.stringify(values),
+          headers: headersList,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        showToast({
+          status: "success",
+          message: "Package Reward Deleted Successfully",
+        });
+        RefetchPackageRewardPagination();
+        setProcessing(false);
+        editCampaignRef.current?.resetForm();
+        setRemoveModalOpenRewardAction(false);
+      } catch (error) {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+        setRemoveModalOpenRewardAction(false);
+        console.error(error);
+      }
+    },
+    [
+      setProcessing,
+      showToast,
+      setRemoveModalOpenRewardAction,
+      RefetchPackageRewardPagination,
+      editCampaignRef,
+    ]
+  );
+
+  const onSubmitRemovePackageReward = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    await handleRemovePackageReward(values);
+    setRemoveModalOpenRewardAction(false);
   };
   return (
     <div className="pl-10">
@@ -697,8 +916,8 @@ export default function Page() {
         </div>
       </div>
 
-      {/* edit modal */}
-      <input
+{/* edit modal */}
+<input
         type="checkbox"
         id="my_modal_7"
         className="modal-toggle"
@@ -782,20 +1001,16 @@ export default function Page() {
                     </span>
                   </label>
                   <Field
-                    type="date"
-                    id="start_date"
-                    name="start_date"
-                    className={`input input-bordered ${
-                      touched.start_date && errors.start_date
-                        ? "input-error"
-                        : ""
-                    }`}
-                    min={new Date().toISOString().split("T")[0]}
-                    value={new Date(
-                      UpdateinitialValues.start_date
-                    ).toLocaleDateString("en-CA")} // Set initial value to today's date
-                    readOnly={true}
-                  />
+          type="date"
+          id="start_date"
+          name="start_date"
+          className={`input input-bordered ${
+            touched.start_date && errors.start_date ? "input-error" : ""
+          }`}
+          min={new Date().toISOString().split('T')[0]}
+          value={new Date(UpdateinitialValues.start_date).toLocaleDateString('en-CA')} // Set initial value to today's date 
+          readOnly
+        />
                   <ErrorMessage name="start_date" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -816,18 +1031,16 @@ export default function Page() {
                     </span>
                   </label>
                   <Field
-                    type="date"
-                    id="end_date"
-                    name="end_date"
-                    className={`input input-bordered ${
-                      touched.end_date && errors.end_date ? "input-error" : ""
-                    }`}
-                    min={new Date().toISOString().split("T")[0]} // Set min attribute to today's date
-                    value={new Date(
-                      UpdateinitialValues.end_date
-                    ).toLocaleDateString("en-CA")} // Set initial value to today's date
-                    readOnly={true}
-                  />
+          type="date"
+          id="end_date"
+          name="end_date"
+          className={`input input-bordered ${
+            touched.end_date && errors.end_date ? "input-error" : ""
+          }`}
+          min={new Date().toISOString().split('T')[0]} // Set min attribute to today's date
+          value={new Date(UpdateinitialValues.end_date).toLocaleDateString('en-CA')} // Set initial value to today's date 
+          readOnly
+        />
                   <ErrorMessage name="end_date" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -930,20 +1143,15 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Add Reward & Action */}
-      <input
-        type="checkbox"
-        id="my_modal_10"
-        checked={isAddRewardActionModalOpen}
-        onChange={() =>
-          setAddRewardActionModalOpen(!isAddRewardActionModalOpen)
-        }
-        className="modal-toggle"
-      />
+{/* Add Reward & Action */}
+<input type="checkbox" id="my_modal_10"
+ checked={isAddRewardActionModalOpen}
+        onChange={() => setAddRewardActionModalOpen(!isAddRewardActionModalOpen)}
+        className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
-            <label
+          <label
               htmlFor="my_modal_10"
               className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
             >
@@ -952,73 +1160,66 @@ export default function Page() {
           </form>
           <h3 className="font-bold text-lg">Add Reward and Action</h3>
           <Formik
+            validationSchema={campaignRewardActionValidation}
             initialValues={RewardActioninitialValues}
-            enableReinitialize={true}
+            onSubmit={onSubmitRewardAction}
             innerRef={createCampaignRewardRef}
-            validationSchema={campaignValidation}
-            onSubmit={(values: any) => {
-              alert("hello");
-
-              onSubmitRewardAction(values);
-            }}
+            
           >
-            {({ errors, touched, values, setFieldValue }) => (
-              <Form>
-                <div className="form-control bg-white">
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Action Name
-                    </span>
-                  </label>
-                  <select
-                    name="action_id"
-                    className="select select-bordered w-full max-w-xs font-semibold text-base"
-                    id=""
-                    onChange={handleSelectChangeAction}
-                    value={selectedValueAction}
-                  >
-                    <option value="">Select Action Name</option>
-                    {DataActionPagination?.data.map((item: any) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Reward Name
-                    </span>
-                  </label>
-                  <select
-                    name="reward_id"
-                    className="select select-bordered w-full max-w-xs font-semibold text-base"
-                    id=""
-                    onChange={handleSelectChangeReward}
-                    value={selectedValueReward}
-                  >
-                    <option value="">Select Reward Name</option>
-                    {DataRewardPagination?.data.map((item: any) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
+            {({errors, touched, values,setFieldValue}) => (
+            <Form>
+              <div className="form-control bg-white">
+              <label className="label">
                   <span className="label-text text-base font-semibold">
-                    {" "}
-                    Available Quantity: {selectedRewardData?.quantity}
+                    Action Name
                   </span>
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
-                      Quantity
-                    </span>
-                  </label>
-                  <Field
-                    type="number"
-                    placeholder="Enter Quantity"
-                    className="input input-bordered"
-                    name="quantity"
-                  />
-                  <ErrorMessage name="quantity" className="flex">
+                </label>
+                <select
+  name="action_id"
+  className="select select-bordered w-full max-w-xs font-semibold text-base"
+  id=""
+  onChange={handleSelectChangeAction}
+  value={values.action_id}
+>
+  <option value="">Select Action Name</option>
+  {DataActionPagination?.data.map((item: any) => (
+    <option key={item.id} value={item.id}>
+      {item.name}
+    </option>
+  ))}
+</select>
+              <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Reward Name
+                  </span>
+                </label>
+                <select
+  name="reward_id"
+  className="select select-bordered w-full max-w-xs font-semibold text-base"
+  id=""
+  onChange={handleSelectChangeReward}
+  value={values.reward_id}
+>
+  <option value="">Select Reward Name</option>
+  {DataRewardPagination?.data.map((item: any) => (
+    <option key={item.id} value={item.id}>
+      {item.name}
+    </option>
+  ))}
+</select>
+<span className="label-text text-base font-semibold"> Available Quantity:  {selectedRewardData?.quantity}</span>
+                <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Quantity
+                  </span>
+                </label>
+                <Field
+                  type="number"
+                  placeholder="Enter Quantity"
+                  className="input input-bordered"
+                  name="quantity"
+                />
+                      <ErrorMessage name="quantity" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
                         <Image
@@ -1033,33 +1234,144 @@ export default function Page() {
                     )}
                   </ErrorMessage>
                   <Field
-                    type="text"
-                    placeholder="Enter Package Name"
-                    className="input input-bordered"
-                    name="campaign_id"
-                  />
-                </div>
-                <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
-                    <label
-                      htmlFor="my_modal_8"
+                  type="text"
+                  placeholder="Enter Package Name"
+                  className="input input-bordered invisible"
+                  name="campaign_id"
+                />
+</div>
+            <div className="m-8 ">
+                <div className="">
+                <label
+                      htmlFor="my_modal_10"
                       className="btn btn-neutral mr-2"
                     >
                       Cancel
                     </label>
-                    <button
-                      type="submit"
-                      onClick={() => {
-                        console.log(createCampaignRewardRef.current);
-                      }}
-                      className="btn btn-primary"
-                    >
-                      Submit
-                    </button>
-                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
                 </div>
-              </Form>
+              </div>  
+            
+               <div className="overflow-x-auto max-h-96 items-center">
+                  <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
+                    <thead>
+                      <tr>
+                        <th>Reward_id</th>
+                        <td>Package_id</td>
+                        <td>Action</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {isFetchingPackageRewardPagination ? (
+                        <tr className="text-center">
+                          <td colSpan={3}>Loading...</td>
+                        </tr>
+                      ) : (
+                        DataPackageRewardPagination.data.map((element: any) => {
+                          // console.log(element);
+                          return (
+                            <tr key={element.id}>
+                              <td>{element.reward_id}</td>
+                              <td>{element.action_id}</td>
+                              <td className="flex">
+                                <div className="flex mx-auto">
+                                  <label
+                                    className="btn btn-sm btn-error"
+                                    htmlFor="my_modal_11"
+                                    onClick={() =>
+                                      handleRemoveClickPackageReward(element)
+                                    }
+                                  >
+                                    <Image
+                                      src="/icons/deleteicon.svg"
+                                      width={20}
+                                      height={20}
+                                      alt="Delete Icon"
+                                    />
+                                    Delete
+                                  </label>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+            </Form>
             )}
+          </Formik>
+        </div>
+      </div>
+
+
+  {/* removePackageReward */}
+  <input
+        type="checkbox"
+        id="my_modal_11"
+        className="modal-toggle"
+        checked={isRemoveModalOpenRewardAction}
+        onChange={() =>
+          setRemoveModalOpenRewardAction(!isRemoveModalOpenRewardAction)
+        }
+      />
+      <div className="modal" role="dialog">
+        <div className="modal-box" style={{ width: 400 }}>
+          <Formik
+            initialValues={RemovePackageRewardinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmitRemovePackageReward}
+          >
+            <Form>
+              <div className="form-control bg-white">
+                <label className="label text-center">
+                  <span className="label-text text-base font-semibold">
+                    Are you sure you want to delete the following data?
+                  </span>
+                </label>
+                <div className="flex mb-5">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Reward ID:
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Name"
+                    className="input border-none"
+                    name="reward_id"
+                    disabled
+                  />
+                </div>
+                <div className="flex mb-5">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Action ID:
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Name"
+                    className="input border-none text-black"
+                    name="action_id"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                  <label htmlFor="my_modal_10" className="btn btn-neutral mr-2">
+                    Cancel
+                  </label>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </Form>
           </Formik>
         </div>
       </div>
@@ -1095,11 +1407,9 @@ export default function Page() {
 
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <label
-                          className="btn btn-sm btn-accent mr-2"
-                          htmlFor="my_modal_10"
-                          onClick={() => handlegetProduct_idClick(element)}
-                        >
+                        <label className="btn btn-sm btn-accent mr-2"
+                        htmlFor="my_modal_10"
+                        onClick={() => handlegetProduct_idClick(element)}>
                           <Image
                             src="/icons/addrewards.svg"
                             width={20}
@@ -1108,14 +1418,11 @@ export default function Page() {
                           />
                           Add Reward
                         </label>
-                        <label
-                          htmlFor="my_modal_7"
-                          className="btn btn-sm btn-info mr-2"
-                          onClick={() => handleEditClick(element)}
-                        >
+                        <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
+                        onClick={() => handleEditClick(element)}>
                           <Image
                             src="/icons/editicon.svg"
-                            width={20}
+                            width={20}  
                             height={20}
                             alt="Edit Icon"
                           />
