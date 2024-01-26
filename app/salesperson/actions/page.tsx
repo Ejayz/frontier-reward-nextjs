@@ -419,7 +419,7 @@ export default function Page() {
       </div> */}
   
         {/* edit modal */}
-      {/* <input type="checkbox" id="my_modal_7" checked={isEditModalOpen}
+      <input type="checkbox" id="my_modal_7" checked={isEditModalOpen}
         onChange={() => setEditModalOpen(!isEditModalOpen)}
         className="modal-toggle" />
       <div className="modal" role="dialog">
@@ -432,7 +432,7 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Edit Action</h3>
+          <h3 className="font-bold text-lg">View Action</h3>
           <Formik
             initialValues={UpdateinitialValues}
             enableReinitialize={true}
@@ -450,6 +450,7 @@ export default function Page() {
                   placeholder="Enter Action Name"
                   className="input input-bordered"
                   name="name"
+                  readOnly
                 />
                 <label className="label">
                   <span className="label-text text-base font-semibold">
@@ -461,6 +462,7 @@ export default function Page() {
                   placeholder="Enter Action Description"
                   className="input input-bordered"
                   name="description"
+                  readOnly
                 />
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
@@ -479,7 +481,7 @@ export default function Page() {
             </Form>
           </Formik>
         </div>
-      </div> */}
+      </div>
 
 {/* delete modal */}
 {/* <input type="checkbox" id="my_modal_8"
@@ -583,19 +585,9 @@ export default function Page() {
                             height={20}
                             alt="Edit Icon"
                           />
-                          Edit
+                          View
                         </label>
-                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
-                        onClick={() => handleRemoveClick(element)}
-                        >
-                          <Image
-                            src="/icons/deleteicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Delete Icon"
-                          />
-                          Delete
-                        </label>
+                       
                       </div>
                     </td>
                   </tr>

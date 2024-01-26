@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-export default function AdminSideBar() {
+export default function SalesPersonSideBar() {
   const navbarActive = usePathname();
   console.log(navbarActive);
   return (
@@ -28,7 +28,7 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/supsalespersoneradmin/actions") ? "bg-yellow-400" : ""
+            navbarActive?.includes("/salesperson/actions") ? "bg-yellow-400" : ""
           }`}
         >
           <Link href={"/salesperson/actions"} className="text-2xl font-bold">
