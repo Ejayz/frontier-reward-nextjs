@@ -25,6 +25,8 @@ import LabeledInput from "@/components/LabeledInput";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
 import { parse } from "path";
 import { toast } from "react-toastify";
+import Loading from "../loading";
+import { get } from "http";
 
 type Element = {
   id: number;
@@ -49,6 +51,9 @@ export default function Page() {
   const addRedeemModal = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
   const addRedeemForm = useRef<FormikProps<any>>(null);
+  const updateRedeemForm = useRef<FormikProps<any>>(null);
+  const updateRedeemModal = useRef<HTMLDialogElement>(null);
+  const [updatableId, setUpdatableId] = useState(0);
   const {
     data: getRewards,
     isLoading: isRewardsLoading,
@@ -135,7 +140,7 @@ export default function Page() {
     isFetching: isRedeemableFetching,
     refetch: refetchRedeemable,
   } = useQuery({
-    queryKey: ["getRedeemable"],
+    queryKey: ["getRedeemable", redeemPage],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -151,6 +156,7 @@ export default function Page() {
       return data;
     },
     refetchOnWindowFocus: false,
+    placeholderData:keepPreviousData
   });
 
   const removeRedeemMutation = useMutation({
@@ -182,9 +188,226 @@ export default function Page() {
       }
     },
   });
-  console.log(getRedeemable);
+  const {
+    data: getUpdateRedeemData,
+    isLoading: isUpdateRedeemLoading,
+    isFetching: isUpdateRedeemFetching,
+    refetch: refetchUpdateRedeem,
+  } = useQuery({
+    queryKey: ["getUpdateRedeem", updatableId],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "content-type": "application/json",
+      };
+
+      let response = await fetch(`/api/private/getRedeemData`, {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify({ id: updatableId }),
+      });
+
+      let data = await response.json();
+      return data;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const updateRedeemMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "Content-Type": "application/json",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch("/api/private/updateRedeem/", {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+
+      let data = await response.json();
+      return data;
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+    onSuccess: (data: any) => {
+      if (data.code == 200) {
+        refetchRedeemable();
+        refetchUpdateRedeem();
+        toast.success(data.message);
+        updateRedeemForm.current?.resetForm();
+        updateRedeemModal.current?.close();
+      } else {
+        toast.error(data.message);
+      }
+    },
+  });
+
   return (
     <div className="w-full h-full pl-10">
+      {/* Update Modal*/}
+
+      <dialog ref={updateRedeemModal} id="my_modal_3" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg">Update Redeemable</h3>
+          {isUpdateRedeemLoading || isUpdateRedeemFetching ? (
+            <div className="w-full h-3/4  overflow-hiden">
+              <span>Please wait while we load data</span>
+            </div>
+          ) : getUpdateRedeemData == undefined ||
+            getUpdateRedeemData.code != 200 ? (
+            <>
+              <p className="py-4">No data found .</p>
+
+              <form method="dialog" className="modal-backdrop">
+                <button>close</button>
+              </form>
+            </>
+          ) : (
+            <Formik
+              innerRef={updateRedeemForm}
+              initialValues={{
+                name:
+                  isUpdateRedeemFetching || isUpdateRedeemFetching
+                    ? ""
+                    : updatableId == 0
+                    ? ""
+                    : getUpdateRedeemData.data?.name,
+                description:
+                  isUpdateRedeemFetching || isUpdateRedeemFetching
+                    ? ""
+                    : updatableId == 0
+                    ? ""
+                    : getUpdateRedeemData.data?.description,
+                cost:
+                  isUpdateRedeemFetching || isUpdateRedeemFetching
+                    ? ""
+                    : updatableId == 0
+                    ? ""
+                    : getUpdateRedeemData.data?.point_cost,
+                package_id:
+                  isUpdateRedeemFetching || isUpdateRedeemFetching
+                    ? ""
+                    : updatableId == 0
+                    ? ""
+                    : getUpdateRedeemData.data?.package_id,
+                reward_id:
+                  isUpdateRedeemFetching || isUpdateRedeemFetching
+                    ? ""
+                    : updatableId == 0
+                    ? ""
+                    : getUpdateRedeemData.data?.reward_id,
+              }}
+              onSubmit={(values: any) => {
+                const data = {
+                  id: updatableId,
+                  name: values.name,
+                  description: values.description,
+                  cost: values.cost,
+                  package_id: parseInt(values.package_id),
+                  reward_id: parseInt(values.reward_id),
+                };
+                updateRedeemMutation.mutate(data);
+              }}
+              validationSchema={addRedeemValidation}
+            >
+              {({ errors, touched, setFieldValue, values }) => (
+                <Form>
+                  <LabeledInput
+                    field_name="name"
+                    type="text"
+                    placeholder="Redeemable Name"
+                    className="input input-bordered"
+                    errors={errors.name}
+                    touched={touched.name}
+                    classes="mb-2"
+                    label="Name"
+                  />
+                  <LabeledInput
+                    field_name="description"
+                    type="text"
+                    placeholder="Redeemable Description"
+                    className="input input-bordered"
+                    errors={errors.description}
+                    touched={touched.description}
+                    classes="mb-2"
+                    label="Description"
+                  />
+                  <LabeledInput
+                    field_name="cost"
+                    type="number"
+                    placeholder="Redeemable Cost"
+                    className="input input-bordered"
+                    errors={errors.cost}
+                    touched={touched.cost}
+                    classes="mb-2"
+                    label="Cost"
+                  />
+                  <LabeledSelectInput
+                    field_name="reward_id"
+                    placeholder="Redeemable Reward"
+                    className="input input-bordered"
+                    errors={errors.package_id}
+                    touched={touched.package_id}
+                    classes="mb-2"
+                    label="Package"
+                    SelectOptions={
+                      isRewardsFetching || isRewardsLoading
+                        ? []
+                        : getRewards.data
+                    }
+                    setFieldValue={setFieldValue}
+                    values={values.reward_id}
+                  />
+                  <LabeledSelectInput
+                    field_name="package_id"
+                    placeholder="Package"
+                    className="input input-bordered"
+                    errors={errors.package_id}
+                    touched={touched.package_id}
+                    classes="mb-2"
+                    label="Reward"
+                    SelectOptions={
+                      isPackagesFetching || isPackagesLoading
+                        ? []
+                        : getPackages.data
+                    }
+                    setFieldValue={setFieldValue}
+                    values={values.package_id}
+                  />
+
+                  <div className="modal-action">
+                    <button type="submit" className="btn btn-primary">
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        updateRedeemForm.current?.resetForm();
+                        updateRedeemModal.current?.close();
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          )}
+        </div>
+      </dialog>
+
       {/* add modal */}
       <label htmlFor="addRedeemModal" className="btn btn-primary ">
         Add Redeem
@@ -337,7 +560,13 @@ export default function Page() {
                     <td>{item.reward_name}</td>
                     <td>{item.package_name}</td>
                     <td>
-                      <button className="btn btn-sm mx-5 btn-info">
+                      <button
+                        onClick={async () => {
+                          await setUpdatableId(item.redeem_id);
+                          await updateRedeemModal.current?.showModal();
+                        }}
+                        className="btn btn-sm mx-5 btn-info"
+                      >
                         <Image
                           src="/icons/editicon.svg"
                           alt="edit"
@@ -376,9 +605,22 @@ export default function Page() {
         </table>
         <div className="w-11/12 flex mx-auto">
           <div className="join mx-auto">
-            <button className="join-item btn">«</button>
+            <button
+              onClick={() => {
+                if (redeemPage > 0) {
+                  setRedeemPage(redeemPage - 1);
+                }
+              }}
+              className="join-item btn"
+            >
+              «
+            </button>
             <button className="join-item btn">1</button>
-            <button className="join-item btn">»</button>
+            <button onClick={()=>{
+              if(getRedeemable.data.length == 10){
+                setRedeemPage(redeemPage+1)
+              }
+            }} className="join-item btn">»</button>
           </div>
         </div>
       </div>

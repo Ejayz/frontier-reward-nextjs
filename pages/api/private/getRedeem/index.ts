@@ -30,7 +30,7 @@ export default async function handler(
     );
     [rows] = <RowDataPacket[]>(
       await connection.query(
-        `select *,redeem.id as redeem_id,redeem.name as redeem_name,redeem.description as redeem_description,reward.name as reward_name, packages.name as package_name from redeem LEFT JOIN reward ON reward.id = redeem.reward_id LEFT JOIN packages ON packages.id = redeem.package_id where redeem.is_exist=1 limit ? , ?`,
+        `select *,redeem.id as redeem_id,redeem.name as redeem_name,redeem.description as redeem_description,reward.name as reward_name, packages.name as package_name from redeem LEFT JOIN reward ON reward.id = redeem.reward_id LEFT JOIN packages ON packages.id = redeem.package_id where  redeem.is_exist=1 ORDER BY redeem.created_at DESC limit ? , ?`,
         [offset, limit]
       )
     );
