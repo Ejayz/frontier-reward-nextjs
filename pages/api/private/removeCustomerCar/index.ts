@@ -8,7 +8,7 @@ dotenv.config();
 
 const JWT_SECRET=process.env.JWT_SECRET || "";
 
-export default async function(req:NextApiRequest, res:NextApiResponse){
+export default async function handler(req:NextApiRequest, res:NextApiResponse){
     if(req.method !== "POST"){
         return res.status(405).json({code:405, message:"Method not allowed"})
     }
