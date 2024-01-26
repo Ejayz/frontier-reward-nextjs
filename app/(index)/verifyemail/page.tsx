@@ -20,7 +20,7 @@ export default function Page() {
     },
     refetchOnWindowFocus: false,
   });
-
+  console.log(data)
   return (
     <div className="login-page">
       <NavBarGeneral />
