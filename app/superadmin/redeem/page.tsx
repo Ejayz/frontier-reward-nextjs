@@ -388,7 +388,7 @@ export default function Page() {
 
                   <div className="modal-action">
                     <button type="submit" className="btn btn-primary">
-                      Add
+                     Update
                     </button>
                     <button
                       type="button"
@@ -615,7 +615,7 @@ export default function Page() {
             >
               «
             </button>
-            <button className="join-item btn">1</button>
+            <button className="join-item btn">Page {redeemPage+1}</button>
             <button onClick={()=>{
               if(getRedeemable.data.length == 10){
                 setRedeemPage(redeemPage+1)
