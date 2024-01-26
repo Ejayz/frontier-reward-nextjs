@@ -133,6 +133,7 @@ export default function Page() {
     data: getRedeemable,
     isLoading: isRedeemableLoading,
     isFetching: isRedeemableFetching,
+    refetch: refetchRedeemable,
   } = useQuery({
     queryKey: ["getRedeemable"],
     queryFn: async () => {
@@ -151,8 +152,37 @@ export default function Page() {
     },
     refetchOnWindowFocus: false,
   });
-  console.log(getRedeemable);
 
+  const removeRedeemMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "Content-Type": "application/json",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch("/api/private/removeRedeem/", {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+
+      let data = await response.json();
+      return data;
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+    onSuccess: (data: any) => {
+      if (data.code == 200) {
+        refetchRedeemable();
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    },
+  });
+  console.log(getRedeemable);
   return (
     <div className="w-full h-full pl-10">
       {/* add modal */}
@@ -285,33 +315,63 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {
-              isRedeemableFetching || isRedeemableLoading ? (
-                <tr>
-                  <td colSpan={6} className="text-center">
-                    Loading...
-                  </td>
-                </tr>
-              ) : (
-                getRedeemable.data.map((item: any,index:number) => {
-                  return (
-                    <tr key={index}>
-                      <td>{item.redeem_name}</td>
-                      <td>{item.redeem_description}</td>
-                      <td>{`${item.point_cost} Frontier Points`}</td>
-                      <td>{item.reward_name}</td>
-                      <td>{item.package_name}</td>
-                      <td>
-                        <button className="btn btn-sm btn-secondary">
-                          Edit
-                        </button>
-                        <button className="btn btn-sm btn-error">Delete</button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )
-            }
+            {isRedeemableFetching || isRedeemableLoading ? (
+              <tr>
+                <td colSpan={6} className="text-center">
+                  <span className="loading loading-spinner loading-md"></span>
+                </td>
+              </tr>
+            ) : getRedeemable.data.length == 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center">
+                  No redeemable found.
+                </td>
+              </tr>
+            ) : (
+              getRedeemable.data.map((item: any, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td>{item.redeem_name}</td>
+                    <td>{item.redeem_description}</td>
+                    <td>{`${item.point_cost} Frontier Points`}</td>
+                    <td>{item.reward_name}</td>
+                    <td>{item.package_name}</td>
+                    <td>
+                      <button className="btn btn-sm mx-5 btn-info">
+                        <Image
+                          src="/icons/editicon.svg"
+                          alt="edit"
+                          width={20}
+                          height={20}
+                        />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const confirm = window.confirm(
+                            "Are you sure you want to delete this?"
+                          );
+                          if (confirm) {
+                            removeRedeemMutation.mutate({
+                              id: item.redeem_id,
+                            });
+                          }
+                        }}
+                        className="btn btn-sm btn-error"
+                      >
+                        <Image
+                          src="/icons/deleteicon.svg"
+                          alt="edit"
+                          width={20}
+                          height={20}
+                        />
+                        <span>Remove</span>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
         <div className="w-11/12 flex mx-auto">
