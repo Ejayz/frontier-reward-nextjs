@@ -38,14 +38,14 @@ export default async function handler(
   
     // Update the action in the database
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
-      `UPDATE campaign SET is_exist=0, removed_at=? WHERE id=?`,
+      `UPDATE campaign_action_reward_list SET is_exist=0, removed_at=? WHERE id=?`,
       [removed_at, id]
     );
 
     // Respond with success status
     return res.status(200).json({
       code: 200,
-      message: 'Update Campaign successfully',
+      message: 'Remove Package successfully',
     });
   } catch (error) {
     console.error(error);

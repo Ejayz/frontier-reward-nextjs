@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-export default function AdminSideBar() {
+export default function SalesPersonSideBar() {
   const navbarActive = usePathname();
   console.log(navbarActive);
   return (
@@ -10,12 +10,12 @@ export default function AdminSideBar() {
       <ul className="menu w-80 h-screen [&_li>*]:rounded-none fixed bg-white text-slate-950">
         <li
           className={`${
-            navbarActive?.includes("/superadmin/dashboard")
+            navbarActive?.includes("/salesperson/dashboard")
               ? "bg-yellow-400"
               : ""
           }`}
         >
-          <Link href={"/superadmin/dashboard"} className="text-2xl font-bold">
+          <Link href={"/salesperson/dashboard"} className="text-2xl font-bold">
             <Image
               src="/icons/dashboard.svg"
               className="mr-2"
@@ -28,10 +28,10 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/actions") ? "bg-yellow-400" : ""
+            navbarActive?.includes("/salesperson/actions") ? "bg-yellow-400" : ""
           }`}
         >
-          <Link href={"/superadmin/actions"} className="text-2xl font-bold">
+          <Link href={"/salesperson/actions"} className="text-2xl font-bold">
             <Image
               src="/icons/actions.svg"
               className="mr-2"
@@ -44,12 +44,12 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/packages")
+            navbarActive?.includes("/salesperson/packages")
               ? "bg-yellow-400"
               : ""
           }`}
         >
-          <Link href={"/superadmin/packages"} className="text-2xl font-bold">
+          <Link href={"/salesperson/packages"} className="text-2xl font-bold">
             <Image
               src="/icons/packages.svg"
               className="mr-2"
@@ -62,10 +62,10 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/rewards") ? "bg-yellow-400" : ""
+            navbarActive?.includes("/salesperson/rewards") ? "bg-yellow-400" : ""
           }`}
         >
-          <Link href={"/superadmin/rewards"} className="text-2xl font-bold">
+          <Link href={"/salesperson/rewards"} className="text-2xl font-bold">
             <Image
               src="/icons/rewards.svg"
               className="mr-2"
@@ -78,12 +78,12 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/campaigns")
+            navbarActive?.includes("/salesperson/campaigns")
               ? "bg-yellow-400"
               : ""
           }`}
         >
-          <Link href={"/superadmin/campaigns"} className="text-2xl font-bold">
+          <Link href={"/salesperson/campaigns"} className="text-2xl font-bold">
             <Image
               src="/icons/campaigns.svg"
               className="mr-2"
@@ -96,13 +96,13 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/redeem")
+            navbarActive?.includes("/salesperson/redeem")
               ? "bg-yellow-400"
               : ""
           }`}
         >
           <Link
-            href={"/superadmin/redeem"}
+            href={"/salesperson/redeem"}
             className="text-2xl font-bold"
           >
             <Image
@@ -117,13 +117,13 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/transactions")
+            navbarActive?.includes("/salesperson/transactions")
               ? "bg-yellow-400"
               : ""
           }`}
         >
           <Link
-            href={"/superadmin/transactions"}
+            href={"/salesperson/transactions"}
             className="text-2xl font-bold"
           >
             <Image
@@ -138,10 +138,10 @@ export default function AdminSideBar() {
         </li>
         <li
           className={`${
-            navbarActive?.includes("/superadmin/users") ? "bg-yellow-400" : ""
+            navbarActive?.includes("/salesperson/users") ? "bg-yellow-400" : ""
           }`}
         >
-          <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+          <Link className="text-2xl font-bold" href={"/salesperson/users"}>
             <Image
               src="/icons/users.svg"
               className="mr-2"

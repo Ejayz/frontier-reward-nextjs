@@ -25,7 +25,12 @@ export default async function handler(
   if (typeof user_token == "string") {
     return res.status(401).json({ code: 401, message: "Invalid Token" });
   }
-
+  if (user_token?.exp && user_token?.exp > Date.now() / 1000) {
+    return res.status(401).json({
+      message:
+        "A verification email was sent recently . Please check your email or spam folder. You can get another verification email when previous email expire.Verification email has 15 minutes validity. ",
+    });
+  }
   if (user_token?.token) {
     if (jwt.verify(user_token?.code || "", JWT_SECRET)) {
       return res.status(401).json({

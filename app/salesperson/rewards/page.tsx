@@ -323,11 +323,11 @@ export default function Page() {
 
   return (
     <div className="pl-10">
-      <label htmlFor="my_modal_6" className="btn btn-primary ">
+      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
-      </label>
+      </label> */}
       {/* add modal */}
-      <input
+      {/* <input
         type="checkbox"
         id="my_modal_6"
         className="modal-toggle"
@@ -345,9 +345,6 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">Add Reward</h3>
-          {/* {isLoadingRewardTypePagination ? (
-    <p>Loading...</p>
-  ) : ( */}
           <Formik
             initialValues={{
               quantity: "",
@@ -499,9 +496,8 @@ export default function Page() {
               </Form>
             )}
           </Formik>
-          {/* )} */}
         </div>
-      </div>
+      </div> */}
 
       {/* edit modal */}
        <input
@@ -521,7 +517,7 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Edit Reward</h3>
+          <h3 className="font-bold text-lg">View Reward</h3>
        
           <Formik
 initialValues={UpdateinitialValues}
@@ -529,22 +525,13 @@ enableReinitialize={true}
 onSubmit={onSubmit}>
    {({ errors, touched, values, setFieldValue }) => (
            <Form>
-                <select
+                <Field
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
                   id=""
                   onChange={handleSelectChange}
                   value={values.reward_type_id}
-                >
-                  <option disabled value="">
-                    Select Reward Type
-                  </option>
-                  {DataRewardTypePagination?.data.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
+                />
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Quantity
@@ -555,6 +542,7 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Quantity"
                   className="input input-bordered"
                   name="quantity"
+                  readOnly
                 />
                 <ErrorMessage name="quantity" className="flex">
                   {(msg) => (
@@ -581,6 +569,7 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Name"
                   className="input input-bordered"
                   name="name"
+                  readOnly
                 />
                 <ErrorMessage name="name" className="flex">
                   {(msg) => (
@@ -607,6 +596,7 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Description"
                   className="input input-bordered"
                   name="description"
+                  readOnly
                 />
           
                 <ErrorMessage name="description" className="flex">
@@ -645,7 +635,7 @@ onSubmit={onSubmit}>
         {/* remove modal */}
         
 {/* delete modal */}
-<input type="checkbox" id="my_modal_8"
+{/* <input type="checkbox" id="my_modal_8"
  checked={isRemoveModalOpen}
         onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
         className="modal-toggle" />
@@ -709,7 +699,7 @@ onSubmit={onSubmit}>
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -749,19 +739,9 @@ onSubmit={onSubmit}>
                             height={20}
                             alt="Edit Icon"
                           />
-                          Edit
+                          View
                         </label>
-                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
-                        onClick={() => handleRemoveClick(element)}
-                        >
-                          <img
-                            src="../icons/deleteicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Delete Icon"
-                          />
-                          Delete
-                        </label>
+                       
                       </div>
                     </td>
                   </tr>

@@ -626,7 +626,7 @@ if (
   return (
     <div className="pl-10">
       {/* add modal */}
-      <label htmlFor="my_modal_6" className="btn btn-primary ">
+      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Campaign
       </label>
       <input
@@ -743,7 +743,6 @@ if (
                       </div>
                     )}
                   </ErrorMessage>
-                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
                   <label className="label">
                     <span className="label-text text-base font-semibold">
                       Start Date
@@ -818,7 +817,7 @@ if (
             )}
           </Formik>
         </div>
-      </div>
+      </div> */}
 
 {/* edit modal */}
 <input
@@ -838,7 +837,7 @@ if (
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Edit Campaign</h3>
+          <h3 className="font-bold text-lg">View Campaign</h3>
           <Formik
              initialValues={UpdateinitialValues}
              enableReinitialize={true}
@@ -857,6 +856,7 @@ if (
                     placeholder="Enter Campaign Name"
                     className="input input-bordered"
                     name="name"
+                    readOnly
                   />
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
@@ -883,6 +883,7 @@ if (
                     placeholder="Enter Campaign Description"
                     className="input input-bordered"
                     name="description"
+                    readOnly
                   />
                   <ErrorMessage name="description" className="flex">
                     {(msg) => (
@@ -898,7 +899,6 @@ if (
                       </div>
                     )}
                   </ErrorMessage>
-                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
                   <label className="label">
                     <span className="label-text text-base font-semibold">
                       Start Date
@@ -981,7 +981,7 @@ if (
 
 
 {/* delete modal */}
-<input type="checkbox" id="my_modal_8"
+{/* <input type="checkbox" id="my_modal_8"
  checked={isRemoveModalOpen}
         onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
         className="modal-toggle" />
@@ -1045,10 +1045,10 @@ if (
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
 
 {/* Add Reward & Action */}
-<input type="checkbox" id="my_modal_10"
+{/* <input type="checkbox" id="my_modal_10"
  checked={isAddRewardActionModalOpen}
         onChange={() => setAddRewardActionModalOpen(!isAddRewardActionModalOpen)}
         className="modal-toggle" />
@@ -1209,11 +1209,11 @@ if (
             )}
           </Formik>
         </div>
-      </div>
+      </div> */}
 
 
   {/* removePackageReward */}
-  <input
+  {/* <input
         type="checkbox"
         id="my_modal_11"
         className="modal-toggle"
@@ -1278,7 +1278,7 @@ if (
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
 
       {/* table */}
       <div className="overflow-x-auto mt-5 text-black">
@@ -1311,17 +1311,7 @@ if (
 
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <label className="btn btn-sm btn-accent mr-2"
-                        htmlFor="my_modal_10"
-                        onClick={() => handlegetProduct_idClick(element)}>
-                          <Image
-                            src="/icons/addrewards.svg"
-                            width={20}
-                            height={20}
-                            alt="Edit Icon"
-                          />
-                          Add Reward
-                        </label>
+                       
                         <label htmlFor="my_modal_7" className="btn btn-sm btn-info mr-2"
                         onClick={() => handleEditClick(element)}>
                           <Image
@@ -1330,18 +1320,9 @@ if (
                             height={20}
                             alt="Edit Icon"
                           />
-                          Edit
+                          View
                         </label>
-                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
-                        onClick={() => handleRemoveClick(element)}>
-                          <Image
-                            src="/icons/deleteicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Delete Icon"
-                          />
-                          Delete
-                        </label>
+                       
                       </div>
                     </td>
                   </tr>

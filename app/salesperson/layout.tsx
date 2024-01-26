@@ -4,8 +4,8 @@ import "../globals.css";
 import cookie_processor from "@/hooks/useCookieProcessor";
 import { useRouter } from "next/navigation";
 import "react";
-import AdminSideBar from "@/components/AdminSideBar";
-import AdminNavBar from "@/components/AdminNavBar";
+import SalesPersonSideBar from "@/components/SalesPersonSideBar";
+import SalesPersonNavbar from "@/components/SalesPersonNavbar";
 import Loading from "./loading";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -69,10 +69,10 @@ export default function RootLayout({
         {pageState && inits ? (
           <main className="min-h-screen">
             <div>
-              <AdminNavBar></AdminNavBar>
+              <SalesPersonNavbar></SalesPersonNavbar>
             </div>
             <div className="w-full flex flex-row">
-              <AdminSideBar></AdminSideBar>
+              <SalesPersonSideBar></SalesPersonSideBar>
               <div className="w-3/4 h-screen overflow-y-hidden">
                 <QueryClientProvider client={queryClient}>
                   {children}

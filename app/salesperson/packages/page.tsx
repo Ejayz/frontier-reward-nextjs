@@ -538,7 +538,7 @@ export default function Page() {
   return (
     <div className="w-full h-full pl-10">
       {/* add modal */}
-      <label htmlFor="my_modal_6" className="btn btn-primary ">
+      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
       </label>
       <input
@@ -697,10 +697,10 @@ export default function Page() {
             )}
           </Formik>
         </div>
-      </div>
+      </div> */}
 
       {/* add package_reward */}
-      <input
+      {/* <input
         type="checkbox"
         id="my_modal_7"
         className="modal-toggle"
@@ -814,7 +814,7 @@ export default function Page() {
             )}
           </Formik>
         </div>
-      </div>
+      </div> */}
 
       {/* edit modal */}
       <input
@@ -835,7 +835,7 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Edit Package</h3>
+          <h3 className="font-bold text-lg">View Package</h3>
           <Formik
             initialValues={UpdateinitialValues}
             enableReinitialize={true}
@@ -854,6 +854,7 @@ export default function Page() {
                     placeholder="Enter Package Name"
                     className="input input-bordered"
                     name="name"
+                    readOnly
                   />
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
@@ -880,6 +881,7 @@ export default function Page() {
                     placeholder="Enter Package Description"
                     className="input input-bordered"
                     name="description"
+                    readOnly
                   />
                   <ErrorMessage name="description" className="flex">
                     {(msg) => (
@@ -906,6 +908,7 @@ export default function Page() {
                     placeholder="Enter Package Multiplier"
                     className="input input-bordered"
                     name="multiplier"
+                    readOnly
                   />
                   <ErrorMessage name="multiplier" className="flex">
                     {(msg) => (
@@ -942,7 +945,7 @@ export default function Page() {
       </div>
 
       {/* remove modal */}
-      <input
+      {/* <input
         type="checkbox"
         id="my_modal_9"
         className="modal-toggle"
@@ -1028,10 +1031,10 @@ export default function Page() {
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
 
       {/* removePackageReward */}
-      <input
+      {/* <input
         type="checkbox"
         id="my_modal_10"
         className="modal-toggle"
@@ -1096,7 +1099,7 @@ export default function Page() {
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
 
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
@@ -1125,20 +1128,7 @@ export default function Page() {
 
                     <td className="flex">
                       <div className="flex mx-auto">
-                        <label
-                          htmlFor="my_modal_7"
-                          className="btn btn-sm btn-accent mr-2"
-                          onClick={() => handlegetProduct_idClick(element)}
-                        >
-                          <Image
-                            src="/icons/addrewards.svg"
-                            width={20}
-                            height={20}
-                            alt="reward Icon"
-                          />
-                          Add Reward
-                        </label>
-
+                  
                         <label
                           htmlFor="my_modal_8"
                           className="btn btn-sm btn-info mr-2"
@@ -1150,21 +1140,9 @@ export default function Page() {
                             height={20}
                             alt="Edit Icon"
                           />
-                          Edit
+                          View
                         </label>
-                        <label
-                          className="btn btn-sm btn-error"
-                          htmlFor="my_modal_9"
-                          onClick={() => handleRemoveClick(element)}
-                        >
-                          <Image
-                            src="/icons/deleteicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Delete Icon"
-                          />
-                          Delete
-                        </label>
+                    
                       </div>
                     </td>
                   </tr>

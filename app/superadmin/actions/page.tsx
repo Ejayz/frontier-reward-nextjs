@@ -150,6 +150,21 @@ export default function Page() {
     async (values: any) => {
       setProcessing(true);
       setEditModalOpen(false);
+  
+      // Check if the name and description remain the same
+      if (
+        values.name === rowDataToEdit?.name &&
+        values.description === rowDataToEdit?.description
+      ) {
+        showToast({
+          status: 'error',
+          message: 'Action data is the same, no changes made',
+        });
+  
+        setProcessing(false);
+        return;
+      }
+  
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -157,25 +172,23 @@ export default function Page() {
       };
   
       try {
-        console.log("the values are: ",values);
         const response = await fetch(`/api/private/editActions/`, {
           method: 'POST',
-         
-          body: JSON.stringify(values), 
+          body: JSON.stringify(values),
           headers: headersList,
         });
   
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
   
         showToast({
           status: 'success',
           message: 'Action Updated Successfully',
-        
         });
+  
         RefetchActionPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
@@ -185,18 +198,21 @@ export default function Page() {
           status: 'error',
           message: 'Something went wrong',
         });
+  
         setProcessing(false);
         setEditModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast, setEditModalOpen, RefetchActionPagination, editActionRef, rowDataToEdit]
   );
+  
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateAction(values);
     setEditModalOpen(false);  
+    
   };  
 
   const RemoveinitialValues = {
@@ -262,6 +278,7 @@ export default function Page() {
     console.log("Edit Form submitted with values:", values);
     await handleRemoveAction(values);
     setModalOpen(false);  
+    
   };  
 
 
@@ -301,6 +318,23 @@ export default function Page() {
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
+             // Check if the data already exists
+  const isDataExisting = DataActionPagination.data.some(
+    (element: Element) =>
+      element.name === values.name && element.description === values.description &&
+  
+      element.is_exist === 1
+  );
+
+  if (isDataExisting) {
+    showToast({
+      status: "error",
+      message: "Action with this name and description already exists",
+    });
+
+    setProcessing(false);
+    return;
+  }
               resetForm();
               let bodyContent = JSON.stringify({
                 name: values.name,

@@ -11,19 +11,16 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
-import { act } from "react-dom/test-utils";
-import LabeledSelectInput from "@/components/LabeledSelectInput";
-
+import Image from "next/image";
 type Element = {
   id: number;
   name: string;
   description: string;
-  reward_type_id: number;
-  quantity: number;
   updated_at: string;
   is_exist: number;
+  removed_at: string;
+  // Add other properties as needed
 };
-
 export default function Page() {
   const myDiv = document.getElementById("mydiv");
 
@@ -39,8 +36,8 @@ export default function Page() {
 
   const {
     data: DataActionPagination,
-    isFetching: isFetchingActionPagination,
-    isLoading: isLoadingActionPagination,
+    isFetching,
+    isLoading,
     refetch: RefetchActionPagination,
   } = useQuery({
     queryKey: ["getActionsPagination", page],
@@ -49,40 +46,7 @@ export default function Page() {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
-      let response = await fetch(`/api/private/getRewards?page=${page}`, {
-        method: "GET",
-        headers: headersList,
-      });
-
-      let data = await response.json();
-      if (!response.ok) {
-        showToast({
-          status: "error",
-          message: data.message,
-        });
-      }
-      return data;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    gcTime: 0,
-    placeholderData: keepPreviousData,
-  });
-
-
-  const {
-    data: DataRewardTypePagination,
-    isFetching: isFetchingRewardTypePagination,
-    isLoading: isLoadingRewardTypePagination,
-    refetch: RefetchRewardTypePagination,
-  } = useQuery({
-    queryKey: ["getRewardType", page],
-    queryFn: async () => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-      };
-      let response = await fetch(`/api/private/getRewardType`, {
+      let response = await fetch(`/api/private/getActions?page=${page}`, {
         method: "GET",
         headers: headersList,
       });
@@ -110,7 +74,7 @@ export default function Page() {
         "Content-Type": "application/json",
       };
 
-      let response = await fetch(`/api/private/createRewards/`, {
+      let response = await fetch(`/api/private/createActions/`, {
         method: "POST",
         body: values,
         headers: headersList,
@@ -124,16 +88,24 @@ export default function Page() {
         queryKey: ["getActionsPagination"],
       });
       console.log(data);
+      if (data.code == 201) {
+        showToast({
+          status: "success",
+          message: "Action Created Successfully",
+        });
 
-      showToast({
-        status: "success",
-        message: "Reward Created Successfully",
-      });
-
-      RefetchActionPagination();
-      setProcessing(false);
-      createActionRef.current?.resetForm();
-      setModalOpen(false);
+        RefetchActionPagination();
+        setProcessing(false);
+        createActionRef.current?.resetForm();
+        setModalOpen(false);
+      } else {
+        showToast({
+          status: "error",
+          message: "Something went wrong",
+        });
+        setProcessing(false);
+        setModalOpen(false);
+      }
     },
     onError: async (error: any) => {
       console.log(error);
@@ -146,15 +118,11 @@ export default function Page() {
       setModalOpen(false);
     },
   });
-
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
-
   const actionValidation = yup.object().shape({
-    reward_type_id: yup.string().required("Type is required"),
-    quantity: yup.number().required("Quantity is required"),
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
   });
@@ -165,23 +133,38 @@ export default function Page() {
   const UpdateinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
-    quantity: rowDataToEdit ? rowDataToEdit.quantity : "",
-    reward_type_id: rowDataToEdit ? rowDataToEdit.reward_type_id : "",
-    id : rowDataToEdit ? rowDataToEdit.id : 0,
+    id:rowDataToEdit? rowDataToEdit.id:0,
     updated_at: new Date(),
-    is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+    is_exist: 0,
     // ... add other fields as needed ...
   };
+  
   const handleEditClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setEditModalOpen(false);
   };
 
-  const handleUpdateReward = useCallback(
+  
+  const handleUpdateAction = useCallback(
     async (values: any) => {
       setProcessing(true);
       setEditModalOpen(false);
+  
+      // Check if the name and description remain the same
+      if (
+        values.name === rowDataToEdit?.name &&
+        values.description === rowDataToEdit?.description
+      ) {
+        showToast({
+          status: 'error',
+          message: 'Action data is the same, no changes made',
+        });
+  
+        setProcessing(false);
+        return;
+      }
+  
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -189,25 +172,23 @@ export default function Page() {
       };
   
       try {
-        console.log("the values are: ",values);
-        const response = await fetch(`/api/private/editRewards/`, {
+        const response = await fetch(`/api/private/editActions/`, {
           method: 'POST',
-         
-          body: JSON.stringify(values), 
+          body: JSON.stringify(values),
           headers: headersList,
         });
   
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
   
         showToast({
           status: 'success',
-          message: 'Reward Updated Successfully',
-        
+          message: 'Action Updated Successfully',
         });
+  
         RefetchActionPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
@@ -217,44 +198,23 @@ export default function Page() {
           status: 'error',
           message: 'Something went wrong',
         });
+  
         setProcessing(false);
         setEditModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast, setEditModalOpen, RefetchActionPagination, editActionRef, rowDataToEdit]
   );
+  
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleUpdateReward(values);
+    await handleUpdateAction(values);
     setEditModalOpen(false);  
+    
   };  
 
-
-  useEffect(() => {
-    console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEdit) {
-      createActionRef.current?.setValues({
-        name: rowDataToEdit.name,
-        description: rowDataToEdit.description,
-        quantity: rowDataToEdit.quantity,
-        reward_type_id: rowDataToEdit.reward_type_id,
-
-      });
-    }
-  }, [rowDataToEdit]);
-
-  const [selectedValue, setSelectedValue] = useState("");
-  const handleSelectChange = (event: any) => {
-    const newValue = event.target.value;
-    console.log(newValue);
-    setSelectedValue(newValue);
-    createActionRef.current?.setFieldValue("reward_type_id", newValue);
-  };
-
-
-  
   const RemoveinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
@@ -262,7 +222,6 @@ export default function Page() {
     removed_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
-
   const handleRemoveClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
@@ -280,7 +239,7 @@ export default function Page() {
   
       try {
         console.log("the values are: ",values);
-        const response = await fetch(`/api/private/removeRewards/`, {
+        const response = await fetch(`/api/private/removeActions/`, {
           method: 'POST',
           body: JSON.stringify(values), 
           headers: headersList,
@@ -294,7 +253,7 @@ export default function Page() {
   
         showToast({
           status: 'success',
-          message: 'Reward Deleted Successfully',
+          message: 'Action Deleted Successfully',
         
         });
         RefetchActionPagination();
@@ -319,15 +278,18 @@ export default function Page() {
     console.log("Edit Form submitted with values:", values);
     await handleRemoveAction(values);
     setModalOpen(false);  
+    
   };  
+
 
   return (
     <div className="pl-10">
-      <label htmlFor="my_modal_6" className="btn btn-primary ">
-        Add Rewards
-      </label>
       {/* add modal */}
-      <input
+      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
+        Add Action
+      </label> */}
+
+      {/* <input
         type="checkbox"
         id="my_modal_6"
         className="modal-toggle"
@@ -344,43 +306,37 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Add Reward</h3>
-          {/* {isLoadingRewardTypePagination ? (
-    <p>Loading...</p>
-  ) : ( */}
+          <h3 className="font-bold text-lg">Add Action</h3>
           <Formik
             initialValues={{
-              quantity: "",
-              reward_type_id: "",
               name: "",
               description: "",
               created_at: new Date(),
             }}
-            innerRef={createActionRef}
+            ref={createActionRef}
             validationSchema={actionValidation}
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
-              const isDataExisting = DataActionPagination.data.some(
-                (element: Element) =>
-                  element.name === values.name && element.description === values.description
-              );
-            
-              if (isDataExisting) {
-                showToast({
-                  status: "error",
-                  message: "Action with this name and description already exists",
-                });
-            
-                setProcessing(false);
-                return;
-              }
-              resetForm();
-              const quantityAsInt = parseInt(values.quantity, 10);
+             // Check if the data already exists
+  const isDataExisting = DataActionPagination.data.some(
+    (element: Element) =>
+      element.name === values.name && element.description === values.description &&
+  
+      element.is_exist === 1
+  );
 
+  if (isDataExisting) {
+    showToast({
+      status: "error",
+      message: "Action with this name and description already exists",
+    });
+
+    setProcessing(false);
+    return;
+  }
+              resetForm();
               let bodyContent = JSON.stringify({
-                quantity: quantityAsInt,
-                reward_type_id: values.reward_type_id,
                 name: values.name,
                 description: values.description,
                 created_at: values.created_at,
@@ -388,101 +344,61 @@ export default function Page() {
               createActionMutation.mutate(bodyContent);
             }}
           >
-            {({ errors, touched, values, setFieldValue }) => (
+            {({ errors, touched }) => (
               <Form>
-                <select
-                  name="reward_type_id"
-                  className="select select-bordered w-full max-w-xs font-semibold text-base"
-                  id=""
-                  onChange={handleSelectChange}
-                  value={values.reward_type_id}
-                >
-                  <option disabled value="">
-                    Select Reward Type
-                  </option>
-                  {DataRewardTypePagination?.data.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Quantity
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Quantity"
-                  className="input input-bordered"
-                  name="quantity"
-                />
-                <ErrorMessage name="quantity" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
+                <div className="form-control bg-white">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Name
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Name"
+                    className="input input-bordered"
+                    name="name"
+                  />
+                  <ErrorMessage name="name" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
 
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Name
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Name"
-                  className="input input-bordered"
-                  name="name"
-                />
-                <ErrorMessage name="name" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Description
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Description"
-                  className="input input-bordered"
-                  name="description"
-                />
-                <ErrorMessage name="description" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
+                      Description
+                    </span>
+                  </label>
+                  <Field
+                    type="text"
+                    placeholder="Enter Action Description"
+                    className="input input-bordered"
+                    name="description"
+                  />
+                  <ErrorMessage name="description" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
+                </div>
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
@@ -499,18 +415,13 @@ export default function Page() {
               </Form>
             )}
           </Formik>
-          {/* )} */}
         </div>
-      </div>
-
-      {/* edit modal */}
-       <input
-        type="checkbox"
-        id="my_modal_7"
-        className="modal-toggle"
-        checked={isEditModalOpen}
+      </div> */}
+  
+        {/* edit modal */}
+      <input type="checkbox" id="my_modal_7" checked={isEditModalOpen}
         onChange={() => setEditModalOpen(!isEditModalOpen)}
-      />
+        className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
           <form method="dialog">
@@ -521,56 +432,14 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Edit Reward</h3>
-       
+          <h3 className="font-bold text-lg">View Action</h3>
           <Formik
-initialValues={UpdateinitialValues}
-enableReinitialize={true}
-onSubmit={onSubmit}>
-   {({ errors, touched, values, setFieldValue }) => (
-           <Form>
-                <select
-                  name="reward_type_id"
-                  className="select select-bordered w-full max-w-xs font-semibold text-base"
-                  id=""
-                  onChange={handleSelectChange}
-                  value={values.reward_type_id}
-                >
-                  <option disabled value="">
-                    Select Reward Type
-                  </option>
-                  {DataRewardTypePagination?.data.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Quantity
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Quantity"
-                  className="input input-bordered"
-                  name="quantity"
-                />
-                <ErrorMessage name="quantity" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-
+            initialValues={UpdateinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmit}
+          >
+            <Form>
+              <div className="form-control bg-white">
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Name
@@ -578,25 +447,11 @@ onSubmit={onSubmit}>
                 </label>
                 <Field
                   type="text"
-                  placeholder="Enter Reward Name"
+                  placeholder="Enter Action Name"
                   className="input input-bordered"
                   name="name"
+                  readOnly
                 />
-                <ErrorMessage name="name" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Description
@@ -604,48 +459,32 @@ onSubmit={onSubmit}>
                 </label>
                 <Field
                   type="text"
-                  placeholder="Enter Reward Description"
+                  placeholder="Enter Action Description"
                   className="input input-bordered"
                   name="description"
+                  readOnly
                 />
-          
-                <ErrorMessage name="description" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-                <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
-                    <label
+              </div>
+              <div className="m-8 " style={{ marginTop: 60 }}>
+                <div className="absolute bottom-6 right-6">
+                <label
                       htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
                     >
                       Cancel
                     </label>
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
                 </div>
-              </Form>
-    )}
-              </Formik>
-  </div>
-      </div> 
-              
-        {/* remove modal */}
-        
+              </div>
+            </Form>
+          </Formik>
+        </div>
+      </div>
+
 {/* delete modal */}
-<input type="checkbox" id="my_modal_8"
+{/* <input type="checkbox" id="my_modal_8"
  checked={isRemoveModalOpen}
         onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
         className="modal-toggle" />
@@ -653,7 +492,7 @@ onSubmit={onSubmit}>
         <div className="modal-box">
           <form method="dialog">
           </form>
-          <h3 className="font-bold text-lg">Delete Reward</h3>
+
           <Formik
             initialValues={RemoveinitialValues}
             enableReinitialize={true}
@@ -661,12 +500,12 @@ onSubmit={onSubmit}>
           >
             <Form>
               <div className="form-control bg-white">
-              <label className="label">
+              <label className="label text-center">
     <span className="label-text text-base font-semibold">
       Are you sure you want to delete the following data?
     </span>
   </label>
-  <div className="flex">
+  <div className="flex mb-5">
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Name:
@@ -709,7 +548,8 @@ onSubmit={onSubmit}>
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
+
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -717,13 +557,11 @@ onSubmit={onSubmit}>
             <tr className="rounded-lg">
               <th>Name</th>
               <th>Description</th>
-              <th>Type</th>
-              <th>QTY</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {isFetchingActionPagination ? (
+            {isLoading ? (
               <tr className="text-center">
                 <td colSpan={3}>Loading...</td>
               </tr>
@@ -733,8 +571,6 @@ onSubmit={onSubmit}>
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td>{element.reward_type_id}</td>
-                    <td>{element.quantity}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">
@@ -743,25 +579,15 @@ onSubmit={onSubmit}>
                           className="btn btn-sm btn-info mr-2"
                           onClick={() => handleEditClick(element)}
                         >
-                          <img
-                            src="../icons/editicon.svg"
+                          <Image
+                            src="/icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
                           />
-                          Edit
+                          View
                         </label>
-                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
-                        onClick={() => handleRemoveClick(element)}
-                        >
-                          <img
-                            src="../icons/deleteicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Delete Icon"
-                          />
-                          Delete
-                        </label>
+                       
                       </div>
                     </td>
                   </tr>
@@ -770,6 +596,7 @@ onSubmit={onSubmit}>
             )}
           </tbody>
         </table>
+
         <div className="w-11/12 flex mx-auto">
           <div className="join mx-auto">
             <button
@@ -784,7 +611,7 @@ onSubmit={onSubmit}>
               «
             </button>
             <button className="join-item btn">
-              {isFetchingActionPagination ? (
+              {isFetching ? (
                 <span className="loading loading-dots loading-md"></span>
               ) : (
                 `Page ${page}`
