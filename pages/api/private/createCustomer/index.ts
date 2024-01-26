@@ -87,7 +87,8 @@ export default async function handler(
           connection.rollback();
           return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
         }
-        const processedVehicles = await formatVehicle(vehicles, insertUser.insertId);      
+        console.log("insertUser:", results);
+        const processedVehicles = await formatVehicle(vehicles, results.insertId);      
         const [insertCustomerAddressResult,insertCustomerAddressFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_address (country, city, zip_code, address_1, address_2, state_province) VALUES (?,?,?,?,?,?)`, [country, city, zipCode, address, address2, state_province]); 
 
         if(insertCustomerAddressResult.affectedRows==0){
@@ -95,13 +96,13 @@ export default async function handler(
           return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
         }
 
-        const [insertCustomerInfoResult,insertCustomerInfoFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_info (first_name, middle_name, last_name, points, suffix, user_id, address_id, package_id, employee_id) VALUES (?,?,?,?,?,?,?,?,?)`, [firstName, middleName, lastName, points, suffix, insertUser.insertId, insertCustomerAddressResult.insertId, packageId, current_user]);
+        const [insertCustomerInfoResult,insertCustomerInfoFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_info (first_name, middle_name, last_name, points, suffix, user_id, address_id, package_id, employee_id) VALUES (?,?,?,?,?,?,?,?,?)`, [firstName, middleName, lastName, points, suffix, results.insertId, insertCustomerAddressResult.insertId, packageId, current_user]);
         if(insertCustomerInfoResult.affectedRows==0){
           connection.rollback();
           return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
         }
           for (const vehicle of processedVehicles) {
-            const [insertCustomerVehicleInfoResult,insertCustomerVehicleInfoFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_vehicle_info (customer_info_id, color, trim, year, vin_id) VALUES (?,?,?,?,?)`, [insertCustomerInfoResult.insertId, vehicle.color, vehicle.trim, vehicle.year, vehicle.vin_no]);
+            const [insertCustomerVehicleInfoResult,insertCustomerVehicleInfoFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_vehicle_info (customer_info_id, color, trim, year, vin_id,model) VALUES (?,?,?,?,?,?)`, [insertCustomerInfoResult.insertId, vehicle.color, vehicle.trim, vehicle.year, vehicle.vin_no,vehicle.model]);
             if(insertCustomerVehicleInfoResult.affectedRows==0){
               connection.rollback();
               return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
