@@ -471,11 +471,8 @@ export default function Page() {
                       htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
                     >
-                      Cancel
+                      Back
                     </label>
-                  <button type="submit" className="btn btn-primary">
-                    Submit
-                  </button>
                 </div>
               </div>
             </Form>
