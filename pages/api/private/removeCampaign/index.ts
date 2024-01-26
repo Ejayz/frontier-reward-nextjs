@@ -45,7 +45,7 @@ export default async function handler(
     // Respond with success status
     return res.status(200).json({
       code: 200,
-      message: 'Update Actions successfully',
+      message: 'Update Campaign successfully',
     });
   } catch (error) {
     console.error(error);

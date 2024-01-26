@@ -276,10 +276,23 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setEditModalOpen(false);
   };
-  const handleUpdateAction = useCallback(
+  const handleUpdateCampaign = useCallback(
     async (values: any) => {
       setProcessing(true);
       setEditModalOpen(false);
+// Check if the name and description remain the same
+if (
+  values.name === rowDataToEdit?.name &&
+  values.description === rowDataToEdit?.description
+) {
+  showToast({
+    status: 'error',
+    message: 'Campaign data is the same, no changes made',
+  });
+
+  setProcessing(false);
+  return;
+}
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -325,7 +338,7 @@ export default function Page() {
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleUpdateAction(values);
+    await handleUpdateCampaign(values);
     setEditModalOpen(false);  
   };  
 
@@ -348,7 +361,7 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
-  const handleRemoveAction = useCallback(
+  const handleRemoveCampaign = useCallback(
     async (values: any) => {
       setProcessing(true);
       setRemoveModalOpen(false);
@@ -396,7 +409,7 @@ export default function Page() {
   
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleRemoveAction(values);
+    await handleRemoveCampaign(values);
     setModalOpen(false);  
   };  
 
@@ -442,15 +455,25 @@ export default function Page() {
     async (values: any) => {
       setProcessing(true);
       setAddRewardActionModalOpen(false);
+      
+      // Check if the name and description remain the same
+      if (
+        values.action_id === values.action_id &&
+        values.reward_id === values.reward_id &&
+        values.is_exist === 1
+      ) {
+        showToast({
+          status: 'error',
+          message: 'Reward and Action is already existing, Cannot Add Reward and Action',
+        });
+  
+        setProcessing(false);
+        return;
+      }
+  
   
       try {
-        console.log("Form values:", values);
-  
 
-  
-        console.log("Action ID:", values.action_id);
-        console.log("Reward ID:", values.reward_id);
-        console.log("Quantity:", values.quantity);
   
         const response = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
@@ -543,10 +566,11 @@ export default function Page() {
     setRowDataToEditPR(rowData);
     setRemoveModalOpenRewardAction(false);
   };
-  const handleRemovePackageReward = useCallback(
+  const handleRemoveCampaignRewardAction = useCallback(
     async (values: any) => {
       setProcessing(true);
       setRemoveModalOpenRewardAction(false);
+      
       const headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
@@ -596,7 +620,7 @@ export default function Page() {
 
   const onSubmitRemovePackageReward = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleRemovePackageReward(values);
+    await handleRemoveCampaignRewardAction(values);
     setRemoveModalOpenRewardAction(false);
   };
   return (
@@ -637,6 +661,20 @@ export default function Page() {
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
+              const isDataExisting = DataCampaignPagination.data.some(
+                (element: Element) =>
+                  element.name === values.name && element.description === values.description
+              );
+            
+              if (isDataExisting) {
+                showToast({
+                  status: "error",
+                  message: "Camapign with this name and description already exists",
+                });
+            
+                setProcessing(false);
+                return;
+              }
               resetForm();
               values.start_date = values.start_date;
               values.end_date = values.end_date;
@@ -972,7 +1010,7 @@ export default function Page() {
                 </label>
                 <Field
                   type="text"
-                  placeholder="Enter Action Name"
+                  placeholder="Enter Campaign Name"
                   className="input border-none"
                   name="name"
                   disabled />
@@ -985,7 +1023,7 @@ export default function Page() {
                 </label>
                 <Field
                   type="text"
-                  placeholder="Enter Action Name"
+                  placeholder="Enter Campaign Name"
                   className="input border-none text-black"
                   name="description"
                   disabled />
@@ -1102,7 +1140,7 @@ export default function Page() {
                   <Field
                   type="text"
                   placeholder="Enter Package Name"
-                  className="input input-bordered invisible"
+                  className="input input-bordered"
                   name="campaign_id"
                 />
 </div>

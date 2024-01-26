@@ -321,7 +321,9 @@ export default function Page() {
              // Check if the data already exists
   const isDataExisting = DataActionPagination.data.some(
     (element: Element) =>
-      element.name === values.name && element.description === values.description
+      element.name === values.name && element.description === values.description &&
+  
+      element.is_exist === 1
   );
 
   if (isDataExisting) {
@@ -333,7 +335,6 @@ export default function Page() {
     setProcessing(false);
     return;
   }
-  resetForm();
               resetForm();
               let bodyContent = JSON.stringify({
                 name: values.name,

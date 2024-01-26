@@ -299,6 +299,20 @@ export default function Page() {
     async (values: any) => {
       setProcessing(true);
       setEditModalOpen(false);
+       // Check if the name and description remain the same
+       if (
+        values.name === rowDataToEdit?.name &&
+        values.description === rowDataToEdit?.description
+      ) {
+        showToast({
+          status: 'error',
+          message: 'Package data is the same, no changes made',
+        });
+  
+        setProcessing(false);
+        return;
+      }
+  
       const headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
@@ -549,7 +563,7 @@ export default function Page() {
             initialValues={{
               name: "",
               description: "",
-              multiplier: "",
+              multiplier: 0,
               created_at: new Date().toLocaleTimeString(),
             }}
             ref={createPackageRef}
@@ -557,12 +571,29 @@ export default function Page() {
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
+              const isDataExisting = DataPackagesPagination.data.some(
+                (element: PackageElement) =>
+                  element.name === values.name && 
+                  element.description === values.description &&
+                  element.multiplier === Number(values.multiplier) &&
+                  element.is_exist === 1
+              );
+            
+              if (isDataExisting) {
+                showToast({
+                  status: "error",
+                  message: "Action with this name and description already exists",
+                });
+            
+                setProcessing(false);
+                return;
+              }
               resetForm();
-              const multiplierTofloat = parseFloat(values.multiplier);
+          
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
-                multiplier: multiplierTofloat,
+                multiplier: values.multiplier,
                 created_at: values.created_at,
               });
               createPackageMutation.mutate(bodyContent);
