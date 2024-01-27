@@ -779,11 +779,15 @@ export default function Page() {
                         </tr>
                       ) : (
                         DataPackageRewardPagination.data.map((element: any) => {
-                          // console.log(element);
+                          const rewardId = DataRewardPagination?.data.find((item: any) => item.id === parseInt(element.reward_id));
+                          const rewardName = rewardId ? rewardId.name : "Unknown"; // Use a default value if not found
+
+                          const packageID = DataPackagesPagination?.data.find((item: any) => item.id === parseInt(element.package_id));
+                          const packageName = packageID ? packageID.name : "Unknown"; // Use a default value if not found
                           return (
                             <tr key={element.id}>
-                              <td>{element.reward_id}</td>
-                              <td>{element.package_id}</td>
+                              <td>{rewardName}</td>
+                              <td>{packageName}</td>
                               <td className="flex">
                                 <div className="flex mx-auto">
                                   <label

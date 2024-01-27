@@ -729,11 +729,13 @@ onSubmit={onSubmit}>
               </tr>
             ) : (
               DataActionPagination.data.map((element: any) => {
+                const rewardType = DataRewardTypePagination?.data.find((item: any) => item.id === parseInt(element.reward_type_id));
+               const rewardTypeName = rewardType ? rewardType.name : "Unknown"; // Use a default value if not found
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td>{element.reward_type_id}</td>
+                    <td>{rewardTypeName}</td>
                     <td>{element.quantity}</td>
 
                     <td className="flex">
