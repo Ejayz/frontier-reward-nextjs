@@ -38,8 +38,8 @@ export default async function handler(
   
     // Update the action in the database
     const [UpdatePakagesResult, UpdatePackagesFields] = await connection.query(
-      `UPDATE packages SET name=?, description=?, multiplier=?, updated_at=? WHERE id=?`,
-      [name, description, multiplier, updated_at, id]
+      `UPDATE packages SET name=?, description=?, multiplier=?, updated_at=current_timestamp()  WHERE id=?`,
+      [name, description, multiplier, id]
     );
 
     // Respond with success status

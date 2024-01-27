@@ -41,8 +41,8 @@ export default async function handler(
     } = req.body;
     const [createPackageResult, createPackageFields] = <RowDataPacket[]>(
       await connection.query(
-        `INSERT INTO packages (name,description,multiplier,created_at,is_exist) VALUES (?,?,?,?,?)`,
-        [name,description,multiplier,created_at,1]
+        `INSERT INTO packages (name,description,multiplier,is_exist) VALUES (?,?,?,?)`,
+        [name,description,multiplier,1]
       )
     );
     if (createPackageResult.affectedRows == 0) {
