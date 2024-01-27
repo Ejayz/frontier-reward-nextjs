@@ -44,8 +44,8 @@ export default async function handler(
 
     // Update the action in the database
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
-      `UPDATE reward SET name=?, description=?, quantity=?, reward_type_id=?, updated_at=? WHERE id=?`,
-      [name, description, quantity, reward_type_id, updated_at, id]
+      `UPDATE reward SET name=?, description=?, quantity=?, reward_type_id=?, updated_at=current_timestamp()  WHERE id=?`,
+      [name, description, quantity, reward_type_id, id]
     );
 
     // Respond with success status

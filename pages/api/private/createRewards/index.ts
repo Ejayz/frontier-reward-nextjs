@@ -43,8 +43,8 @@ export default async function handler(
 
 
   const [createRewardsResult, createRewardsFields] = <RowDataPacket[]>await connection.query( 
-    `INSERT INTO reward (name,description,quantity,reward_type_id,employee_id,created_at, is_exist) VALUES (?,?,?,?,?,?,?)`, 
-  [name,description,quantity,reward_type_id,current_user,created_at,1] );
+    `INSERT INTO reward (name,description,quantity,reward_type_id,employee_id, is_exist) VALUES (?,?,?,?,?,?)`, 
+  [name,description,quantity,reward_type_id,current_user,1] );
 
 
   if (createRewardsResult.affectedRows == 0) {

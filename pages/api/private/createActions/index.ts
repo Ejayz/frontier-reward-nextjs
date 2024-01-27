@@ -40,8 +40,8 @@ export default async function handler(
     console.log(typeof req.body)
     const [results, fields] = <RowDataPacket[]>(
       await connection.query(
-        `INSERT INTO actions (name,description,employee_id,created_at, is_exist) VALUES (?,?,?,?,?)`,
-        [name, description,  current_user, created_at, 1]
+        `INSERT INTO actions (name,description,employee_id,7, is_exist) VALUES (?,?,?,?,?)`,
+        [name, description,  current_user,  1]
       )
     );
     if (results.affectedRows > 0) {
