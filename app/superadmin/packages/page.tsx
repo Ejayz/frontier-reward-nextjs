@@ -800,7 +800,7 @@ export default function Page() {
                                     <Image
                                       src="/icons/deleteicon.svg"
                                       width={20}
-                                      height={20}
+                                      height={20} 
                                       alt="Delete Icon"
                                     />
                                     Delete

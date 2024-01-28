@@ -178,10 +178,54 @@ export default function Page() {
     setEditModalOpen(false);
   };
 
+  const [selectedValue, setSelectedValue] = useState("");
+  const [selectededitValue, setSelectededitValue] = useState("");
+  const handleSelectChange = (event: any) => {
+    const newValue = event.target.value;
+    console.log("the value is: ",newValue);
+    setSelectedValue(newValue);
+    createActionRef.current?.setFieldValue("reward_type_id", newValue);
+  };
+  const handleSelectChangeEdit = (event: any) => {
+    const newValue = event.target.value;
+    console.log("the value is: ", newValue);
+    setSelectededitValue(newValue);
+    editActionRef.current?.setFieldValue("reward_type_id", newValue); // Log here
+  };
+
   const handleUpdateReward = useCallback(
     async (values: any) => {
       setProcessing(true);
       setEditModalOpen(false);
+    // Check if the name and description remain the same
+    if (
+      rowDataToEdit &&
+      values.name === rowDataToEdit.name &&
+      values.description === rowDataToEdit.description &&
+      values.quantity === rowDataToEdit.quantity &&
+      values.reward_type_id === rowDataToEdit.reward_type_id
+      // Add other fields as needed
+    ) {
+      showToast({
+        status: 'error',
+        message: 'No changes detected. Data remains the same.',
+      });
+      setProcessing(false);
+      setEditModalOpen(false);
+      return; // Do not proceed with the update
+    }
+    if (
+  values.name === rowDataToEdit?.name &&
+  values.description === rowDataToEdit?.description
+) {
+  showToast({
+    status: 'error',
+    message: 'Campaign data is the same, no changes made',
+  });
+
+  setProcessing(false);
+  return;
+}
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -222,9 +266,8 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef,rowDataToEdit]
   );
-
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateReward(values);
@@ -245,14 +288,17 @@ export default function Page() {
     }
   }, [rowDataToEdit]);
 
-  const [selectedValue, setSelectedValue] = useState("");
-  const handleSelectChange = (event: any) => {
-    const newValue = event.target.value;
-    console.log(newValue);
-    setSelectedValue(newValue);
-    createActionRef.current?.setFieldValue("reward_type_id", newValue);
-  };
-
+  useEffect(() => {
+    console.log("Row data updated for edit:", rowDataToEdit);
+    if (rowDataToEdit) {
+      editActionRef.current?.setValues({
+        name: rowDataToEdit.name,
+        description: rowDataToEdit.description,
+        quantity: rowDataToEdit.quantity,
+        reward_type_id: rowDataToEdit.reward_type_id,
+      });
+    }
+  }, [rowDataToEdit]);
 
   
   const RemoveinitialValues = {
@@ -363,7 +409,9 @@ export default function Page() {
               setProcessing(true);
               const isDataExisting = DataActionPagination.data.some(
                 (element: Element) =>
-                  element.name === values.name && element.description === values.description
+                  element.name === values.name && element.description === values.description &&
+                  element.is_exist === 1 &&
+                  element.reward_type_id === Number(values.reward_type_id)
               );
             
               if (isDataExisting) {
@@ -526,14 +574,15 @@ export default function Page() {
           <Formik
 initialValues={UpdateinitialValues}
 enableReinitialize={true}
+innerRef={editActionRef}
 onSubmit={onSubmit}>
    {({ errors, touched, values, setFieldValue }) => (
            <Form>
-                <select
+  <select
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
                   id=""
-                  onChange={handleSelectChange}
+                  onChange={handleSelectChangeEdit}
                   value={values.reward_type_id}
                 >
                   <option disabled value="">
