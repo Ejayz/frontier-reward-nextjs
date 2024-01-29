@@ -240,7 +240,7 @@ export default function Page() {
 
       try {
         console.log("the values are: ", values);
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+        const response = await fetch(`/api/private/createPackageReward/`, {
           method: "POST",
 
           body: JSON.stringify(values),
@@ -301,18 +301,38 @@ export default function Page() {
       setEditModalOpen(false);
        // Check if the name and description remain the same
        if (
-        values.name === rowDataToEdit?.name &&
-        values.description === rowDataToEdit?.description
+        rowDataToEdit &&
+        values.name === rowDataToEdit.name &&
+        values.description === rowDataToEdit.description &&
+        values.multiplier === rowDataToEdit.multiplier
+        // Add other fields as needed
       ) {
         showToast({
           status: 'error',
-          message: 'Package data is the same, no changes made',
+          message: 'No changes detected. Data remains the same.',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        return; // Do not proceed with the update
+      }
+      const isDataExisting = DataPackagesPagination.data.some(
+        (element: PackageElement) =>
+          element.id !== rowDataToEdit?.id &&
+          element.name === values.name &&
+          element.description === values.description &&
+          element.multiplier === Number(values.multiplier) &&
+          element.is_exist === 1
+      );
+  
+      if (isDataExisting) {
+        showToast({
+          status: 'error',
+          message: 'Package with these updated values already exists',
         });
   
         setProcessing(false);
         return;
       }
-  
       const headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
@@ -358,6 +378,7 @@ export default function Page() {
       setEditModalOpen,
       RefetchPackagesPagination,
       editPackageRef,
+      rowDataToEdit,
     ]
   );
 
@@ -380,7 +401,7 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
-  const handleRemoveAction = useCallback(
+  const handleRemovePackage = useCallback(
     async (values: any) => {
       setProcessing(true);
       setRemoveModalOpen(false);
@@ -433,7 +454,7 @@ export default function Page() {
 
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleRemoveAction(values);
+    await handleRemovePackage(values);
     setModalOpen(false);
   };
 
@@ -452,6 +473,25 @@ export default function Page() {
   };
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
+    
+  // Check for existing data
+  const isDataExisting = DataPackageRewardPagination.data.some(
+    (element: Element) =>
+      element.reward_id === values.reward_id &&
+      element.package_id === values.package_id &&
+      element.is_exist === 1
+  );
+
+  if (isDataExisting) {
+    showToast({
+      status: "error",
+      message: "Reward with this Reward and Package already exists",
+    });
+
+    setEditModalOpen(false);
+    return;
+  }
+
     await CreatePacakgeRewardhandle(values);
     setEditModalOpen(false);
   };
@@ -582,7 +622,7 @@ export default function Page() {
               if (isDataExisting) {
                 showToast({
                   status: "error",
-                  message: "Action with this name and description already exists",
+                  message: "Package with this name and description already exists",
                 });
             
                 setProcessing(false);
@@ -722,6 +762,7 @@ export default function Page() {
             initialValues={PackageRewardinitialValues}
             innerRef={createPackageRewardRef}
             onSubmit={onSubmit}
+            
           >
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
@@ -984,7 +1025,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none"
                     name="name"
                     disabled
@@ -998,7 +1039,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="description"
                     disabled
@@ -1012,7 +1053,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="multiplier"
                     disabled
@@ -1066,7 +1107,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none"
                     name="package_id"
                     disabled
@@ -1080,7 +1121,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="reward_id"
                     disabled

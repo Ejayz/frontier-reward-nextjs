@@ -19,7 +19,7 @@ type Element = {
   end_date: string;
   updated_at: string;
   deleted_at: string;
-  is_exist: boolean;
+  is_exist: number;
   removed_date: string;
   id: number;
 };
@@ -148,12 +148,12 @@ export default function Page() {
 
   
   const {
-    data: DataPackageRewardPagination,
-    isFetching: isFetchingPackageRewardPagination,
-    isLoading: isLoadingPackageRewardPagination,
-    refetch: RefetchPackageRewardPagination,
+    data: DataCampaignRewardActionPagination,
+    isFetching: isFetchingCampaignRewardActionPagination,
+    isLoading: isLoadingCampaignRewardActionPagination,
+    refetch: RefetchCampaignRewardActionPagination,
   } = useQuery({
-    queryKey: ["getPackageReward", page],
+    queryKey: ["getCampaignRewardActionReward", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -293,6 +293,23 @@ if (
   setProcessing(false);
   return;
 }
+const isDataExisting = DataCampaignPagination.data.some(
+  (element: Element) =>
+    element.id !== rowDataToEdit?.id &&
+    element.name === values.name &&
+    element.description === values.description &&
+    element.is_exist === 1
+);
+
+if (isDataExisting) {
+  showToast({
+    status: 'error',
+    message: 'Campaign with these updated values already exists',
+  });
+
+  setProcessing(false);
+  return;
+}
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -333,7 +350,7 @@ if (
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchCampaignPagination, editCampaignRef]
+    [setProcessing, showToast,setEditModalOpen, RefetchCampaignPagination, editCampaignRef, rowDataToEdit]
   );
 
   const onSubmit = async (values: any) => {
@@ -526,6 +543,25 @@ if (
   };
   const onSubmitRewardAction = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
+    // Check for existing data
+  const isDataExisting = DataCampaignRewardActionPagination.data.some(
+    (element: RewardActionElement) =>
+      element.reward_id === values.reward_id &&
+      element.action_id === values.action_id &&
+      element.campaign_id === values.campaign_id &&
+      element.is_exist === 1
+  );
+
+  if (isDataExisting) {
+    showToast({
+      status: "error",
+      message: "Reward with this Reward and Action already exists",
+    });
+
+    setEditModalOpen(false);
+    return;
+  }
+
     await CreateCampaignRewardActionhandle(values);
     setEditModalOpen(false);
   };
@@ -554,14 +590,14 @@ if (
   };
 
 
-  const RemovePackageRewardinitialValues = {
+  const RemoveCampaignRewardinitialValues = {
     id: rowDataToEditPR ? rowDataToEditPR.id : 0,
     action_id: rowDataToEditPR ? rowDataToEditPR.action_id : 0,
     reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
     removed_at: new Date(),
     is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
   };
-  const handleRemoveClickPackageReward = (rowData: RewardActionElement) => {
+  const handleRemoveClickCampaignReward = (rowData: RewardActionElement) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEditPR(rowData);
     setRemoveModalOpenRewardAction(false);
@@ -593,9 +629,9 @@ if (
 
         showToast({
           status: "success",
-          message: "Package Reward Deleted Successfully",
+          message: "Campaign Reward Deleted Successfully",
         });
-        RefetchPackageRewardPagination();
+        RefetchCampaignRewardActionPagination();
         setProcessing(false);
         editCampaignRef.current?.resetForm();
         setRemoveModalOpenRewardAction(false);
@@ -613,12 +649,12 @@ if (
       setProcessing,
       showToast,
       setRemoveModalOpenRewardAction,
-      RefetchPackageRewardPagination,
+      RefetchCampaignRewardActionPagination,
       editCampaignRef,
     ]
   );
 
-  const onSubmitRemovePackageReward = async (values: any) => {
+  const onSubmitRemoveCampaignReward = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleRemoveCampaignRewardAction(values);
     setRemoveModalOpenRewardAction(false);
@@ -1053,7 +1089,7 @@ if (
         onChange={() => setAddRewardActionModalOpen(!isAddRewardActionModalOpen)}
         className="modal-toggle" />
       <div className="modal" role="dialog">
-        <div className="modal-box">
+        <div className="modal-box w-11/12 max-w-5xl">
           <form method="dialog">
           <label
               htmlFor="my_modal_10"
@@ -1139,8 +1175,8 @@ if (
                   </ErrorMessage>
                   <Field
                   type="text"
-                  placeholder="Enter Package Name"
-                  className="input input-bordered"
+                  placeholder="Enter Campiagn ID"
+                  className="input input-bordered invisible"
                   name="campaign_id"
                 />
 </div>
@@ -1162,30 +1198,37 @@ if (
                   <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
                     <thead>
                       <tr>
-                        <th>Reward_id</th>
-                        <td>Package_id</td>
+                        <th>Reward ID</th>
+                        <td>Action ID</td>
+                        <td>Quantity</td>
                         <td>Action</td>
                       </tr>
                     </thead>
                     <tbody>
-                      {isFetchingPackageRewardPagination ? (
+                      {isFetchingCampaignRewardActionPagination ? (
                         <tr className="text-center">
                           <td colSpan={3}>Loading...</td>
                         </tr>
                       ) : (
-                        DataPackageRewardPagination.data.map((element: any) => {
+                        DataCampaignRewardActionPagination.data.map((element: any) => {
                           // console.log(element);
+                          const rewardId = DataRewardPagination?.data.find((item: any) => item.id === parseInt(element.reward_id));
+                          const rewardName = rewardId ? rewardId.name : "Unknown"; // Use a default value if not found
+
+                          const ActionID = DataActionPagination?.data.find((item: any) => item.id === parseInt(element.action_id));
+                          const actionName = ActionID ? ActionID.name : "Unknown"; // Use a default value if not found
                           return (
                             <tr key={element.id}>
-                              <td>{element.reward_id}</td>
-                              <td>{element.action_id}</td>
+                              <td>{rewardName}</td>
+                              <td>{actionName}</td>
+                              <td>{element.quantity}</td>
                               <td className="flex">
                                 <div className="flex mx-auto">
                                   <label
                                     className="btn btn-sm btn-error"
                                     htmlFor="my_modal_11"
                                     onClick={() =>
-                                      handleRemoveClickPackageReward(element)
+                                      handleRemoveClickCampaignReward(element)
                                     }
                                   >
                                     <Image
@@ -1225,9 +1268,9 @@ if (
       <div className="modal" role="dialog">
         <div className="modal-box" style={{ width: 400 }}>
           <Formik
-            initialValues={RemovePackageRewardinitialValues}
+            initialValues={RemoveCampaignRewardinitialValues}
             enableReinitialize={true}
-            onSubmit={onSubmitRemovePackageReward}
+            onSubmit={onSubmitRemoveCampaignReward}
           >
             <Form>
               <div className="form-control bg-white">
