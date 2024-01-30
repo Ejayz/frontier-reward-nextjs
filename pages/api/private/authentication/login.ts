@@ -114,7 +114,7 @@ export default async function handler(
       );
     }
     res
-      .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;"`)
+      .setHeader("Set-Cookie", `auth=${token};path=/;max-age=3600;`)
       .status(200)
       .json({
         code: 200,
