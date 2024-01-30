@@ -1176,7 +1176,7 @@ if (isDataExisting) {
                   <Field
                   type="text"
                   placeholder="Enter Campiagn ID"
-                  className="input input-bordered invisible"
+                  className="input input-bordered"
                   name="campaign_id"
                 />
 </div>
@@ -1310,7 +1310,7 @@ if (isDataExisting) {
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
                 <div className="absolute bottom-6 right-6">
-                  <label htmlFor="my_modal_10" className="btn btn-neutral mr-2">
+                  <label htmlFor="my_modal_11" className="btn btn-neutral mr-2">
                     Cancel
                   </label>
                   <button type="submit" className="btn btn-primary">
