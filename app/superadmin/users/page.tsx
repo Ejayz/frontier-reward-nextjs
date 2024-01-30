@@ -1172,7 +1172,7 @@ export default function Page() {
   });
 
   return (
-    <div className="pl-10 z-10">
+    <div className="w-full h-full pl-10">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
 
       <dialog id="my_modal_1" ref={notifModal} className="modal">

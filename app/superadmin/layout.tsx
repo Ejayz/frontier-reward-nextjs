@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { pages } from "next/dist/build/templates/app-page";
+import AdminDashboardNavBar from "@/components/AdminDashboardNavBar";
 
 const queryClient = new QueryClient();
 
@@ -67,19 +68,11 @@ export default function RootLayout({
           theme="light"
         />
         {pageState && inits ? (
-          <main className="min-h-screen">
-            <div>
-              <AdminNavBar></AdminNavBar>
-            </div>
-            <div className="w-full flex flex-row">
-              <AdminSideBar></AdminSideBar>
-              <div className="w-3/4 h-screen overflow-y-hidden">
-                <QueryClientProvider client={queryClient}>
-                  {children}
-                </QueryClientProvider>
-              </div>
-            </div>
-          </main>
+          <QueryClientProvider client={queryClient}>
+            <main className="min-h-screen">
+              <AdminDashboardNavBar child={children}></AdminDashboardNavBar>
+            </main>
+          </QueryClientProvider>
         ) : (
           <Loading></Loading>
         )}
