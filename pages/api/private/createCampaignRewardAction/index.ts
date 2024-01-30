@@ -43,8 +43,8 @@ export default async function handler(
 
     const [results, fields] = <RowDataPacket[]>(
       await connection.query(
-        `INSERT INTO campaign_action_reward_list (quantity,status,action_id,reward_id,employee_id,campaign_id,created_at,is_exist) VALUES (?,?,?,?,?,?,?,?)`,
-        [quantity, "pending", action_id, reward_id, current_user, campaign_id, created_at, 1]
+        `INSERT INTO campaign_action_reward_list (quantity,status,action_id,reward_id,employee_id,campaign_id,is_exist) VALUES (?,?,?,?,?,?,?)`,
+        [quantity, "pending", action_id, reward_id, current_user, campaign_id, 1]
       )
     );
     if (results.affectedRows > 0) { 
