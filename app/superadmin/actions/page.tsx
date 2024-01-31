@@ -164,7 +164,24 @@ export default function Page() {
         setProcessing(false);
         return;
       }
+      const isDataExisting = DataActionPagination.data.some(
+        (element: Element) =>
+          element.id !== rowDataToEdit?.id &&
+          element.name === values.name &&
+          element.description === values.description &&
+          element.is_exist === 1
+      );
   
+      if (isDataExisting) {
+        showToast({
+          status: 'error',
+          message: 'Action with these updated values already exists',
+        });
+  
+        setProcessing(false);
+        return;
+      }
+
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -311,7 +328,6 @@ export default function Page() {
             initialValues={{
               name: "",
               description: "",
-              created_at: new Date(),
             }}
             ref={createActionRef}
             validationSchema={actionValidation}
@@ -322,7 +338,6 @@ export default function Page() {
   const isDataExisting = DataActionPagination.data.some(
     (element: Element) =>
       element.name === values.name && element.description === values.description &&
-  
       element.is_exist === 1
   );
 
@@ -339,7 +354,6 @@ export default function Page() {
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
-                created_at: values.created_at,
               });
               createActionMutation.mutate(bodyContent);
             }}
