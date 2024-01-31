@@ -328,7 +328,6 @@ export default function Page() {
             initialValues={{
               name: "",
               description: "",
-              created_at: new Date(),
             }}
             ref={createActionRef}
             validationSchema={actionValidation}
@@ -355,7 +354,6 @@ export default function Page() {
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
-                created_at: values.created_at,
               });
               createActionMutation.mutate(bodyContent);
             }}

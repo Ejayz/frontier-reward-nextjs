@@ -384,17 +384,18 @@ export default function Page() {
     setEditModalOpen(false);
   };
 
+  
   const PackageRewardinitialValues = {
     package_id: rowDataToEditPR ? rowDataToEditPR.package_id : 0,
     reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
-    created_at: new Date().toLocaleTimeString(),
-
     // ... add other fields as needed ...
   };
-
+  const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: Element) => {
     console.log("Add reward clicked for row:", rowData);
     setRowDataToEditPR(rowData);
+     // Set the separate variable with the package_id
+     setPackageIdToAddReward(rowData.id);
     setAddRewardModalOpen(false);
   };
   const onSubmit = async (values: any) => {
@@ -421,16 +422,16 @@ export default function Page() {
     await CreatePacakgeRewardhandle(values);
     setEditModalOpen(false);
   };
+  
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEditPR) {
       createPackageRewardRef.current?.setValues({
-        package_id: rowDataToEditPR.id,
+        package_id: packageIdToAddReward,  // Use the new variable
         reward_id: rowDataToEditPR.reward_id,
-        created_at: rowDataToEditPR.created_at,
       });
     }
-  }, [rowDataToEditPR]);
+  }, [rowDataToEditPR, packageIdToAddReward]);
 
   const RemoveinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
@@ -513,8 +514,6 @@ export default function Page() {
     removed_at: new Date(),
     is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
   };
-
-  
   const handleRemoveClickPackageReward = (rowData: Element) => {
     console.log("remove clicked for row:", rowData);
     // Set the package_id value in RemovePackageRewardinitialValues
@@ -556,9 +555,7 @@ export default function Page() {
   
         // Reset only the reward_id field using the correct reference
         createPackageRewardRef.current?.setFieldValue('reward_id', '');
-        
-        // Use the correct reference to reset the form
-        createPackageRewardRef.current?.resetForm();
+        removePacakgeRewardRef.current?.resetForm();
   
         setRemoveModalOpenPackageReward(false);
       } catch (error) {
@@ -822,8 +819,8 @@ export default function Page() {
                   <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
                     <thead>
                       <tr>
-                        <th>Reward_id</th>
-                        <td>Package_id</td>
+                        <th>Reward Name</th>
+                        <td>Package Name</td>
                         <td>Action</td>
                       </tr>
                     </thead>

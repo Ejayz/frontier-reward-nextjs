@@ -391,7 +391,6 @@ export default function Page() {
               reward_type_id: "",
               name: "",
               description: "",
-              created_at: new Date(),
             }}
             innerRef={createRewardRef}
             validationSchema={rewardValidation}
@@ -422,7 +421,6 @@ export default function Page() {
                 reward_type_id: values.reward_type_id,
                 name: values.name,
                 description: values.description,
-                created_at: values.created_at,
               });
               createRewardMutation.mutate(bodyContent);
             }}

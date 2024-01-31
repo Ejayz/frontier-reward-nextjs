@@ -42,6 +42,7 @@ export default function Page() {
   const createCampaignRef = useRef<FormikProps<any>>(null);
   const editCampaignRef = useRef<FormikProps<any>>(null);
   const createCampaignRewardRef = useRef<FormikProps<any>>(null);
+  const removeCampaignRewardRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -126,7 +127,7 @@ export default function Page() {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
-      let response = await fetch(`/api/private/getRewards`, {
+      let response = await fetch(`/api/private/getRewardsCampaign`, {
         method: "GET",
         headers: headersList,
       });
@@ -436,7 +437,6 @@ if (isDataExisting) {
   const RewardActioninitialValues = {
     action_id: selectedValueAction || (rowDataToEditPR ? rowDataToEditPR.action_id : 0),
     reward_id: selectedValueReward || (rowDataToEditPR ? rowDataToEditPR.reward_id : 0),
-    created_at: new Date().toLocaleTimeString(),
     campaign_id: rowDataToEditPR ? rowDataToEditPR.id : 0, // Use the correct value here
     quantity: rowDataToEditPR ? rowDataToEditPR.quantity : 0,
   };
@@ -487,8 +487,6 @@ if (isDataExisting) {
         setProcessing(false);
         return;
       }
-  
-  
       try {
 
   
@@ -516,7 +514,9 @@ if (isDataExisting) {
         RefetchActionPagination();
         RefetchRewardPagination();
         setProcessing(false);
-        createCampaignRewardRef.current?.resetForm();
+        createCampaignRewardRef.current?.setFieldValue('action_id', '');
+        createCampaignRewardRef.current?.setFieldValue('reward_id', '');
+        createCampaignRewardRef.current?.setFieldValue('quantity', 0);
         setAddRewardActionModalOpen(true);
       } catch (error) {
         showToast({
@@ -536,9 +536,11 @@ if (isDataExisting) {
       createCampaignRewardRef,
     ]
   );
+  const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: RewardActionElement) => {
     console.log("Add reward clicked for row:", rowData);
     setRowDataToEditPR(rowData);
+    setPackageIdToAddReward(rowData.id);
     setAddRewardActionModalOpen(false);
   };
   const onSubmitRewardAction = async (values: any) => {
@@ -572,12 +574,11 @@ if (isDataExisting) {
         action_id: rowDataToEditPR.action_id,
         reward_id: rowDataToEditPR.reward_id,
         quantity: rowDataToEditPR.quantity,
-        campaign_id: rowDataToEditPR.id,
-        created_at: rowDataToEditPR.created_at,
+        campaign_id: packageIdToAddReward,
       
       });
     }
-  }, [rowDataToEditPR]);
+  }, [rowDataToEditPR, packageIdToAddReward]);
 
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + 1); // Add one day to exclude yesterday
@@ -633,7 +634,10 @@ if (isDataExisting) {
         });
         RefetchCampaignRewardActionPagination();
         setProcessing(false);
-        editCampaignRef.current?.resetForm();
+        createCampaignRewardRef.current?.setFieldValue('action_id', '');
+        createCampaignRewardRef.current?.setFieldValue('reward_id', '');
+        createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+  
         setRemoveModalOpenRewardAction(false);
       } catch (error) {
         showToast({
@@ -650,7 +654,7 @@ if (isDataExisting) {
       showToast,
       setRemoveModalOpenRewardAction,
       RefetchCampaignRewardActionPagination,
-      editCampaignRef,
+      createCampaignRewardRef,
     ]
   );
 
@@ -1211,7 +1215,9 @@ if (isDataExisting) {
                         </tr>
                       ) : (
                         DataCampaignRewardActionPagination.data.map((element: any) => {
-                          // console.log(element);
+                          if (element.campaign_id !== values.campaign_id) {
+                            return null; // Skip rendering for rows with different package_id
+                          }
                           const rewardId = DataRewardPagination?.data.find((item: any) => item.id === parseInt(element.reward_id));
                           const rewardName = rewardId ? rewardId.name : "Unknown"; // Use a default value if not found
 
