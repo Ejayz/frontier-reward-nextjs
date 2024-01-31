@@ -37,7 +37,6 @@ export default async function handler(
       reward_id,
       employee_id,
       campaign_id,
-      created_at,
       is_exist,
     } = req.body;
 

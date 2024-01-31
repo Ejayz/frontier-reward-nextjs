@@ -44,6 +44,7 @@ export default function Page() {
   const createPackageRef = useRef<FormikProps<any>>(null);
   const editPackageRef = useRef<FormikProps<any>>(null);
   const createPackageRewardRef = useRef<FormikProps<any>>(null);
+  const removePacakgeRewardRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -222,12 +223,6 @@ export default function Page() {
   );
   const [rowDataToEditPR, setRowDataToEditPR] = useState<Element | null>(null);
 
-  const handleAddRewardClick = (rowData: Element) => {
-    console.log("PackeReward Edit clicked for row:", rowData);
-    setRowDataToEditPR(rowData);
-    setEditModalOpen(false);
-  };
-
   const CreatePacakgeRewardhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -240,7 +235,7 @@ export default function Page() {
 
       try {
         console.log("the values are: ", values);
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+        const response = await fetch(`/api/private/createPackageReward/`, {
           method: "POST",
 
           body: JSON.stringify(values),
@@ -259,7 +254,8 @@ export default function Page() {
         });
         RefetchPackageRewardPagination();
         setProcessing(false);
-        createPackageRewardRef.current?.resetForm();
+        createPackageRewardRef.current?.setFieldValue('reward_id', '');
+        //createPackageRewardRef.current?.resetForm();
         setAddRewardModalOpen(true);
       } catch (error) {
         showToast({
@@ -301,18 +297,38 @@ export default function Page() {
       setEditModalOpen(false);
        // Check if the name and description remain the same
        if (
-        values.name === rowDataToEdit?.name &&
-        values.description === rowDataToEdit?.description
+        rowDataToEdit &&
+        values.name === rowDataToEdit.name &&
+        values.description === rowDataToEdit.description &&
+        values.multiplier === rowDataToEdit.multiplier
+        // Add other fields as needed
       ) {
         showToast({
           status: 'error',
-          message: 'Package data is the same, no changes made',
+          message: 'No changes detected. Data remains the same.',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        return; // Do not proceed with the update
+      }
+      const isDataExisting = DataPackagesPagination.data.some(
+        (element: PackageElement) =>
+          element.id !== rowDataToEdit?.id &&
+          element.name === values.name &&
+          element.description === values.description &&
+          element.multiplier === Number(values.multiplier) &&
+          element.is_exist === 1
+      );
+  
+      if (isDataExisting) {
+        showToast({
+          status: 'error',
+          message: 'Package with these updated values already exists',
         });
   
         setProcessing(false);
         return;
       }
-  
       const headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
@@ -358,6 +374,7 @@ export default function Page() {
       setEditModalOpen,
       RefetchPackagesPagination,
       editPackageRef,
+      rowDataToEdit,
     ]
   );
 
@@ -366,6 +383,55 @@ export default function Page() {
     await handleUpdatePackage(values);
     setEditModalOpen(false);
   };
+
+  
+  const PackageRewardinitialValues = {
+    package_id: rowDataToEditPR ? rowDataToEditPR.package_id : 0,
+    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
+    // ... add other fields as needed ...
+  };
+  const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
+  const handlegetProduct_idClick = (rowData: Element) => {
+    console.log("Add reward clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+     // Set the separate variable with the package_id
+     setPackageIdToAddReward(rowData.id);
+    setAddRewardModalOpen(false);
+  };
+  const onSubmit = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    
+  // Check for existing data
+  const isDataExisting = DataPackageRewardPagination.data.some(
+    (element: Element) =>
+      element.reward_id === values.reward_id &&
+      element.package_id === values.package_id &&
+      element.is_exist === 1
+  );
+
+  if (isDataExisting) {
+    showToast({
+      status: "error",
+      message: "Reward with this Reward and Package already exists",
+    });
+
+    setEditModalOpen(false);
+    return;
+  }
+
+    await CreatePacakgeRewardhandle(values);
+    setEditModalOpen(false);
+  };
+  
+  useEffect(() => {
+    console.log("Row data updated:", rowDataToEdit);
+    if (rowDataToEditPR) {
+      createPackageRewardRef.current?.setValues({
+        package_id: packageIdToAddReward,  // Use the new variable
+        reward_id: rowDataToEditPR.reward_id,
+      });
+    }
+  }, [rowDataToEditPR, packageIdToAddReward]);
 
   const RemoveinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
@@ -380,7 +446,7 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
-  const handleRemoveAction = useCallback(
+  const handleRemovePackage = useCallback(
     async (values: any) => {
       setProcessing(true);
       setRemoveModalOpen(false);
@@ -409,8 +475,10 @@ export default function Page() {
           message: "Package Deleted Successfully",
         });
         RefetchPackagesPagination();
+        RefetchPackageRewardPagination();
         setProcessing(false);
-        editPackageRef.current?.resetForm();
+        removePacakgeRewardRef.current?.resetForm();
+        createPackageRewardRef.current?.setFieldValue('reward_id', '');
         setRemoveModalOpen(false);
       } catch (error) {
         showToast({
@@ -427,44 +495,17 @@ export default function Page() {
       showToast,
       setRemoveModalOpen,
       RefetchPackagesPagination,
-      editPackageRef,
+      removePacakgeRewardRef,
+      createPackageRef,
+      removePacakgeRewardRef
     ]
   );
-
+    
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleRemoveAction(values);
+    await handleRemovePackage(values);
     setModalOpen(false);
   };
-
-  const PackageRewardinitialValues = {
-    package_id: rowDataToEditPR ? rowDataToEditPR.package_id : 0,
-    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
-    created_at: new Date().toLocaleTimeString(),
-
-    // ... add other fields as needed ...
-  };
-
-  const handlegetProduct_idClick = (rowData: Element) => {
-    console.log("Add reward clicked for row:", rowData);
-    setRowDataToEditPR(rowData);
-    setAddRewardModalOpen(false);
-  };
-  const onSubmit = async (values: any) => {
-    console.log("Edit Form submitted with values:", values);
-    await CreatePacakgeRewardhandle(values);
-    setEditModalOpen(false);
-  };
-  useEffect(() => {
-    console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEditPR) {
-      createPackageRewardRef.current?.setValues({
-        package_id: rowDataToEditPR.id,
-        reward_id: rowDataToEditPR.reward_id,
-        created_at: rowDataToEditPR.created_at,
-      });
-    }
-  }, [rowDataToEditPR]);
 
   const RemovePackageRewardinitialValues = {
     id: rowDataToEditPR ? rowDataToEditPR.id : 0,
@@ -474,7 +515,10 @@ export default function Page() {
     is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
   };
   const handleRemoveClickPackageReward = (rowData: Element) => {
-    console.log("Edit clicked for row:", rowData);
+    console.log("remove clicked for row:", rowData);
+    // Set the package_id value in RemovePackageRewardinitialValues
+    PackageRewardinitialValues.package_id = rowData.package_id;
+  
     setRowDataToEditPR(rowData);
     setRemoveModalOpenPackageReward(false);
   };
@@ -487,7 +531,7 @@ export default function Page() {
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
         "Content-Type": "application/json",
       };
-
+  
       try {
         console.log("the values are: ", values);
         const response = await fetch(`/api/private/removePackageReward/`, {
@@ -495,20 +539,24 @@ export default function Page() {
           body: JSON.stringify(values),
           headers: headersList,
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
-
+  
         showToast({
           status: "success",
           message: "Package Reward Deleted Successfully",
         });
         RefetchPackageRewardPagination();
         setProcessing(false);
-        editPackageRef.current?.resetForm();
+  
+        // Reset only the reward_id field using the correct reference
+        createPackageRewardRef.current?.setFieldValue('reward_id', '');
+        removePacakgeRewardRef.current?.resetForm();
+  
         setRemoveModalOpenPackageReward(false);
       } catch (error) {
         showToast({
@@ -525,15 +573,17 @@ export default function Page() {
       showToast,
       setRemoveModalOpenPackageReward,
       RefetchPackageRewardPagination,
-      editPackageRef,
+      createPackageRewardRef,
     ]
   );
+  
 
   const onSubmitRemovePackageReward = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleRemovePackageReward(values);
     setRemoveModalOpenPackageReward(false);
   };
+ 
 
   return (
     <div className="w-full h-full pl-10">
@@ -582,7 +632,7 @@ export default function Page() {
               if (isDataExisting) {
                 showToast({
                   status: "error",
-                  message: "Action with this name and description already exists",
+                  message: "Package with this name and description already exists",
                 });
             
                 setProcessing(false);
@@ -722,6 +772,7 @@ export default function Page() {
             initialValues={PackageRewardinitialValues}
             innerRef={createPackageRewardRef}
             onSubmit={onSubmit}
+            
           >
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
@@ -747,8 +798,9 @@ export default function Page() {
                 <Field
                   type="text"
                   placeholder="Enter Package Name"
-                  className="input input-bordered invisible"
+                  className="input input-bordered"
                   name="package_id"
+                  disabled
                 />
                 <div className="m-8 ">
                   <div className="">
@@ -767,8 +819,8 @@ export default function Page() {
                   <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
                     <thead>
                       <tr>
-                        <th>Reward_id</th>
-                        <td>Package_id</td>
+                        <th>Reward Name</th>
+                        <td>Package Name</td>
                         <td>Action</td>
                       </tr>
                     </thead>
@@ -779,6 +831,9 @@ export default function Page() {
                         </tr>
                       ) : (
                         DataPackageRewardPagination.data.map((element: any) => {
+                          if (element.package_id !== values.package_id) {
+                            return null; // Skip rendering for rows with different package_id
+                          }
                           const rewardId = DataRewardPagination?.data.find((item: any) => item.id === parseInt(element.reward_id));
                           const rewardName = rewardId ? rewardId.name : "Unknown"; // Use a default value if not found
 
@@ -800,7 +855,7 @@ export default function Page() {
                                     <Image
                                       src="/icons/deleteicon.svg"
                                       width={20}
-                                      height={20}
+                                      height={20} 
                                       alt="Delete Icon"
                                     />
                                     Delete
@@ -814,6 +869,8 @@ export default function Page() {
                     </tbody>
                   </table>
                 </div>
+
+
               </Form>
             )}
           </Formik>
@@ -842,6 +899,7 @@ export default function Page() {
           <h3 className="font-bold text-lg">Edit Package</h3>
           <Formik
             initialValues={UpdateinitialValues}
+            validationSchema={PackageValidation}
             enableReinitialize={true}
             onSubmit={onSubmitEditPackage}
           >
@@ -984,7 +1042,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none"
                     name="name"
                     disabled
@@ -998,7 +1056,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="description"
                     disabled
@@ -1012,7 +1070,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="multiplier"
                     disabled
@@ -1047,9 +1105,10 @@ export default function Page() {
       <div className="modal" role="dialog">
         <div className="modal-box" style={{ width: 400 }}>
           <Formik
-            initialValues={RemovePackageRewardinitialValues}
-            enableReinitialize={true}
-            onSubmit={onSubmitRemovePackageReward}
+              initialValues={RemovePackageRewardinitialValues}
+              enableReinitialize={true}
+              innerRef={removePacakgeRewardRef}
+              onSubmit={onSubmitRemovePackageReward}
           >
             <Form>
               <div className="form-control bg-white">
@@ -1066,7 +1125,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none"
                     name="package_id"
                     disabled
@@ -1080,7 +1139,7 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="reward_id"
                     disabled

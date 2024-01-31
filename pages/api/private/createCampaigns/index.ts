@@ -29,7 +29,7 @@ export default async function handler(
       res.status(401).json({ code:401,message: "Invalid token format" })
     }
 
-    const { name, description,start_date,end_date,status, package_id,employee_id, created_at, updated_at,removed_at, is_exist } = req.body;
+    const { name, description,start_date,end_date,status, package_id,employee_id, is_exist } = req.body;
     try {
       const [results,fields] =<RowDataPacket[]> await connection.query(`INSERT INTO campaign (name,description,start_date,end_date,status,package_id,employee_id,is_exist) VALUES (?,?,?,?,?,?,?,?)`
       , [name,description,new Date(start_date).toISOString().slice(0, 19).replace('T', ' '),new Date(end_date).toISOString().slice(0, 19).replace('T', ' '),"active",package_id,current_user,1])
