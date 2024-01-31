@@ -27,7 +27,7 @@ export default async function handler(
     const skip = (reqQuery - 1) * 10;
     const take = 10;
     const [packagesResult, packagesFields] = await connection.query(
-  `SELECT * FROM campaign_action_reward_list WHERE is_exist = 1 AND ORDER BY id DESC LIMIT ?,?`,
+  `SELECT * FROM campaign_action_reward_list WHERE is_exist = 1 ORDER BY id DESC LIMIT ?,?`,
   [skip, take]
 );
     return res.status(200).json({ code: 200, data: packagesResult });

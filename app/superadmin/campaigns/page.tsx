@@ -1180,7 +1180,7 @@ if (isDataExisting) {
                   <Field
                   type="text"
                   placeholder="Enter Campiagn ID"
-                  className="input input-bordered"
+                  className="input input-bordered invisible"
                   name="campaign_id"
                 />
 </div>

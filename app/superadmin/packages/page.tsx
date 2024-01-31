@@ -798,9 +798,8 @@ export default function Page() {
                 <Field
                   type="text"
                   placeholder="Enter Package Name"
-                  className="input input-bordered"
+                  className="input input-bordered invisible"
                   name="package_id"
-                  disabled
                 />
                 <div className="m-8 ">
                   <div className="">
@@ -1045,7 +1044,7 @@ export default function Page() {
                     placeholder="Enter Package Name"
                     className="input border-none"
                     name="name"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex mb-5">
@@ -1059,7 +1058,7 @@ export default function Page() {
                     placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="description"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex">
@@ -1073,7 +1072,7 @@ export default function Page() {
                     placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="multiplier"
-                    disabled
+                    readOnly
                   />
                 </div>
               </div>
@@ -1128,7 +1127,7 @@ export default function Page() {
                     placeholder="Enter Package Name"
                     className="input border-none"
                     name="package_id"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex mb-5">
@@ -1142,7 +1141,7 @@ export default function Page() {
                     placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="reward_id"
-                    disabled
+                    readOnly
                   />
                 </div>
               </div>
