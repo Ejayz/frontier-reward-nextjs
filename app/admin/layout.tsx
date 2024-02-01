@@ -4,15 +4,15 @@ import "../globals.css";
 import cookie_processor from "@/hooks/useCookieProcessor";
 import { useRouter } from "next/navigation";
 import "react";
-import AdminSideBar from "@/components/AdminSideBar";
-import AdminNavBar from "@/components/AdminNavBar";
+import AdminSideBar from "@/components/AdminsSideBar";
+import AdminNavBar from "@/components/AdminsNavBar";
 import Loading from "./loading";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { pages } from "next/dist/build/templates/app-page";
-import AdminDashboardNavBar from "@/components/AdminDashboardNavBar";
+import AdminsDashboardNavBar from "@/components/AdminsDashboardNavBar";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +70,7 @@ export default function RootLayout({
         {pageState && inits ? (
           <QueryClientProvider client={queryClient}>
             <main className="min-h-screen">
-              <AdminDashboardNavBar child={children}></AdminDashboardNavBar>
+              <AdminsDashboardNavBar child={children}></AdminsDashboardNavBar>
             </main>
           </QueryClientProvider>
         ) : (
