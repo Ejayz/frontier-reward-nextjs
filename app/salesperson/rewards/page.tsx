@@ -322,7 +322,7 @@ export default function Page() {
   };  
 
   return (
-    <div className="pl-10">
+    <div className="w-full h-full pl-10">
       {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
       </label> */}

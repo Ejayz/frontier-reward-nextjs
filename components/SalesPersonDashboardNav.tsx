@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function AdminDashboardNavBar({
+export default function SalesPersonDashboardNav({
   child,
 }: Readonly<{
   child: React.ReactNode;
@@ -174,13 +174,13 @@ export default function AdminDashboardNavBar({
               {/* Sidebar content here */}
               <li
                 className={`${
-                  navbarActive?.includes("/superadmin/dashboard")
+                  navbarActive?.includes("/salesperson/dashboard")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
-                  href={"/superadmin/dashboard"}
+                  href={"/salesperson/dashboard"}
                   className="text-2xl font-bold"
                 >
                   <Image
@@ -195,118 +195,13 @@ export default function AdminDashboardNavBar({
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/superadmin/actions")
+                  navbarActive?.includes("/salesperson/transactions")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
-                  href={"/superadmin/actions"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/actions.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />{" "}
-                  Actions
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/superadmin/packages")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/superadmin/packages"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/packages.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Packages
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/superadmin/rewards")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/superadmin/rewards"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/rewards.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Rewards
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/superadmin/campaigns")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/superadmin/campaigns"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/campaigns.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Campaigns
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/superadmin/redeem")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/superadmin/redeem"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/redeem-points.png"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />{" "}
-                  Redeem
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/superadmin/transactions")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/superadmin/transactions"}
+                  href={"/salesperson/transactions"}
                   className="text-2xl font-bold"
                 >
                   <Image
@@ -321,12 +216,141 @@ export default function AdminDashboardNavBar({
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/superadmin/users")
+                  navbarActive?.includes("/salesperson/packages")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
-                <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+                <Link
+                  href={"/salesperson/packages"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/icons/packages.svg"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Packages
+                </Link>
+              </li>
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/customer")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/customer"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/icons/rating.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />{" "}
+                  Customer
+                </Link>
+              </li>
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/campaigns")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/campaigns"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/icons/campaigns.svg"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Campaigns
+                </Link>
+              </li>
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/actions")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/actions"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/icons/actions.svg"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />{" "}
+                  Actions
+                </Link>
+              </li>
+             
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/rewards")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/rewards"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/icons/rewards.svg"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Rewards
+                </Link>
+              </li>
+             
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/redeem")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/redeem"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/icons/redeem-points.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />{" "}
+                  Redeem
+                </Link>
+              </li>
+              
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/users")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link className="text-2xl font-bold" href={"/salesperson/users"}>
                   <Image
                     src="/icons/users.svg"
                     className="mr-2"
@@ -339,14 +363,14 @@ export default function AdminDashboardNavBar({
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/superadmin/settings")
+                  navbarActive?.includes("/salesperson/settings")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
                   className="text-2xl font-bold"
-                  href={"/superadmin/settings"}
+                  href={"/salesperson/settings"}
                 >
                   <Image
                     src="/icons/settings.png"
@@ -371,12 +395,12 @@ export default function AdminDashboardNavBar({
         <ul className="menu p-4 w-80 min-h-full bg-base-200">
           <li
             className={`${
-              navbarActive?.includes("/superadmin/dashboard")
+              navbarActive?.includes("/salesperson/dashboard")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/superadmin/dashboard"} className="text-2xl font-bold">
+            <Link href={"/salesperson/dashboard"} className="text-2xl font-bold">
               <Image
                 src="/icons/dashboard.svg"
                 className="mr-2"
@@ -389,12 +413,12 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/actions")
+              navbarActive?.includes("/salesperson/actions")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/superadmin/actions"} className="text-2xl font-bold">
+            <Link href={"/salesperson/actions"} className="text-2xl font-bold">
               <Image
                 src="/icons/actions.svg"
                 className="mr-2"
@@ -407,12 +431,12 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/packages")
+              navbarActive?.includes("/salesperson/packages")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/superadmin/packages"} className="text-2xl font-bold">
+            <Link href={"/salesperson/packages"} className="text-2xl font-bold">
               <Image
                 src="/icons/packages.svg"
                 className="mr-2"
@@ -425,12 +449,12 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/rewards")
+              navbarActive?.includes("/salesperson/rewards")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/superadmin/rewards"} className="text-2xl font-bold">
+            <Link href={"/salesperson/rewards"} className="text-2xl font-bold">
               <Image
                 src="/icons/rewards.svg"
                 className="mr-2"
@@ -443,12 +467,12 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/campaigns")
+              navbarActive?.includes("/salesperson/campaigns")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/superadmin/campaigns"} className="text-2xl font-bold">
+            <Link href={"/salesperson/campaigns"} className="text-2xl font-bold">
               <Image
                 src="/icons/campaigns.svg"
                 className="mr-2"
@@ -461,12 +485,12 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/redeem")
+              navbarActive?.includes("/salesperson/redeem")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/superadmin/redeem"} className="text-2xl font-bold">
+            <Link href={"/salesperson/redeem"} className="text-2xl font-bold">
               <Image
                 src="/icons/redeem-points.png"
                 className="mr-2"
@@ -479,13 +503,13 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/transactions")
+              navbarActive?.includes("/salesperson/transactions")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
             <Link
-              href={"/superadmin/transactions"}
+              href={"/salesperson/transactions"}
               className="text-2xl font-bold"
             >
               <Image
@@ -500,12 +524,12 @@ export default function AdminDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/superadmin/users")
+              navbarActive?.includes("/salesperson/users")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+            <Link className="text-2xl font-bold" href={"/salesperson/users"}>
               <Image
                 src="/icons/users.svg"
                 className="mr-2"

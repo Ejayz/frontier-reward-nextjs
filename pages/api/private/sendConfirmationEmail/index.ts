@@ -99,7 +99,7 @@ export default async function handler(
     const { data, error } = await resend.emails.send({
       from: "noreply@pointandperks <noreply@sledgehammerdevelopmentteam.uk>",
       to: [email],
-      subject: "Confirm Email",
+      subject: "Confirm Email - Points and Perks",
       react: ConfirmEmail({
         first_name: first_name,
         last_name: last_name,

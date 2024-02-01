@@ -34,14 +34,13 @@ export default async function handler(
     address2,
     state_province,
     points,
-    suffix
+    suffix,
   } = req.body;
 
   const resend = new Resend(RESEND_API);
   const auth = new Cookies(req, res).get("auth") || "";
   const connection = await instance.getConnection();
   try {
-    
     const verify = jwt.verify(auth, JWT_SECRET);
     let current_user = 0;
     if (typeof verify === "string") {
@@ -49,7 +48,9 @@ export default async function handler(
     } else if (verify?.main_id) {
       current_user = verify.main_id;
     } else {
-      return res.status(401).json({ code: 401, message: "Invalid token format" });
+      return res
+        .status(401)
+        .json({ code: 401, message: "Invalid token format" });
     }
     const password = generator.generate({
       length: 10,
@@ -60,85 +61,150 @@ export default async function handler(
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const transaction = await connection.beginTransaction();
+    const [getUsers, fields] = <RowDataPacket[]>(
+      await connection.query(
+        "SELECT * FROM users WHERE email = ? and is_exist=1",
+        [email]
+      )
+    );
 
+    if (getUsers.length > 0) {
+      connection.rollback();
+      return res
+        .status(400)
+        .json({ code: 400, message: "Email already exist" });
+    }
 
-    const transaction=  await  connection.beginTransaction();
-      const [getUsers,fields] =<RowDataPacket[]>await connection.query("SELECT * FROM users WHERE email = ? and is_exist=1", [ email ]);
-     
-        if (getUsers.length > 0) {
-          connection.rollback();
-          return res
-            .status(400)
-            .json({ code: 400, message: "Email already exist" });
-        }
+    for (const vehicle of vehicles) {
+      const [getVehicle, fields] = <RowDataPacket[]>(
+        await connection.query(
+          "SELECT * FROM customer_vehicle_info WHERE vin_id = ? and is_exist=1",
+          [vehicle.vin_no]
+        )
+      );
+      if (getVehicle.length > 0) {
+        connection.rollback();
+        return res
+          .status(400)
+          .json({ code: "400", message: "Vehicle already exist" });
+      }
+    }
 
-        for (const vehicle of vehicles) {
-          const [getVehicle,fields]=  <RowDataPacket[]>await connection.query("SELECT * FROM customer_vehicle_info WHERE vin_id = ? and is_exist=1", [ vehicle.vin_no ]);
-          if (getVehicle.length > 0) {
-            connection.rollback();
-            return res
-              .status(400)
-              .json({ code: "400", message: "Vehicle already exist" });
-          }
-        }
-
-        const [results,insertUser] = <RowDataPacket[]>await connection.query(`INSERT INTO users (email, password, phone_number, user_type, is_exist) VALUES (?,?,?,?,?)`, [email, hashedPassword, phoneNumber, 4, 1]);
-        if(results.affectedRows==0){
-          connection.rollback();
-          return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
-        }
-        console.log("insertUser:", results);
-        const processedVehicles = await formatVehicle(vehicles, results.insertId);      
-        const [insertCustomerAddressResult,insertCustomerAddressFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_address (country, city, zip_code, address_1, address_2, state_province) VALUES (?,?,?,?,?,?)`, [country, city, zipCode, address, address2, state_province]); 
-
-        if(insertCustomerAddressResult.affectedRows==0){
-          connection.rollback();
-          return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
-        }
-
-        const [insertCustomerInfoResult,insertCustomerInfoFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_info (first_name, middle_name, last_name, points, suffix, user_id, address_id, package_id, employee_id) VALUES (?,?,?,?,?,?,?,?,?)`, [firstName, middleName, lastName, points, suffix, results.insertId, insertCustomerAddressResult.insertId, packageId, current_user]);
-        if(insertCustomerInfoResult.affectedRows==0){
-          connection.rollback();
-          return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
-        }
-          for (const vehicle of processedVehicles) {
-            const [insertCustomerVehicleInfoResult,insertCustomerVehicleInfoFields]= <RowDataPacket[]>await connection.query(`INSERT INTO customer_vehicle_info (customer_info_id, color, trim, year, vin_id,model) VALUES (?,?,?,?,?,?)`, [insertCustomerInfoResult.insertId, vehicle.color, vehicle.trim, vehicle.year, vehicle.vin_no,vehicle.model]);
-            if(insertCustomerVehicleInfoResult.affectedRows==0){
-              connection.rollback();
-              return res.status(400).json({ code: 400, message: "Something went wrong. Please try again later." });
-            }
-        }
-
-       const data = await resend.emails.send({
-          from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
-          to: [email],
-          subject: "Welcome to Perks and Points",
-          react: AccountCreation({
-            first_name: firstName ,
-            last_name: lastName,
-            password: password,
-            email: email,
-            base_url: "https://perksandpoints.com/",
-          }),
-          text: `Welcome to Perks and Points!`,
+    const [results, insertUser] = <RowDataPacket[]>(
+      await connection.query(
+        `INSERT INTO users (email, password, phone_number, user_type, is_exist) VALUES (?,?,?,?,?)`,
+        [email, hashedPassword, phoneNumber, 4, 1]
+      )
+    );
+    if (results.affectedRows == 0) {
+      connection.rollback();
+      return res
+        .status(400)
+        .json({
+          code: 400,
+          message: "Something went wrong. Please try again later.",
         });
-        
-        if(data){
-          connection.commit();
-          return res.status(200).json({
-            code: 200,
-            message:
-              "Kindly remind the newly created account holder to check their email for login credentials.",
-          });
-        }else{
-          return res.status(400).json({
+    }
+    console.log("insertUser:", results);
+    const processedVehicles = await formatVehicle(vehicles, results.insertId);
+    const [insertCustomerAddressResult, insertCustomerAddressFields] = <
+      RowDataPacket[]
+    >await connection.query(
+      `INSERT INTO customer_address (country, city, zip_code, address_1, address_2, state_province) VALUES (?,?,?,?,?,?)`,
+      [country, city, zipCode, address, address2, state_province]
+    );
+
+    if (insertCustomerAddressResult.affectedRows == 0) {
+      connection.rollback();
+      return res
+        .status(400)
+        .json({
+          code: 400,
+          message: "Something went wrong. Please try again later.",
+        });
+    }
+
+    const [insertCustomerInfoResult, insertCustomerInfoFields] = <
+      RowDataPacket[]
+    >await connection.query(
+      `INSERT INTO customer_info (first_name, middle_name, last_name, points, suffix, user_id, address_id, package_id, employee_id) VALUES (?,?,?,?,?,?,?,?,?)`,
+      [
+        firstName,
+        middleName,
+        lastName,
+        points,
+        suffix,
+        results.insertId,
+        insertCustomerAddressResult.insertId,
+        packageId,
+        current_user,
+      ]
+    );
+    if (insertCustomerInfoResult.affectedRows == 0) {
+      connection.rollback();
+      return res
+        .status(400)
+        .json({
+          code: 400,
+          message: "Something went wrong. Please try again later.",
+        });
+    }
+    for (const vehicle of processedVehicles) {
+      const [insertCustomerVehicleInfoResult, insertCustomerVehicleInfoFields] =
+        <RowDataPacket[]>(
+          await connection.query(
+            `INSERT INTO customer_vehicle_info (customer_info_id, color, trim, year, vin_id,model) VALUES (?,?,?,?,?,?)`,
+            [
+              insertCustomerInfoResult.insertId,
+              vehicle.color,
+              vehicle.trim,
+              vehicle.year,
+              vehicle.vin_no,
+              vehicle.model,
+            ]
+          )
+        );
+      if (insertCustomerVehicleInfoResult.affectedRows == 0) {
+        connection.rollback();
+        return res
+          .status(400)
+          .json({
             code: 400,
-            message:
-              "Something went wrong. Please try again later.",
+            message: "Something went wrong. Please try again later.",
           });
-        }
+      }
+    }
+    const base_url = `https://${req.headers.host}/`;
+    const data = await resend.emails.send({
+      from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
+      to: [email],
+      subject: "Welcome to Perks and Points",
+      react: AccountCreation({
+        first_name: firstName,
+        last_name: lastName,
+        password: password,
+        email: email,
+        base_url: base_url,
+      }),
+      text: `Welcome to Perks and Points!`,
+    });
+
+    if (data) {
+      connection.commit();
+      return res.status(200).json({
+        code: 200,
+        message:
+          "Kindly remind the newly created account holder to check their email for login credentials.",
+      });
+    } else {
+      return res.status(400).json({
+        code: 400,
+        message: "Something went wrong. Please try again later.",
+      });
+    }
   } catch (error: any) {
-    console.log("error",error) 
+    console.log("error", error);
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ code: 401, message: "Token Expired" });
     } else if (error.name === "JsonWebTokenError") {
@@ -148,16 +214,14 @@ export default async function handler(
     } else {
       return res.status(500).json({ code: 500, message: error.message });
     }
-
-
   } finally {
-  await  connection.release();
+    await connection.release();
   }
 }
 
 function formatVehicle(data: any, user_id: any) {
   const newArray = data.map((vehicle: any) => {
-    const {  year, model, trim, color, vin_no } = vehicle;
+    const { year, model, trim, color, vin_no } = vehicle;
     const vehicleInfo = {
       year,
       model,
