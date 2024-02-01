@@ -1053,7 +1053,7 @@ if (isDataExisting) {
                   placeholder="Enter Campaign Name"
                   className="input border-none"
                   name="name"
-                  disabled />
+                  readOnly />
                 </div>
                 <div className="flex">
                 <label className="label">
@@ -1066,7 +1066,7 @@ if (isDataExisting) {
                   placeholder="Enter Campaign Name"
                   className="input border-none text-black"
                   name="description"
-                  disabled />
+                  readOnly />
                 </div>
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
@@ -1296,7 +1296,7 @@ if (isDataExisting) {
                     placeholder="Enter Action Name"
                     className="input border-none"
                     name="reward_id"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex mb-5">
@@ -1310,7 +1310,7 @@ if (isDataExisting) {
                     placeholder="Enter Action Name"
                     className="input border-none text-black"
                     name="action_id"
-                    disabled
+                    readOnly
                   />
                 </div>
               </div>

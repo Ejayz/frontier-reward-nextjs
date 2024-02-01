@@ -726,7 +726,7 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Name"
                   className="input border-none"
                   name="name"
-                  disabled />
+                  readOnly />
                 </div>
                 <div className="flex">
                 <label className="label">
@@ -739,7 +739,7 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Name"
                   className="input border-none text-black"
                   name="description"
-                  disabled />
+                  readOnly />
                 </div>
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
