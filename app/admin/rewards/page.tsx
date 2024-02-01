@@ -28,22 +28,22 @@ export default function Page() {
   const myDiv = document.getElementById("mydiv");
 
   const [processing, setProcessing] = useState(false);
-  const createActionRef = useRef<FormikProps<any>>(null);
-  const editActionRef = useRef<FormikProps<any>>(null);
+  const createRewardRef = useRef<FormikProps<any>>(null);
+  const editRewardRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
   useEffect(() => {
-    RefetchRewardsPagination();
+    RefetchRewardPagination();
   }, [page]);
 
   const {
     data: DataRewardPagination,
-    isFetching: isFetchingRewardsPagination,
-    isLoading: isLoadingRewardsPagination,
-    refetch: RefetchRewardsPagination,
+    isFetching: isFetchingRewardPagination,
+    isLoading: isLoadingRewardPagination,
+    refetch: RefetchRewardPagination,
   } = useQuery({
-    queryKey: ["getActionsPagination", page],
+    queryKey: ["getRewardsPagination", page],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -102,7 +102,7 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
-  const createRewardsMutation = useMutation({
+  const createRewardMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
         Accept: "*/*",
@@ -121,7 +121,7 @@ export default function Page() {
     onSuccess: async (data: any) => {
       setPage(1);
       queryClient.invalidateQueries({
-        queryKey: ["getActionsPagination"],
+        queryKey: ["getRewardsPagination"],
       });
       console.log(data);
 
@@ -130,9 +130,9 @@ export default function Page() {
         message: "Reward Created Successfully",
       });
 
-      RefetchRewardsPagination();
+      RefetchRewardPagination();
       setProcessing(false);
-      createActionRef.current?.resetForm();
+      createRewardRef.current?.resetForm();
       setModalOpen(false);
     },
     onError: async (error: any) => {
@@ -152,7 +152,7 @@ export default function Page() {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setRemoveModalOpen] = useState(false);
 
-  const actionValidation = yup.object().shape({
+  const rewardValidation = yup.object().shape({
     reward_type_id: yup.string().required("Type is required"),
     quantity: yup.number().required("Quantity is required"),
     name: yup.string().required("Name is required"),
@@ -182,6 +182,41 @@ export default function Page() {
     async (values: any) => {
       setProcessing(true);
       setEditModalOpen(false);
+    // Check if the name and description remain the same
+    if (
+      rowDataToEdit &&
+      values.name === rowDataToEdit.name &&
+      values.description === rowDataToEdit.description &&
+      values.quantity === rowDataToEdit.quantity &&
+      values.reward_type_id === rowDataToEdit.reward_type_id
+      // Add other fields as needed
+    ) {
+      showToast({
+        status: 'error',
+        message: 'No changes detected. Data remains the same.',
+      });
+      setProcessing(false);
+      setEditModalOpen(false);
+      return; // Do not proceed with the update
+    }
+    const isDataExisting = DataRewardPagination.data.some(
+      (element: Element) =>
+        element.id !== rowDataToEdit?.id &&
+        element.name === values.name &&
+        element.description === values.description &&
+        element.reward_type_id === Number(values.reward_type_id) &&
+        element.is_exist === 1
+    );
+
+    if (isDataExisting) {
+      showToast({
+        status: 'error',
+        message: 'Reward with these updated values already exists',
+      });
+
+      setProcessing(false);
+      return;
+    }
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -208,9 +243,9 @@ export default function Page() {
           message: 'Reward Updated Successfully',
         
         });
-        RefetchRewardsPagination();
+        RefetchRewardPagination();
         setProcessing(false);
-        editActionRef.current?.resetForm();
+        editRewardRef.current?.resetForm();
         setEditModalOpen(false);
       } catch (error) {
         showToast({
@@ -222,20 +257,18 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchRewardsPagination, editActionRef]
+    [setProcessing, showToast,setEditModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit]
   );
-
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateReward(values);
     setEditModalOpen(false);  
   };  
 
-
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEdit) {
-      createActionRef.current?.setValues({
+      createRewardRef.current?.setValues({
         name: rowDataToEdit.name,
         description: rowDataToEdit.description,
         quantity: rowDataToEdit.quantity,
@@ -245,13 +278,17 @@ export default function Page() {
     }
   }, [rowDataToEdit]);
 
-  const [selectedValue, setSelectedValue] = useState("");
-  const handleSelectChange = (event: any) => {
-    const newValue = event.target.value;
-    console.log(newValue);
-    setSelectedValue(newValue);
-    createActionRef.current?.setFieldValue("reward_type_id", newValue);
-  };
+  useEffect(() => {
+    console.log("Row data updated for edit:", rowDataToEdit);
+    if (rowDataToEdit) {
+      editRewardRef.current?.setValues({
+        name: rowDataToEdit.name,
+        description: rowDataToEdit.description,
+        quantity: rowDataToEdit.quantity,
+        reward_type_id: rowDataToEdit.reward_type_id,
+      });
+    }
+  }, [rowDataToEdit]);
 
 
   
@@ -268,7 +305,7 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
-  const handleRemoveAction = useCallback(
+  const handleRemoveReward = useCallback(
     async (values: any) => {
       setProcessing(true);
       setRemoveModalOpen(false);
@@ -297,9 +334,9 @@ export default function Page() {
           message: 'Reward Deleted Successfully',
         
         });
-        RefetchRewardsPagination();
+        RefetchRewardPagination();
         setProcessing(false);
-        editActionRef.current?.resetForm();
+        editRewardRef.current?.resetForm();
         setRemoveModalOpen(false);
       } catch (error) {
         showToast({
@@ -311,23 +348,23 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardsPagination, editActionRef]
+    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit]
   );
 
   
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleRemoveAction(values);
+    await handleRemoveReward(values);
     setModalOpen(false);  
   };  
 
   return (
-    <div className="pl-10">
-      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
+    <div className="w-full h-full pl-10">
+      <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
-      </label> */}
+      </label>
       {/* add modal */}
-      {/* <input
+      <input
         type="checkbox"
         id="my_modal_6"
         className="modal-toggle"
@@ -345,28 +382,32 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">Add Reward</h3>
+          {/* {isLoadingRewardTypePagination ? (
+    <p>Loading...</p>
+  ) : ( */}
           <Formik
             initialValues={{
               quantity: "",
               reward_type_id: "",
               name: "",
               description: "",
-              created_at: new Date(),
             }}
-            innerRef={createActionRef}
-            validationSchema={actionValidation}
+            innerRef={createRewardRef}
+            validationSchema={rewardValidation}
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
-              const isDataExisting = DataActionPagination.data.some(
+              const isDataExisting = DataRewardPagination.data.some(
                 (element: Element) =>
-                  element.name === values.name && element.description === values.description
+                  element.name === values.name && element.description === values.description &&
+                  element.is_exist === 1 &&
+                  element.reward_type_id === Number(values.reward_type_id)
               );
             
               if (isDataExisting) {
                 showToast({
                   status: "error",
-                  message: "Action with this name and description already exists",
+                  message: "Reward with this name and description already exists",
                 });
             
                 setProcessing(false);
@@ -380,9 +421,8 @@ export default function Page() {
                 reward_type_id: values.reward_type_id,
                 name: values.name,
                 description: values.description,
-                created_at: values.created_at,
               });
-              createActionMutation.mutate(bodyContent);
+              createRewardMutation.mutate(bodyContent);
             }}
           >
             {({ errors, touched, values, setFieldValue }) => (
@@ -391,7 +431,12 @@ export default function Page() {
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
                   id=""
-                  onChange={handleSelectChange}
+                  onChange={(event) => {
+                    const selectedValue = event.target.value;
+                    console.log("the value is: ",selectedValue);
+                    const selectedValueAsInt = parseInt(selectedValue, 10);
+                    setFieldValue('reward_type_id', selectedValueAsInt);
+                  }}
                   value={values.reward_type_id}
                 >
                   <option disabled value="">
@@ -496,8 +541,9 @@ export default function Page() {
               </Form>
             )}
           </Formik>
+          {/* )} */}
         </div>
-      </div> */}
+      </div>
 
       {/* edit modal */}
        <input
@@ -517,21 +563,27 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">View Reward</h3>
+          <h3 className="font-bold text-lg">Edit Reward</h3>
        
           <Formik
 initialValues={UpdateinitialValues}
 enableReinitialize={true}
+innerRef={editRewardRef}
+validationSchema={rewardValidation}
 onSubmit={onSubmit}>
    {({ errors, touched, values, setFieldValue }) => (
            <Form>
-                <select
+  <select
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
                   id=""
-                  onChange={handleSelectChange}
+                  onChange={(event) => {
+                    const selectedValue = event.target.value;
+                    console.log("the value is: ",selectedValue);
+                    const selectedValueAsInt = parseInt(selectedValue, 10);
+                    setFieldValue('reward_type_id', selectedValueAsInt);
+                  }}
                   value={values.reward_type_id}
-                  disabled
                 >
                   <option disabled value="">
                     Select Reward Type
@@ -552,7 +604,6 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Quantity"
                   className="input input-bordered"
                   name="quantity"
-                  readOnly
                 />
                 <ErrorMessage name="quantity" className="flex">
                   {(msg) => (
@@ -579,7 +630,6 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Name"
                   className="input input-bordered"
                   name="name"
-                  readOnly
                 />
                 <ErrorMessage name="name" className="flex">
                   {(msg) => (
@@ -606,7 +656,6 @@ onSubmit={onSubmit}>
                   placeholder="Enter Reward Description"
                   className="input input-bordered"
                   name="description"
-                  readOnly
                 />
           
                 <ErrorMessage name="description" className="flex">
@@ -629,8 +678,11 @@ onSubmit={onSubmit}>
                       htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
                     >
-                      Back
+                      Cancel
                     </label>
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
                   </div>
                 </div>
               </Form>
@@ -642,7 +694,7 @@ onSubmit={onSubmit}>
         {/* remove modal */}
         
 {/* delete modal */}
-{/* <input type="checkbox" id="my_modal_8"
+<input type="checkbox" id="my_modal_8"
  checked={isRemoveModalOpen}
         onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
         className="modal-toggle" />
@@ -671,10 +723,10 @@ onSubmit={onSubmit}>
                 </label>
                 <Field
                   type="text"
-                  placeholder="Enter Action Name"
+                  placeholder="Enter Reward Name"
                   className="input border-none"
                   name="name"
-                  disabled />
+                  readOnly />
                 </div>
                 <div className="flex">
                 <label className="label">
@@ -684,10 +736,10 @@ onSubmit={onSubmit}>
                 </label>
                 <Field
                   type="text"
-                  placeholder="Enter Action Name"
+                  placeholder="Enter Reward Name"
                   className="input border-none text-black"
                   name="description"
-                  disabled />
+                  readOnly />
                 </div>
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
@@ -706,7 +758,7 @@ onSubmit={onSubmit}>
             </Form>
           </Formik>
         </div>
-      </div> */}
+      </div>
       <div className="overflow-x-auto mt-5 text-black">
         <table className="table  text-base font-semibold text-center">
           {/* head */}
@@ -720,15 +772,14 @@ onSubmit={onSubmit}>
             </tr>
           </thead>
           <tbody>
-            {isFetchingRewardsPagination ? (
+            {isFetchingRewardPagination ? (
               <tr className="text-center">
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
               DataRewardPagination.data.map((element: any) => {
                 const rewardType = DataRewardTypePagination?.data.find((item: any) => item.id === parseInt(element.reward_type_id));
-                const rewardTypeName = rewardType ? rewardType.name : "Unknown"; // Use a default value if not found
-               
+               const rewardTypeName = rewardType ? rewardType.name : "Unknown"; // Use a default value if not found
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
@@ -749,9 +800,19 @@ onSubmit={onSubmit}>
                             height={20}
                             alt="Edit Icon"
                           />
-                          View
+                          Edit
                         </label>
-                       
+                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
+                        onClick={() => handleRemoveClick(element)}
+                        >
+                          <img
+                            src="../icons/deleteicon.svg"
+                            width={20}
+                            height={20}
+                            alt="Delete Icon"
+                          />
+                          Delete
+                        </label>
                       </div>
                     </td>
                   </tr>
@@ -774,7 +835,7 @@ onSubmit={onSubmit}>
               «
             </button>
             <button className="join-item btn">
-              {isFetchingRewardsPagination ? (
+              {isFetchingRewardPagination ? (
                 <span className="loading loading-dots loading-md"></span>
               ) : (
                 `Page ${page}`
