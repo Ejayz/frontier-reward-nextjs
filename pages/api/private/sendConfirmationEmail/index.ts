@@ -14,24 +14,23 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const cookies = new Cookies(req, res).get("auth");
+  const cookies = new Cookies(req, res).get("auth") || "";
 
   if (cookies === undefined) {
     res.status(401).json({ code: 401, message: "Unauthorized" });
     return;
   }
-  const user_token = jwt.decode(cookies);
-  console.log(user_token);
+  const user_token = jwt.decode(cookies) || "";
+  console.log(user_token)
   if (typeof user_token == "string") {
     return res.status(401).json({ code: 401, message: "Invalid Token" });
   }
-  if (user_token?.exp && user_token?.exp > Date.now() / 1000) {
-    return res.status(401).json({
-      message:
-        "A verification email was sent recently . Please check your email or spam folder. You can get another verification email when previous email expire.Verification email has 15 minutes validity. ",
-    });
+  if (user_token == undefined) {
+    return res.status(401).json({ code: 401, message: "Invalid Token" });
   }
-  if (user_token?.token) {
+
+  if (user_token?.code) {
+    console.log("Trigger 1");
     if (jwt.verify(user_token?.code || "", JWT_SECRET)) {
       return res.status(401).json({
         code: 401,
@@ -62,16 +61,20 @@ export default async function handler(
         .status(401)
         .json({ code: 401, message: "Email Already Verified" });
     }
+
     const currentTimestamp = Date.now() / 1000;
-    const decoded = await jwt.decode(UserAccountResult[0].code);
-    if (typeof decoded == "string") {
-    } else if (decoded?.exp === undefined) {
-    } else if (decoded?.exp > currentTimestamp) {
-      return res.status(401).json({
-        code: 401,
-        message:
-          "A verification email was sent recently . Please check your email or spam folder. You can get another verification email when previous email expire.Verification email has 15 minutes validity. ",
-      });
+    if (UserAccountResult[0].code !== null) {
+      const decoded = await jwt.decode(UserAccountResult[0].code);
+      if (typeof decoded == "string") {
+      } else if (decoded?.exp === undefined) {
+      } else if (decoded?.exp > currentTimestamp) {
+        console.log("Trigger 3");
+        return res.status(401).json({
+          code: 401,
+          message:
+            "A verification email was sent recently . Please check your email or spam folder. You can get another verification email when previous email expire.Verification email has 15 minutes validity. ",
+        });
+      }
     }
     const verification_token = jwt.sign(
       { id: verify.id, main_id: verify.main_id },
