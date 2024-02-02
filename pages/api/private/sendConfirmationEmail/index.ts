@@ -10,6 +10,7 @@ import { RowDataPacket } from "mysql2";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_SECRET = process.env.RESEND_SECRET || "";
+const DOMAIN_LINK = process.env.DOMAIN_LINK || "";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -29,7 +30,7 @@ export default async function handler(
     return res.status(401).json({ code: 401, message: "Invalid Token" });
   }
 
-  if (user_token?.code==null) {
+  if (user_token?.code!=null) {
     console.log("Trigger 1");
     if (jwt.verify(user_token?.code || "", JWT_SECRET)) {
       return res.status(401).json({
@@ -81,7 +82,7 @@ export default async function handler(
       JWT_SECRET,
       { expiresIn: "15m" }
     );
-    const verification_link = `https://${req.headers.host}/verifying?token=${verification_token}`;
+    const verification_link = `${DOMAIN_LINK}verifying?token=${verification_token}`;
 
     const first_name =
       UserAccountResult[0].user_type !== 4

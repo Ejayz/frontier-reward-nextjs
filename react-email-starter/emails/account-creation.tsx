@@ -95,14 +95,14 @@ const AccountCreation = ({
               href={`mailto:ask@pointsandperks.com`}
               style={{ color: "#0000ff" }}
             >
-              ask@pointsandperks.com
+              indiancarguy@gmail.com
             </a>
           </Text>
 
           <Text className={"text-base font-sans"}>
             <strong>Call us at: </strong>
             <a href="tel:1-800-123-4567" style={{ color: "#0000ff" }}>
-              1-800-123-4567
+              6133158020
             </a>
           </Text>
           <Text className={"text-base font-sans"}>
@@ -116,7 +116,9 @@ const AccountCreation = ({
           </Text>
           <Text className={"text-base font-sans"}>
             <strong>Visit our dealership: </strong>
-            <span style={{ color: "#0000ff" }}>1234 Main St.</span>
+            <span style={{ color: "#0000ff" }}>
+              10060 Jasper Ave NW Suite 2020 Edmonton, AB, T5J 3R8 Canada
+            </span>
           </Text>
           <br />
           <Text className={"text-sm font-sans"}>

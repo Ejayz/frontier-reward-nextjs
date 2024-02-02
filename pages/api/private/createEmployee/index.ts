@@ -13,6 +13,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_API = process.env.RESEND_SECRET || "";
+const DOMAIN_LINK = process.env.DOMAIN_LINK || "";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -64,7 +65,6 @@ export default async function handler(
         await connection.rollback();
         return res.status(400).json({ message: "Something went wrong" });
       }
-      const base_url=`https://${req.headers.host}/`
     const data=await resend.emails.send({
       from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
       to: [email],
@@ -74,7 +74,7 @@ export default async function handler(
         last_name: last_name,
         password: password,
         email: email,
-        base_url: base_url,
+        base_url: DOMAIN_LINK,
       }),
       text: `Welcome to Perks and Points!`,
     });
