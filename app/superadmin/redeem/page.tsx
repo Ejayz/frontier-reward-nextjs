@@ -362,9 +362,9 @@ export default function Page() {
                     classes="mb-2"
                     label="Package"
                     SelectOptions={
-                      isRewardsFetching || isRewardsLoading
+                      isPackagesFetching || isPackagesLoading
                         ? []
-                        : getRewards.data
+                        : getPackages.data
                     }
                     setFieldValue={setFieldValue}
                     values={values.reward_id}
@@ -378,10 +378,11 @@ export default function Page() {
                     classes="mb-2"
                     label="Reward"
                     SelectOptions={
-                      isPackagesFetching || isPackagesLoading
+                      isRewardsFetching || isRewardsLoading
                         ? []
-                        : getPackages.data
+                        : getRewards.data
                     }
+                   
                     setFieldValue={setFieldValue}
                     values={values.package_id}
                   />
@@ -483,8 +484,11 @@ export default function Page() {
                   classes="mb-2"
                   label="Package"
                   SelectOptions={
-                    isRewardsFetching || isRewardsLoading ? [] : getRewards.data
+                    isPackagesFetching || isPackagesLoading
+                      ? []
+                      : getPackages.data
                   }
+               
                   setFieldValue={setFieldValue}
                   values={values.reward_id}
                 />
@@ -497,9 +501,7 @@ export default function Page() {
                   classes="mb-2"
                   label="Reward"
                   SelectOptions={
-                    isPackagesFetching || isPackagesLoading
-                      ? []
-                      : getPackages.data
+                    isRewardsFetching || isRewardsLoading ? [] : getRewards.data
                   }
                   setFieldValue={setFieldValue}
                   values={values.package_id}

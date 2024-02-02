@@ -28,8 +28,8 @@ export default async function handler(
     }
     const [UpdateCampaignTransaction] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE campaign_transaction SET status="denied" WHERE id=? and transaction_no=?`,
-        [campaign_transaction_id, transaction_no]
+        `UPDATE campaign_transaction SET status="denied" ,employee_id=? WHERE id=? and transaction_no=?`,
+        [verify.id, campaign_transaction_id, transaction_no]
       )
     );
     console.log(UpdateCampaignTransaction);

@@ -26,8 +26,8 @@ export default async function handler(
     }
     const [rows] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE redeem_transaction SET status="denied" WHERE id=? and is_exist =1 and transaction_no=?`,
-        [id,transaction_no]
+        `UPDATE redeem_transaction SET status="denied" , employee_id=? WHERE id=? and is_exist =1 and transaction_no=?`,
+        [verify.id,id,transaction_no]
       )
     );
     return res.status(200).json({ code: 200, message: "Redeem transaction denied successfully.", data: rows });
