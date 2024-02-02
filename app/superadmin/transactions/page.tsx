@@ -80,7 +80,7 @@ export default function Page() {
       };
 
       let response = await fetch(
-        `http://localhost:3000/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
+        `/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
         {
           method: "GET",
           headers: headersList,
@@ -182,7 +182,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       }
     },
   });
@@ -210,7 +210,7 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       } else {
         toast.error(data.message);
       }
@@ -243,7 +243,7 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       } else {
         toast.error(data.message);
       }
@@ -276,7 +276,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       }
     },
   });
