@@ -80,7 +80,7 @@ export default function Page() {
       };
 
       let response = await fetch(
-        `/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
+        `http://localhost:3000/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
         {
           method: "GET",
           headers: headersList,
@@ -182,7 +182,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
-        toast.success(data.message);
+        toast.success(data.message)
       }
     },
   });
@@ -210,7 +210,7 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
-        toast.success(data.message);
+        toast.success(data.message)
       } else {
         toast.error(data.message);
       }
@@ -243,7 +243,7 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
-        toast.success(data.message);
+        toast.success(data.message)
       } else {
         toast.error(data.message);
       }
@@ -276,7 +276,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
-        toast.success(data.message);
+        toast.success(data.message)
       }
     },
   });
@@ -285,7 +285,7 @@ export default function Page() {
     return <Loading></Loading>;
   } else {
     return (
-      <div className="overflow-x-auto mt-5 text-black">
+      <div className="w-full h-full pl-10">
         <dialog ref={showRedeemTransaction} id="my_modal_1" className="modal">
           <div className="modal-box">
             <form method="dialog">

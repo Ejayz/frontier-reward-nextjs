@@ -228,8 +228,9 @@ if (
     setEditModalOpen(false);  
   };  
   return (
+
     <div className="pl-10">
-    
+
 {/* edit modal */}
 <input
         type="checkbox"
