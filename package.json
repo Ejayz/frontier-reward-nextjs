@@ -26,6 +26,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.6.5",
     "next": "14.0.3",
+    "node-cron": "^3.0.3",
     "react": "^18",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",
