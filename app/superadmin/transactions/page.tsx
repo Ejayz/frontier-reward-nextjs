@@ -285,7 +285,7 @@ export default function Page() {
     return <Loading></Loading>;
   } else {
     return (
-      <div className="overflow-x-auto mt-5 text-black">
+      <div className="w-full h-full pl10 text-black">
         <dialog ref={showRedeemTransaction} id="my_modal_1" className="modal">
           <div className="modal-box">
             <form method="dialog">
