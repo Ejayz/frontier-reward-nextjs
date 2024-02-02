@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function AdminDashboardNavBar({
+export default function AdminsDashboardNavBar({
   child,
 }: Readonly<{
   child: React.ReactNode;
