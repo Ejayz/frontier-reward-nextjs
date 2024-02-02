@@ -29,7 +29,7 @@ export default async function handler(
     return res.status(401).json({ code: 401, message: "Invalid Token" });
   }
 
-  if (user_token?.code) {
+  if (user_token?.code==null) {
     console.log("Trigger 1");
     if (jwt.verify(user_token?.code || "", JWT_SECRET)) {
       return res.status(401).json({
