@@ -50,6 +50,32 @@ export default function Page() {
     RefetchCampaignPagination();
   }, [page]);
 
+// Function to make the ThunderClient request
+const makeThunderClientRequest = async () => {
+  try {
+    let headersList = {
+      "Accept": "*/*",
+      "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+    }
+
+    let response = await fetch("/api/private/cronjobs/", { 
+      method: "POST",
+      headers: headersList
+    });
+
+    let data = await response.text();
+    console.log(data);
+  } catch (error) {
+    console.error("Error making ThunderClient request:", error);
+  }
+}
+
+// Use the useEffect hook to trigger the ThunderClient request when the page loads
+useEffect(() => {
+  makeThunderClientRequest();
+}, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
+
   const {
     data: DataCampaignPagination,
     isFetching,
@@ -467,7 +493,6 @@ if (isDataExisting) {
   };
 
   
-  
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -517,6 +542,7 @@ if (isDataExisting) {
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+        RefetchCampaignRewardActionPagination();
         setAddRewardActionModalOpen(true);
       } catch (error) {
         showToast({
@@ -1354,7 +1380,9 @@ if (isDataExisting) {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="badge badge-info">{element.status}</td>
+                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
+  {element.status}
+</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 

@@ -544,6 +544,7 @@ if (isDataExisting) {
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+        RefetchCampaignRewardActionPagination();
         setAddRewardActionModalOpen(true);
       } catch (error) {
         showToast({
@@ -572,25 +573,32 @@ if (isDataExisting) {
   };
   const onSubmitRewardAction = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
+  
     // Check for existing data
-  const isDataExisting = DataCampaignRewardActionPagination.data.some(
-    (element: RewardActionElement) =>
-      element.reward_id === values.reward_id &&
-      element.action_id === values.action_id &&
-      element.campaign_id === values.campaign_id &&
-      element.is_exist === 1
-  );
-
-  if (isDataExisting) {
-    showToast({
-      status: "error",
-      message: "Reward with this Reward and Action already exists",
-    });
-
-    setEditModalOpen(false);
-    return;
-  }
-
+    const isDataExisting = DataCampaignRewardActionPagination.data.some(
+      (element: RewardActionElement) =>
+        element.reward_id === values.reward_id &&
+        element.action_id === values.action_id &&
+        element.campaign_id === values.campaign_id &&
+        element.is_exist === 1
+    );
+  
+    if (isDataExisting) {
+      showToast({
+        status: "error",
+        message: "Reward with this Reward and Action already exists",
+      });
+  
+      setEditModalOpen(false);
+      return;
+    }
+  
+    // Subtract the quantity from selectedRewardData
+    if (selectedRewardData) {
+      const updatedQuantity = selectedRewardData.quantity - values.quantity;
+      setSelectedRewardData({ ...selectedRewardData, quantity: updatedQuantity });
+    }
+  
     await CreateCampaignRewardActionhandle(values);
     setEditModalOpen(false);
   };
@@ -1381,7 +1389,9 @@ if (isDataExisting) {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="badge badge-info">{element.status}</td>
+                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
+  {element.status}
+</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
