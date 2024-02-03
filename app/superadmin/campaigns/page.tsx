@@ -48,7 +48,34 @@ export default function Page() {
   const { showToast } = useToast();
   useEffect(() => {
     RefetchCampaignPagination();
-  }, [page]);
+  }, [page]); 
+  
+  // Function to make the ThunderClient request
+  const makeThunderClientRequest = async () => {
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+      }
+
+      let response = await fetch("/api/private/cronjobs/", { 
+        method: "POST",
+        headers: headersList
+      });
+
+      let data = await response.text();
+      console.log(data);
+    } catch (error) {
+      console.error("Error making ThunderClient request:", error);
+    }
+  }
+
+  // Use the useEffect hook to trigger the ThunderClient request when the page loads
+  useEffect(() => {
+    makeThunderClientRequest();
+  }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
+
 
   const {
     data: DataCampaignPagination,
