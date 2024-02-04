@@ -593,15 +593,34 @@ if (isDataExisting) {
       return;
     }
   
-    // Subtract the quantity from selectedRewardData
-    if (selectedRewardData) {
-      const updatedQuantity = selectedRewardData.quantity - values.quantity;
-      setSelectedRewardData({ ...selectedRewardData, quantity: updatedQuantity });
-    }
+    try {
+      // Update the quantity in DataRewardPagination
+      const updatedDataRewardPagination = DataRewardPagination?.data.map((item: any) => {
+        if (item.id === values.reward_id) {
+          return { ...item, quantity: selectedRewardData?.quantity };
+        }
+        return item;
+      });
   
-    await CreateCampaignRewardActionhandle(values);
-    setEditModalOpen(false);
+      // Set the updated DataRewardPagination
+      if (DataRewardPagination) {
+        DataRewardPagination.data = updatedDataRewardPagination;
+      }
+  
+      // Call the CreateCampaignRewardActionhandle function
+      await CreateCampaignRewardActionhandle(values);
+  
+      // Close the edit modal
+      setEditModalOpen(false);
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      console.error(error);
+    }
   };
+  
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEditPR) {
@@ -1389,9 +1408,7 @@ if (isDataExisting) {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
-  {element.status}
-</td>
+                    <td className="badge badge-info">{element.status}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
