@@ -499,25 +499,24 @@ if (isDataExisting) {
     async (values: any) => {
       setProcessing(true);
       setAddRewardActionModalOpen(false);
-      
-      // Check if the name and description remain the same
-      if (
-        values.action_id === values.action_id &&
-        values.reward_id === values.reward_id &&
-        values.is_exist === 1
-      ) {
-        showToast({
-          status: 'error',
-          message: 'Reward and Action is already existing, Cannot Add Reward and Action',
-        });
   
-        setProcessing(false);
-        return;
-      }
       try {
-
+        // Check if the name and description remain the same
+        if (
+          values.action_id === values.action_id &&
+          values.reward_id === values.reward_id &&
+          values.is_exist === 1
+        ) {
+          showToast({
+            status: 'error',
+            message: 'Reward and Action are already existing. Cannot Add Reward and Action',
+          });
   
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+          setProcessing(false);
+          return;
+        }
+  
+        const createResponse = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
           body: JSON.stringify(values),
           headers: {
@@ -527,33 +526,81 @@ if (isDataExisting) {
           },
         });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!createResponse.ok) {
+          throw new Error(`HTTP error! Status: ${createResponse.status}`);
         }
-  
-        const data = await response.json();
   
         showToast({
           status: "success",
           message: "Added Reward And Action Successfully",
         });
   
+        // Refetch data after creating
         RefetchActionPagination();
         RefetchRewardPagination();
-        setProcessing(false);
+  
+        // Clear form fields
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+  
+        // Refetch Campaign Reward Action data
         RefetchCampaignRewardActionPagination();
+  
+        // Set modal to open
         setAddRewardActionModalOpen(true);
+  
+        // Get the selectedRewardData after creating
+        const selectedReward = DataRewardPagination?.data.find(
+          (item: any) => item.id === parseInt(values.reward_id, 10)
+        );
+  
+        // Update the reward quantity using the selectedRewardData
+        if (selectedReward) {
+          const updateResponse = await fetch(`/api/private/editRewardQuantity/`, {
+            method: "POST",
+            body: JSON.stringify({
+              id: values.reward_id,
+              quantity: selectedReward.quantity - values.quantity,
+            }),
+            headers: {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+              "Content-Type": "application/json",
+            },
+          });
+  
+          if (!updateResponse.ok) {
+            throw new Error(`HTTP error! Status: ${updateResponse.status}`);
+          }
+  
+          showToast({
+            status: "success",
+            message: "Updated reward quantity",
+          });
+          RefetchActionPagination();
+          RefetchRewardPagination();
+    
+          // Clear form fields
+          createCampaignRewardRef.current?.setFieldValue('action_id', '');
+          createCampaignRewardRef.current?.setFieldValue('reward_id', '');
+          createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+    
+          // Refetch Campaign Reward Action data
+          RefetchCampaignRewardActionPagination();
+    
+          // Set modal to open
+          setAddRewardActionModalOpen(true);
+        }
       } catch (error) {
         showToast({
           status: "error",
           message: "Something went wrong",
         });
+        console.error(error);
+      } finally {
         setProcessing(false);
         setAddRewardActionModalOpen(false);
-        console.error(error);
       }
     },
     [
@@ -562,8 +609,13 @@ if (isDataExisting) {
       setAddRewardActionModalOpen,
       RefetchRewardPagination,
       createCampaignRewardRef,
+      DataRewardPagination,
+      RefetchActionPagination,
+      RefetchCampaignRewardActionPagination,
     ]
   );
+  
+  
   const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: RewardActionElement) => {
     console.log("Add reward clicked for row:", rowData);
