@@ -239,4 +239,7 @@ body {
       position: relative;
       margin-right: 250px;
     }
+    .delete-icon {
+      display: none;
+    }
   }

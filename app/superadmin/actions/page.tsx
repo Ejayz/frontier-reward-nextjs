@@ -300,7 +300,7 @@ export default function Page() {
 
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2 overflow-auto">
       {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Action
@@ -565,8 +565,8 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black ">
+        <table className="table text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -583,12 +583,10 @@ export default function Page() {
             ) : (
               DataActionPagination.data.map((element: any) => {
                 return (
-                  <tr key={element.id}>
+                  <tr className="hover" key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-
-                    <td className="flex">
-                      <div className="flex mx-auto">
+                    <td className="lg:flex md:inline">
                         <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-info mr-2"
@@ -599,6 +597,7 @@ export default function Page() {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Edit
                         </label>
@@ -610,10 +609,11 @@ export default function Page() {
                             width={20}
                             height={20}
                             alt="Delete Icon"
+                            className="hide-icon"
                           />
                           Delete
                         </label>
-                      </div>
+                   
                     </td>
                   </tr>
                 );

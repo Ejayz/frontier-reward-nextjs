@@ -77,3 +77,10 @@ body {
   #my_modal_3{
     z-index: 30 !important;
   }
+  /* Add this CSS to your existing stylesheet */
+
+@media (max-width: 768px) {
+  .hide-icon {
+    display: none;
+  }
+}
