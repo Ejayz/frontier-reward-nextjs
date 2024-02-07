@@ -16,6 +16,7 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
+  console.log(req.body)
   // Get a database connection
   const connection = await instance.getConnection();
   // Ensure the request has a valid JWT token
