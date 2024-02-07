@@ -4,13 +4,14 @@ import NormalInput from "@/components/NormalInput";
 import NormalInputShowPassword from "@/components/NormalInputShowPassword";
 import { Form, Formik } from "formik";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import Background from "../login-bg.png";
 import Image from "next/image";
 export default function Page() {
   const data = useSearchParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     async function init() {
       console.log(data?.get("error"));
@@ -22,6 +23,7 @@ export default function Page() {
   }, []);
 
   const login = async (email: string, password: string) => {
+    setIsSubmitting(true);
     const response = await fetch("/api/private/authentication/login", {
       method: "POST",
       headers: {
@@ -65,7 +67,7 @@ export default function Page() {
               onSubmit={async (values) => {
                 const isLoggedIn = await login(values.email, values.password);
                 const data = await isLoggedIn.json();
-                console.log(data)
+                setIsSubmitting(false);
                 if (isLoggedIn.ok) {
                   toast.success(data.message);
                   if (
@@ -125,9 +127,15 @@ export default function Page() {
                     </label>
                   </div>
                   <div className="form-control mt-6">
-                    <button type="submit" className="btn btn-primary">
-                      Login
-                    </button>
+                    {isSubmitting ? (
+                      <button className="btn btn-disabled w-full">
+                        Logging in...
+                      </button>
+                    ) : (
+                      <button type="submit" className="btn btn-primary w-full">
+                        Login
+                      </button>
+                    )}
                   </div>
                 </Form>
               )}

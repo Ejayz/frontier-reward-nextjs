@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 4000",
+    "staging": "next start --port 4000",
     "build": "next build",
-    "start": "next start --port 4000",
+    "production": "next start --port 3000",
     "lint": "next lint",
     "email": "email dev"
   },
