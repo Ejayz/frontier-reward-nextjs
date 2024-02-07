@@ -25,7 +25,7 @@ export default async function handler(
     const skip = (reqQuery - 1) * 10;
     const take = 10;
     const [packagesResult, packagesFields] = await connection.query(
-      `SELECT *,packages.id as value , packages.name as text FROM packages WHERE is_exist=1 `
+      `SELECT packages.id as value , packages.name as text FROM packages WHERE is_exist=1 `
     );
 
     return res.status(200).json({ code: 200, data: packagesResult });

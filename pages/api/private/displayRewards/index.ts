@@ -1,4 +1,3 @@
-
 import { NextApiRequest, NextApiResponse } from "next";
 import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
@@ -26,8 +25,9 @@ export default async function handler(
     const skip = (reqQuery - 1) * 10;
     const take = 10;
     const [packagesResult, packagesFields] = await connection.query(
-      `SELECT *,reward.id as value , reward.name as text FROM reward WHERE is_exist=1 `
+      `SELECT reward.id as value , reward.name as text FROM reward WHERE is_exist=1 `
     );
+    console.log(packagesResult);
     return res.status(200).json({ code: 200, data: packagesResult });
   } catch (e: any) {
     console.log(e);
