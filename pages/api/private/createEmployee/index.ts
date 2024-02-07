@@ -13,6 +13,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_API = process.env.RESEND_SECRET || "";
+const DOMAIN_LINK = process.env.DOMAIN_LINK || "";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -73,7 +74,7 @@ export default async function handler(
         last_name: last_name,
         password: password,
         email: email,
-        base_url: "https://perksandpoints.com/",
+        base_url: DOMAIN_LINK,
       }),
       text: `Welcome to Perks and Points!`,
     });

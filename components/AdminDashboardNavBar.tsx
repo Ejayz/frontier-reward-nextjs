@@ -115,9 +115,12 @@ export default function AdminDashboardNavBar({
                 className="btn btn-ghost btn-circle avatar"
               >
                 <div className="w-10 rounded-full">
-                  <img
+                  <Image
                     alt="Tailwind CSS Navbar component"
                     src="/images/user-profile.png"
+                    width={40}
+                    height={40}
+                    
                   />
                 </div>
               </div>

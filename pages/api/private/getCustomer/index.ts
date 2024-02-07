@@ -44,9 +44,6 @@ export default async function handler(
             formattedKeyword,
             formattedKeyword,
             formattedKeyword,
-            formattedKeyword,
-            formattedKeyword,
-            formattedKeyword,
             limit,
             offset,
           ]

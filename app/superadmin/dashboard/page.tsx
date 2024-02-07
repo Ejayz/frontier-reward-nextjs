@@ -3,20 +3,51 @@ import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { useState } from "react";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 export default function Page() {
   const [carousel, setCarousel] = useState(1);
-  const [transactions, setTransactions] = useState({
+  const [RedeemTransactions, setRedeemTransactions] = useState({
     options: {
       title: {
-        text: "Transactions",
+        text: "Redeem Transactions",
       },
       noData: {
         text: "No data",
       },
-      labels: ["Cancelled", "Pending", "Confirmed", "Completed"],
+      labels: ["Pending", "Denied", "Confirmed"],
       colors: ["#d8334a", "#ffd11f", "#f9a72b", "#ffeea3"],
     },
-    series: [20, 60, 100, 90],
+    series: [0, 0, 0],
+  });
+  const [CampaignTransactions, setCampaignTransactions] = useState({
+    options: {
+      title: {
+        text: "Campaign Transactions",
+      },
+      noData: {
+        text: "No data",
+      },
+      labels: ["Rejected", "Pending", "Confirmed"],
+      colors: ["#d8334a", "#ffd11f", "#f9a72b", "#ffeea3"],
+    },
+    series: [0, 0, 0],
+  });
+
+  const { data, error, isLoading, isFetching } = useQuery({
+    queryKey: ["getDashboardData"],
+    queryFn: async () => {
+      const res = await fetch("/api/private/dashboard");
+      const data = await res.json();
+      setRedeemTransactions({
+        ...RedeemTransactions,
+        series: data.redeem,
+      });
+      setCampaignTransactions({
+        ...CampaignTransactions,
+        series: data.campaign,
+      });
+      return data;
+    },
   });
   return (
     <div className="w-full h-screen bg-white flex flex-col mx-auto">
@@ -30,7 +61,7 @@ export default function Page() {
               height={249}
               alt=""
             />
-            <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
+            <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5  top-1/2">
               <button
                 onClick={() => {
                   if (carousel == 1) {
@@ -96,40 +127,47 @@ export default function Page() {
         )}
       </div>
       <div className="w-full flex text-black flex-row">
-        <div className="w-1/2">
+        <div className="w-1/2 h-full flex flex-col">
           <Chart
-            options={transactions.options}
-            series={transactions.series}
+            options={RedeemTransactions.options}
+            series={isLoading || isFetching ? [0, 0, 0] : data.data.redeem}
             type="pie"
-            width={500}
-            height={320}
+            width={350}
+            height={350}
+            className="shadow-ml"
+          />
+          <Chart
+            options={CampaignTransactions.options}
+            series={isLoading || isFetching ? [0, 0, 0] : data.data.campaign}
+            type="pie"
+            width={350}
+            height={350}
             className="shadow-ml"
           />
         </div>
-        <div className="w-1/2 grid gap-12 p-6 grid-cols-2 ">
+        <div className="w-1/2 grid gap-2 p-4 grid-cols-2 ">
           <div className="stats shadow-2xl">
             <div className="stat">
               <div className="stat-title">Active Campaign</div>
-              <div className="stat-value">89,400</div>
+              <div className="stat-value">{isLoading||isFetching ?"...":data.data.total_campaign}</div>
             </div>
           </div>
           <div className="stats shadow-2xl">
             <div className="stat">
               <div className="stat-title">Active Actions</div>
-              <div className="stat-value">89,400</div>
-              <div className="stat-desc">21% more than last month</div>
+              <div className="stat-value">{isLoading||isFetching ?"...":data.data.total_action}</div>
             </div>
           </div>
           <div className="stats shadow-2xl">
             <div className="stat">
               <div className="stat-title">Users</div>
-              <div className="stat-value">89,400</div>
+              <div className="stat-value">{isLoading||isFetching ?"...":data.data.total_users}</div>
             </div>
           </div>
           <div className="stats shadow-2xl">
             <div className="stat">
               <div className="stat-title">Packages</div>
-              <div className="stat-value">89,400</div>
+              <div className="stat-value">{isLoading||isFetching ?"...":data.data.total_package}</div>
             </div>
           </div>
         </div>

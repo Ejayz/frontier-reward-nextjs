@@ -11,7 +11,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_SECRET = process.env.RESEND_SECRET || "";
-
+const DOMAIN_LINK = process.env.DOMAIN_LINK || "";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -46,7 +46,7 @@ export default async function handler(
       JWT_SECRET,
       { expiresIn: "1h" }
     );
-    const forgot_password_link = `https://${req.headers.host}/changepassword?token=${token}`;
+    const forgot_password_link = `${DOMAIN_LINK}changepassword?token=${token}`;
     if (!token) {
       return res.status(500).json({
         code: 500,

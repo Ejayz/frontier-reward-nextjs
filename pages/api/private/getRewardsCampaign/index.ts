@@ -18,7 +18,7 @@ const connection = await instance.getConnection();
     const reqQuery = parseInt(req.query.page as string) || 1;
     const skip = (reqQuery - 1) * 10;
     const take = 10;
-    const [rewardsResult, rewardsFields] =<RowDataPacket[]> await connection.query( `SELECT * FROM reward WHERE is_exist=1 AND quantity >=1 ORDER BY id DESC LIMIT ?,?`, [skip, take] );
+    const [rewardsResult, rewardsFields] =<RowDataPacket[]> await connection.query( `SELECT * FROM reward WHERE is_exist=1  AND quantity!=0 ORDER BY id DESC LIMIT ?,?`, [skip, take] );
 
     return res.status(200).json({ code: 200, data: rewardsResult });
   } catch (e) {

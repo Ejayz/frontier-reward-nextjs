@@ -36,7 +36,7 @@ const ForgotPassword = ({
       }}
     >
       <Head />
-      <Preview>noreply@pointsandperks-Confirm Email.</Preview>
+      <Preview>noreply@pointsandperks-Forgot Password.</Preview>
       <Body className="bg-white text-black">
         <Container className="border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
           <Section className="mt-4 text-center">

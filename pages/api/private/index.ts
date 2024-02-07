@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req)
   res.status(401).json({
     status: "401",
     message:

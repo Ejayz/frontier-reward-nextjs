@@ -4,14 +4,15 @@ import "../globals.css";
 import cookie_processor from "@/hooks/useCookieProcessor";
 import { useRouter } from "next/navigation";
 import "react";
-import SalesPersonSideBar from "@/components/SalesPersonSideBar";
-import SalesPersonNavbar from "@/components/SalesPersonNavbar";
+import AdminSideBar from "@/components/AdminSideBar";
+import AdminNavBar from "@/components/AdminNavBar";
 import Loading from "./loading";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { pages } from "next/dist/build/templates/app-page";
+import SalesPersonDashboardNav from "@/components/SalesPersonDashboardNav";
 
 const queryClient = new QueryClient();
 
@@ -67,19 +68,11 @@ export default function RootLayout({
           theme="light"
         />
         {pageState && inits ? (
-          <main className="min-h-screen">
-            <div>
-              <SalesPersonNavbar></SalesPersonNavbar>
-            </div>
-            <div className="w-full flex flex-row">
-              <SalesPersonSideBar></SalesPersonSideBar>
-              <div className="w-3/4 h-screen overflow-y-hidden">
-                <QueryClientProvider client={queryClient}>
-                  {children}
-                </QueryClientProvider>
-              </div>
-            </div>
-          </main>
+          <QueryClientProvider client={queryClient}>
+            <main className="min-h-screen">
+              <SalesPersonDashboardNav child={children}></SalesPersonDashboardNav>
+            </main>
+          </QueryClientProvider>
         ) : (
           <Loading></Loading>
         )}

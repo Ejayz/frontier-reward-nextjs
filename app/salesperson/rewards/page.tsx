@@ -34,14 +34,14 @@ export default function Page() {
 
   const { showToast } = useToast();
   useEffect(() => {
-    RefetchActionPagination();
+    RefetchRewardsPagination();
   }, [page]);
 
   const {
-    data: DataActionPagination,
-    isFetching: isFetchingActionPagination,
-    isLoading: isLoadingActionPagination,
-    refetch: RefetchActionPagination,
+    data: DataRewardPagination,
+    isFetching: isFetchingRewardsPagination,
+    isLoading: isLoadingRewardsPagination,
+    refetch: RefetchRewardsPagination,
   } = useQuery({
     queryKey: ["getActionsPagination", page],
     queryFn: async () => {
@@ -102,7 +102,7 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
-  const createActionMutation = useMutation({
+  const createRewardsMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
         Accept: "*/*",
@@ -130,7 +130,7 @@ export default function Page() {
         message: "Reward Created Successfully",
       });
 
-      RefetchActionPagination();
+      RefetchRewardsPagination();
       setProcessing(false);
       createActionRef.current?.resetForm();
       setModalOpen(false);
@@ -208,7 +208,7 @@ export default function Page() {
           message: 'Reward Updated Successfully',
         
         });
-        RefetchActionPagination();
+        RefetchRewardsPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
         setEditModalOpen(false);
@@ -222,7 +222,7 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast,setEditModalOpen, RefetchRewardsPagination, editActionRef]
   );
 
   const onSubmit = async (values: any) => {
@@ -297,7 +297,7 @@ export default function Page() {
           message: 'Reward Deleted Successfully',
         
         });
-        RefetchActionPagination();
+        RefetchRewardsPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
         setRemoveModalOpen(false);
@@ -311,7 +311,7 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardsPagination, editActionRef]
   );
 
   
@@ -322,7 +322,7 @@ export default function Page() {
   };  
 
   return (
-    <div className="pl-10">
+    <div className="w-full h-full pl-10">
       {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
       </label> */}
@@ -525,13 +525,23 @@ enableReinitialize={true}
 onSubmit={onSubmit}>
    {({ errors, touched, values, setFieldValue }) => (
            <Form>
-                <Field
+                <select
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
                   id=""
                   onChange={handleSelectChange}
                   value={values.reward_type_id}
-                />
+                  disabled
+                >
+                  <option disabled value="">
+                    Select Reward Type
+                  </option>
+                  {DataRewardTypePagination?.data.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
                 <label className="label">
                   <span className="label-text text-base font-semibold">
                     Quantity
@@ -710,17 +720,20 @@ onSubmit={onSubmit}>
             </tr>
           </thead>
           <tbody>
-            {isFetchingActionPagination ? (
+            {isFetchingRewardsPagination ? (
               <tr className="text-center">
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataActionPagination.data.map((element: any) => {
+              DataRewardPagination.data.map((element: any) => {
+                const rewardType = DataRewardTypePagination?.data.find((item: any) => item.id === parseInt(element.reward_type_id));
+                const rewardTypeName = rewardType ? rewardType.name : "Unknown"; // Use a default value if not found
+               
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td>{element.reward_type_id}</td>
+                    <td>{rewardTypeName}</td>
                     <td>{element.quantity}</td>
 
                     <td className="flex">
@@ -761,7 +774,7 @@ onSubmit={onSubmit}>
               «
             </button>
             <button className="join-item btn">
-              {isFetchingActionPagination ? (
+              {isFetchingRewardsPagination ? (
                 <span className="loading loading-dots loading-md"></span>
               ) : (
                 `Page ${page}`
@@ -769,7 +782,7 @@ onSubmit={onSubmit}>
             </button>
             <button
               onClick={() => {
-                if (DataActionPagination.data.length >= 7) {
+                if (DataRewardPagination.data.length >= 7) {
                   const newPage = page + 1;
                   setPage(newPage);
                 }

@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
+    "dev": "next dev --port 4000",
+    "staging": "next start --port 4000",
     "build": "next build",
-    "start": "next start",
+    "production": "next start --port 3000",
     "lint": "next lint",
     "email": "email dev"
   },
@@ -26,6 +27,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.6.5",
     "next": "14.0.3",
+    "node-cron": "^3.0.3",
     "react": "^18",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18",

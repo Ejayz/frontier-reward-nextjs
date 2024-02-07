@@ -43,7 +43,7 @@ export default function Page() {
     const data = await response.json();
     if (data.code == 200) {
       toast.success(data.message);
-      open("/", "self");
+      open("/", "_self");
     } else {
       toast.error(data.message);
     }

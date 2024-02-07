@@ -48,7 +48,34 @@ export default function Page() {
   const { showToast } = useToast();
   useEffect(() => {
     RefetchCampaignPagination();
-  }, [page]);
+  }, [page]); 
+  
+  // Function to make the ThunderClient request
+  const makeThunderClientRequest = async () => {
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+      }
+
+      let response = await fetch("/api/private/cronjobs/", { 
+        method: "POST",
+        headers: headersList
+      });
+
+      let data = await response.text();
+      console.log(data);
+    } catch (error) {
+      console.error("Error making ThunderClient request:", error);
+    }
+  }
+
+  // Use the useEffect hook to trigger the ThunderClient request when the page loads
+  useEffect(() => {
+    makeThunderClientRequest();
+  }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
+
 
   const {
     data: DataCampaignPagination,
@@ -517,6 +544,7 @@ if (isDataExisting) {
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+        RefetchCampaignRewardActionPagination();
         setAddRewardActionModalOpen(true);
       } catch (error) {
         showToast({
@@ -545,28 +573,54 @@ if (isDataExisting) {
   };
   const onSubmitRewardAction = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
+  
     // Check for existing data
-  const isDataExisting = DataCampaignRewardActionPagination.data.some(
-    (element: RewardActionElement) =>
-      element.reward_id === values.reward_id &&
-      element.action_id === values.action_id &&
-      element.campaign_id === values.campaign_id &&
-      element.is_exist === 1
-  );
-
-  if (isDataExisting) {
-    showToast({
-      status: "error",
-      message: "Reward with this Reward and Action already exists",
-    });
-
-    setEditModalOpen(false);
-    return;
-  }
-
-    await CreateCampaignRewardActionhandle(values);
-    setEditModalOpen(false);
+    const isDataExisting = DataCampaignRewardActionPagination.data.some(
+      (element: RewardActionElement) =>
+        element.reward_id === values.reward_id &&
+        element.action_id === values.action_id &&
+        element.campaign_id === values.campaign_id &&
+        element.is_exist === 1
+    );
+  
+    if (isDataExisting) {
+      showToast({
+        status: "error",
+        message: "Reward with this Reward and Action already exists",
+      });
+  
+      setEditModalOpen(false);
+      return;
+    }
+  
+    try {
+      // Update the quantity in DataRewardPagination
+      const updatedDataRewardPagination = DataRewardPagination?.data.map((item: any) => {
+        if (item.id === values.reward_id) {
+          return { ...item, quantity: selectedRewardData?.quantity };
+        }
+        return item;
+      });
+  
+      // Set the updated DataRewardPagination
+      if (DataRewardPagination) {
+        DataRewardPagination.data = updatedDataRewardPagination;
+      }
+  
+      // Call the CreateCampaignRewardActionhandle function
+      await CreateCampaignRewardActionhandle(values);
+  
+      // Close the edit modal
+      setEditModalOpen(false);
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      console.error(error);
+    }
   };
+  
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEditPR) {
@@ -1053,7 +1107,7 @@ if (isDataExisting) {
                   placeholder="Enter Campaign Name"
                   className="input border-none"
                   name="name"
-                  disabled />
+                  readOnly />
                 </div>
                 <div className="flex">
                 <label className="label">
@@ -1066,7 +1120,7 @@ if (isDataExisting) {
                   placeholder="Enter Campaign Name"
                   className="input border-none text-black"
                   name="description"
-                  disabled />
+                  readOnly />
                 </div>
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
@@ -1180,7 +1234,7 @@ if (isDataExisting) {
                   <Field
                   type="text"
                   placeholder="Enter Campiagn ID"
-                  className="input input-bordered"
+                  className="input input-bordered invisible"
                   name="campaign_id"
                 />
 </div>
@@ -1296,7 +1350,7 @@ if (isDataExisting) {
                     placeholder="Enter Action Name"
                     className="input border-none"
                     name="reward_id"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex mb-5">
@@ -1310,7 +1364,7 @@ if (isDataExisting) {
                     placeholder="Enter Action Name"
                     className="input border-none text-black"
                     name="action_id"
-                    disabled
+                    readOnly
                   />
                 </div>
               </div>

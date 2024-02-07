@@ -202,7 +202,7 @@ export default function Page() {
         "content-type": "application/json",
       };
 
-      let response = await fetch(`/api/private/getRedeemData`, {
+      let response = await fetch(`/api/private/getRedeemData/`, {
         method: "POST",
         headers: headersList,
         body: JSON.stringify({ id: updatableId }),
@@ -354,29 +354,13 @@ export default function Page() {
                     label="Cost"
                   />
                   <LabeledSelectInput
-                    field_name="reward_id"
-                    placeholder="Redeemable Reward"
+                    field_name="package_id"
+                    placeholder="Packages"
                     className="input input-bordered"
                     errors={errors.package_id}
                     touched={touched.package_id}
                     classes="mb-2"
                     label="Package"
-                    SelectOptions={
-                      isRewardsFetching || isRewardsLoading
-                        ? []
-                        : getRewards.data
-                    }
-                    setFieldValue={setFieldValue}
-                    values={values.reward_id}
-                  />
-                  <LabeledSelectInput
-                    field_name="package_id"
-                    placeholder="Package"
-                    className="input input-bordered"
-                    errors={errors.package_id}
-                    touched={touched.package_id}
-                    classes="mb-2"
-                    label="Reward"
                     SelectOptions={
                       isPackagesFetching || isPackagesLoading
                         ? []
@@ -384,6 +368,23 @@ export default function Page() {
                     }
                     setFieldValue={setFieldValue}
                     values={values.package_id}
+                  />
+                  <LabeledSelectInput
+                    field_name="reward_id"
+                    placeholder="Reward Redeemable"
+                    className="input input-bordered"
+                    errors={errors.reward_id}
+                    touched={touched.reward_id}
+                    classes="mb-2"
+                    label="Reward"
+                    SelectOptions={
+                      isRewardsFetching || isRewardsLoading
+                        ? []
+                        : getRewards.data
+                    }
+                   
+                    setFieldValue={setFieldValue}
+                    values={values.reward_id}
                   />
 
                   <div className="modal-action">
@@ -483,8 +484,11 @@ export default function Page() {
                   classes="mb-2"
                   label="Package"
                   SelectOptions={
-                    isRewardsFetching || isRewardsLoading ? [] : getRewards.data
+                    isPackagesFetching || isPackagesLoading
+                      ? []
+                      : getPackages.data
                   }
+               
                   setFieldValue={setFieldValue}
                   values={values.reward_id}
                 />
@@ -497,9 +501,7 @@ export default function Page() {
                   classes="mb-2"
                   label="Reward"
                   SelectOptions={
-                    isPackagesFetching || isPackagesLoading
-                      ? []
-                      : getPackages.data
+                    isRewardsFetching || isRewardsLoading ? [] : getRewards.data
                   }
                   setFieldValue={setFieldValue}
                   values={values.package_id}

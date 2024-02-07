@@ -17,7 +17,7 @@ export default async function handler(
   }
   const auth = new Cookies(req, res).get("auth") || "";
   const connection = await instance.getConnection();
-  const { id,transaction_no } = req.body;
+  const { id, transaction_no } = req.body;
 
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
@@ -26,11 +26,17 @@ export default async function handler(
     }
     const [rows] = <RowDataPacket[]>(
       await connection.query(
-        `UPDATE redeem_transaction SET status="confirmed" WHERE id=? and is_exist =1 and transaction_no=?`,
-        [id,transaction_no]
+        `UPDATE redeem_transaction SET status="confirmed",employee_id=? WHERE id=? and is_exist =1 and transaction_no=?`,
+        [verify.id, id, transaction_no]
       )
     );
-    return res.status(200).json({ code: 200, message: "Redeem transaction confirmed successfully.", data: rows });
+    return res
+      .status(200)
+      .json({
+        code: 200,
+        message: "Redeem transaction confirmed successfully.",
+        data: rows,
+      });
   } catch (error: any) {
     console.log(error);
     if (error.name === "TokenExpiredError") {
