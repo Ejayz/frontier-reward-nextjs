@@ -7,6 +7,7 @@ import LabeledSelectInput from "@/components/LabeledSelectInput";
 import { useToast } from "@/hooks/useToast";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Form, Formik, FormikProps } from "formik";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -1009,9 +1010,7 @@ export default function Page() {
               : defValue
           }
           validationSchema={adminSchema}
-          onSubmit={(values: any) => {
-            
-          }}
+          onSubmit={(values: any) => {}}
         >
           {({ errors, touched, setFieldValue, values }) => (
             <Form>
@@ -1106,31 +1105,25 @@ export default function Page() {
                 <button
                   onClick={() => {
                     updateUsermutation.mutate({
-                        first_name: values.firstName,
-                        middle_name: values.middleName,
-                        last_name: values.lastName,
-                        email: values.email,
-                        phone_number: values.phone_number,
-                        employee_type: values.employee_type,
-                        suffix: values.suffix,
-                        CoreId: values.CoreId,
-                        User_Id: values.User_Id,
-                        });
+                      first_name: values.firstName,
+                      middle_name: values.middleName,
+                      last_name: values.lastName,
+                      email: values.email,
+                      phone_number: values.phone_number,
+                      employee_type: values.employee_type,
+                      suffix: values.suffix,
+                      CoreId: values.CoreId,
+                      User_Id: values.User_Id,
+                    });
                   }}
                   type="submit"
                   className="btn btn-primary mx-2"
                 >
                   Update Employee
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    modalAddUser.current?.click();
-                  }}
-                  className="btn  mx-2"
-                >
+                <Link href={"/salesperson/users"} className="btn  mx-2">
                   Cancel
-                </button>
+                </Link>
               </div>
             </Form>
           )}

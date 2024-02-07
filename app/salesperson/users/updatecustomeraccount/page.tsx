@@ -7,6 +7,7 @@ import LabeledSelectInput from "@/components/LabeledSelectInput";
 import { useToast } from "@/hooks/useToast";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Form, Formik, FormikProps } from "formik";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -1029,8 +1030,8 @@ export default function Page() {
           : CustomerInfo.data[0].suffix
         : "",
   };
-console.log(CustomerInfo)
-console.log(data)
+  console.log(CustomerInfo);
+  console.log(data);
   if (!toShow) {
     return <Loading />;
   } else {
@@ -1253,14 +1254,9 @@ console.log(data)
           >
             Update Customer Information
           </button>{" "}
-          <button
-            onClick={() => {
-              modalAddUser.current?.click();
-            }}
-            className="btn btn-md mx-4"
-          >
+          <Link href={"/salesperson/users"} className="btn  mx-2">
             Cancel
-          </button>
+          </Link>
         </div>
       </div>
     );

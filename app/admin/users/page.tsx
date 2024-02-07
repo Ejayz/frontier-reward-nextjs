@@ -1687,10 +1687,6 @@ export default function Page() {
                               value: "3",
                               text: "Sales",
                             },
-                            {
-                              value: "2",
-                              text: "Admin",
-                            },
                           ]}
                           setFieldValue={setFieldValue}
                           values={values.employee_type}
@@ -2085,7 +2081,7 @@ export default function Page() {
                                     );
                                   }}
                                   type="button"
-                                  className="btn btn-info mr-5"
+                                  className={`btn ${employee.user_type!=2?"btn-info":"btn-disabled"} mr-5`}
                                 >
                                   <Image
                                     src="/images/update-user.png"
@@ -2106,7 +2102,7 @@ export default function Page() {
                                       user_id: employee.user_id,
                                     });
                                   }}
-                                  className="btn btn-error"
+                                  className={`btn ${employee.user_type!=2?"btn-error":"btn-disabled"}`}
                                 >
                                   <Image
                                     src="/icons/deleteicon.svg"

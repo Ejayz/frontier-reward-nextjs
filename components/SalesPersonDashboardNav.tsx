@@ -120,7 +120,6 @@ export default function SalesPersonDashboardNav({
                     src="/images/user-profile.png"
                     width={40}
                     height={40}
-                    
                   />
                 </div>
               </div>
@@ -129,9 +128,13 @@ export default function SalesPersonDashboardNav({
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <button onClick={()=>{
-                    logoutMutate.mutate()
-                  }}>Logout</button>
+                  <button
+                    onClick={() => {
+                      logoutMutate.mutate();
+                    }}
+                  >
+                    Logout
+                  </button>
                 </li>
               </ul>
             </div>
@@ -160,7 +163,7 @@ export default function SalesPersonDashboardNav({
         </div>
         <div className="drawer lg:drawer-open">
           <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content flex flex-col items-center justify-center">
+          <div className="drawer-content  flex flex-col items-center justify-center">
             {/* Page content here */}
             {child}
           </div>
@@ -298,7 +301,7 @@ export default function SalesPersonDashboardNav({
                   Actions
                 </Link>
               </li>
-             
+
               <li
                 className={`${
                   navbarActive?.includes("/salesperson/rewards")
@@ -320,7 +323,7 @@ export default function SalesPersonDashboardNav({
                   Rewards
                 </Link>
               </li>
-             
+
               <li
                 className={`${
                   navbarActive?.includes("/salesperson/redeem")
@@ -342,7 +345,7 @@ export default function SalesPersonDashboardNav({
                   Redeem
                 </Link>
               </li>
-              
+
               <li
                 className={`${
                   navbarActive?.includes("/salesperson/users")
@@ -350,7 +353,10 @@ export default function SalesPersonDashboardNav({
                     : ""
                 }`}
               >
-                <Link className="text-2xl font-bold" href={"/salesperson/users"}>
+                <Link
+                  className="text-2xl font-bold"
+                  href={"/salesperson/users"}
+                >
                   <Image
                     src="/icons/users.svg"
                     className="mr-2"
@@ -400,7 +406,10 @@ export default function SalesPersonDashboardNav({
                 : ""
             }`}
           >
-            <Link href={"/salesperson/dashboard"} className="text-2xl font-bold">
+            <Link
+              href={"/salesperson/dashboard"}
+              className="text-2xl font-bold"
+            >
               <Image
                 src="/icons/dashboard.svg"
                 className="mr-2"
@@ -472,7 +481,10 @@ export default function SalesPersonDashboardNav({
                 : ""
             }`}
           >
-            <Link href={"/salesperson/campaigns"} className="text-2xl font-bold">
+            <Link
+              href={"/salesperson/campaigns"}
+              className="text-2xl font-bold"
+            >
               <Image
                 src="/icons/campaigns.svg"
                 className="mr-2"
