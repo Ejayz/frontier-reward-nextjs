@@ -156,7 +156,7 @@ export default function Page() {
       return data;
     },
     refetchOnWindowFocus: false,
-    placeholderData:keepPreviousData
+    placeholderData: keepPreviousData,
   });
 
   const removeRedeemMutation = useMutation({
@@ -382,14 +382,13 @@ export default function Page() {
                         ? []
                         : getRewards.data
                     }
-                   
                     setFieldValue={setFieldValue}
                     values={values.reward_id}
                   />
 
                   <div className="modal-action">
                     <button type="submit" className="btn btn-primary">
-                     Update
+                      Update
                     </button>
                     <button
                       type="button"
@@ -488,7 +487,6 @@ export default function Page() {
                       ? []
                       : getPackages.data
                   }
-               
                   setFieldValue={setFieldValue}
                   values={values.reward_id}
                 />
@@ -617,12 +615,17 @@ export default function Page() {
             >
               «
             </button>
-            <button className="join-item btn">Page {redeemPage+1}</button>
-            <button onClick={()=>{
-              if(getRedeemable.data.length == 10){
-                setRedeemPage(redeemPage+1)
-              }
-            }} className="join-item btn">»</button>
+            <button className="join-item btn">Page {redeemPage + 1}</button>
+            <button
+              onClick={() => {
+                if (getRedeemable.data.length == 10) {
+                  setRedeemPage(redeemPage + 1);
+                }
+              }}
+              className="join-item btn"
+            >
+              »
+            </button>
           </div>
         </div>
       </div>
