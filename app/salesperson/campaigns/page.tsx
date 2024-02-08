@@ -257,7 +257,7 @@ if (
   };  
   return (
 
-    <div className="pl-10">
+    <div className="w-full h-full pl-10">
 
 {/* edit modal */}
 <input
