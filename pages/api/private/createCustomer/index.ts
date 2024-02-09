@@ -99,12 +99,10 @@ export default async function handler(
     );
     if (results.affectedRows == 0) {
       connection.rollback();
-      return res
-        .status(400)
-        .json({
-          code: 400,
-          message: "Something went wrong. Please try again later.",
-        });
+      return res.status(400).json({
+        code: 400,
+        message: "Something went wrong. Please try again later.",
+      });
     }
     console.log("insertUser:", results);
     const processedVehicles = await formatVehicle(vehicles, results.insertId);
@@ -117,12 +115,10 @@ export default async function handler(
 
     if (insertCustomerAddressResult.affectedRows == 0) {
       connection.rollback();
-      return res
-        .status(400)
-        .json({
-          code: 400,
-          message: "Something went wrong. Please try again later.",
-        });
+      return res.status(400).json({
+        code: 400,
+        message: "Something went wrong. Please try again later.",
+      });
     }
 
     const [insertCustomerInfoResult, insertCustomerInfoFields] = <
@@ -143,12 +139,10 @@ export default async function handler(
     );
     if (insertCustomerInfoResult.affectedRows == 0) {
       connection.rollback();
-      return res
-        .status(400)
-        .json({
-          code: 400,
-          message: "Something went wrong. Please try again later.",
-        });
+      return res.status(400).json({
+        code: 400,
+        message: "Something went wrong. Please try again later.",
+      });
     }
     for (const vehicle of processedVehicles) {
       const [insertCustomerVehicleInfoResult, insertCustomerVehicleInfoFields] =
@@ -167,17 +161,15 @@ export default async function handler(
         );
       if (insertCustomerVehicleInfoResult.affectedRows == 0) {
         connection.rollback();
-        return res
-          .status(400)
-          .json({
-            code: 400,
-            message: "Something went wrong. Please try again later.",
-          });
+        return res.status(400).json({
+          code: 400,
+          message: "Something went wrong. Please try again later.",
+        });
       }
     }
     const base_url = `https://${req.headers.host}/`;
     const data = await resend.emails.send({
-      from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
+      from: "Register@PointsAndPerks <register.noreply@pointsandperks.ca>",
       to: [email],
       subject: "Welcome to Perks and Points",
       react: AccountCreation({

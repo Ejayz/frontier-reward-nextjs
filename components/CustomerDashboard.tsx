@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function AdminsDashboardNavBar({
+export default function SalesPersonDashboardNav({
   child,
 }: Readonly<{
   child: React.ReactNode;
@@ -43,7 +43,6 @@ export default function AdminsDashboardNavBar({
                 className=""
                 alt=""
               />
-              
             </a>
           </div>
           <div className="flex-none ">
@@ -116,9 +115,11 @@ export default function AdminsDashboardNavBar({
                 className="btn btn-ghost btn-circle avatar"
               >
                 <div className="w-10 rounded-full">
-                  <img
+                  <Image
                     alt="Tailwind CSS Navbar component"
                     src="/images/user-profile.png"
+                    width={40}
+                    height={40}
                   />
                 </div>
               </div>
@@ -127,9 +128,13 @@ export default function AdminsDashboardNavBar({
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <button onClick={()=>{
-                    logoutMutate.mutate()
-                  }}>Logout</button>
+                  <button
+                    onClick={() => {
+                      logoutMutate.mutate();
+                    }}
+                  >
+                    Logout
+                  </button>
                 </li>
               </ul>
             </div>
@@ -158,7 +163,7 @@ export default function AdminsDashboardNavBar({
         </div>
         <div className="drawer lg:drawer-open">
           <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-          <div className="drawer-content flex flex-col items-center justify-center">
+          <div className="drawer-content  flex flex-col items-center justify-center">
             {/* Page content here */}
             {child}
           </div>
@@ -170,120 +175,16 @@ export default function AdminsDashboardNavBar({
             ></label>
             <ul className="menu p-4 w-80 min-h-full bg-white text-base-content">
               {/* Sidebar content here */}
+
               <li
                 className={`${
-                  navbarActive?.includes("/admin/dashboard")
+                  navbarActive?.includes("/customer/campaigns")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
-                  href={"/admin/dashboard"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/dashboard.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Dashboard
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/admin/customer")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/customer"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/images/customer-service.png"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Customer
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/admin/actions")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/actions"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/actions.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />{" "}
-                  Actions
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/admin/packages")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/packages"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/packages.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Packages
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/admin/rewards")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/rewards"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/rewards.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Rewards
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/admin/campaigns")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/campaigns"}
+                  href={"/customer/campaigns"}
                   className="text-2xl font-bold"
                 >
                   <Image
@@ -298,13 +199,13 @@ export default function AdminsDashboardNavBar({
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/admin/redeem")
+                  navbarActive?.includes("/customer/redeem")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
-                  href={"/admin/redeem"}
+                  href={"/customer/redeem"}
                   className="text-2xl font-bold"
                 >
                   <Image
@@ -319,53 +220,35 @@ export default function AdminsDashboardNavBar({
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/admin/transactions")
+                  navbarActive?.includes("/customer/profile")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
-                  href={"/admin/transactions"}
+                  href={"/customer/profile"}
                   className="text-2xl font-bold"
                 >
                   <Image
-                    src="/icons/transactions.svg"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />{" "}
-                  Transactions
-                </Link>
-              </li>
-              <li
-                className={`${
-                  navbarActive?.includes("/admin/users")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link className="text-2xl font-bold" href={"/admin/users"}>
-                  <Image
-                    src="/icons/users.svg"
+                    src="/images/user-profile.png"
                     className="mr-2"
                     alt=""
                     width={30}
                     height={30}
                   />
-                  Users
+                  Profile
                 </Link>
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/admin/settings")
+                  navbarActive?.includes("/salesperson/settings")
                     ? "bg-yellow-400 rounded-md"
                     : ""
                 }`}
               >
                 <Link
                   className="text-2xl font-bold"
-                  href={"/admin/settings"}
+                  href={"/salesperson/settings"}
                 >
                   <Image
                     src="/icons/settings.png"
@@ -390,12 +273,15 @@ export default function AdminsDashboardNavBar({
         <ul className="menu p-4 w-80 min-h-full bg-base-200">
           <li
             className={`${
-              navbarActive?.includes("/admin/dashboard")
+              navbarActive?.includes("/salesperson/dashboard")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/admin/dashboard"} className="text-2xl font-bold">
+            <Link
+              href={"/salesperson/dashboard"}
+              className="text-2xl font-bold"
+            >
               <Image
                 src="/icons/dashboard.svg"
                 className="mr-2"
@@ -407,34 +293,31 @@ export default function AdminsDashboardNavBar({
             </Link>
           </li>
           <li
-                className={`${
-                  navbarActive?.includes("/admin/customer")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/customer"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/images/customer-service.png"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Customer
-                </Link>
-              </li>
-          <li
             className={`${
-              navbarActive?.includes("/admin/actions")
+              navbarActive?.includes("/salesperson/customer")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/admin/actions"} className="text-2xl font-bold">
+            <Link href={"/salesperson/customer"} className="text-2xl font-bold">
+              <Image
+                src="/images/customer-service.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Customer
+            </Link>
+          </li>
+          <li
+            className={`${
+              navbarActive?.includes("/salesperson/actions")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link href={"/salesperson/actions"} className="text-2xl font-bold">
               <Image
                 src="/icons/actions.svg"
                 className="mr-2"
@@ -447,12 +330,12 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/packages")
+              navbarActive?.includes("/salesperson/packages")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/admin/packages"} className="text-2xl font-bold">
+            <Link href={"/salesperson/packages"} className="text-2xl font-bold">
               <Image
                 src="/icons/packages.svg"
                 className="mr-2"
@@ -465,12 +348,12 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/rewards")
+              navbarActive?.includes("/salesperson/rewards")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/admin/rewards"} className="text-2xl font-bold">
+            <Link href={"/salesperson/rewards"} className="text-2xl font-bold">
               <Image
                 src="/icons/rewards.svg"
                 className="mr-2"
@@ -483,12 +366,15 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/campaigns")
+              navbarActive?.includes("/salesperson/campaigns")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/admin/campaigns"} className="text-2xl font-bold">
+            <Link
+              href={"/salesperson/campaigns"}
+              className="text-2xl font-bold"
+            >
               <Image
                 src="/icons/campaigns.svg"
                 className="mr-2"
@@ -501,12 +387,12 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/redeem")
+              navbarActive?.includes("/salesperson/redeem")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link href={"/admin/redeem"} className="text-2xl font-bold">
+            <Link href={"/salesperson/redeem"} className="text-2xl font-bold">
               <Image
                 src="/icons/redeem-points.png"
                 className="mr-2"
@@ -519,13 +405,13 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/transactions")
+              navbarActive?.includes("/salesperson/transactions")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
             <Link
-              href={"/admin/transactions"}
+              href={"/salesperson/transactions"}
               className="text-2xl font-bold"
             >
               <Image
@@ -540,12 +426,12 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/users")
+              navbarActive?.includes("/salesperson/users")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link className="text-2xl font-bold" href={"/admin/users"}>
+            <Link className="text-2xl font-bold" href={"/salesperson/users"}>
               <Image
                 src="/icons/users.svg"
                 className="mr-2"
@@ -558,12 +444,12 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/users")
+              navbarActive?.includes("/salesperson/users")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link className="text-2xl font-bold" href={"/admin/users"}>
+            <Link className="text-2xl font-bold" href={"/salesperson/users"}>
               <Image
                 src="/images/notification.png"
                 className="mr-2"
@@ -576,12 +462,12 @@ export default function AdminsDashboardNavBar({
           </li>
           <li
             className={`${
-              navbarActive?.includes("/admin/settings")
+              navbarActive?.includes("/salesperson/settings")
                 ? "bg-yellow-400 rounded-md"
                 : ""
             }`}
           >
-            <Link className="text-2xl font-bold" href={"/admin/settings"}>
+            <Link className="text-2xl font-bold" href={"/salesperson/settings"}>
               <Image
                 src="/icons/settings.png"
                 className="mr-2"

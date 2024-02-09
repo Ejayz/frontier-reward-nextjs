@@ -68,7 +68,7 @@ export default async function handler(
     }
 
     const sendMail = await resend.emails.send({
-      from: "ForgotPassword@PointsAndPerks <forgotpassword.noreply@sledgehammerdevelopmentteam.uk>",
+      from: "ForgotPassword@PointsAndPerks <forgotpassword.noreply@pointsandperks.ca>",
       to: [UsersAccountResult[0].email],
       subject: "Forgot Password Request- Points and Perks",
       react: ForgotPassword({ forgot_password_link: forgot_password_link }),
