@@ -499,25 +499,24 @@ if (isDataExisting) {
     async (values: any) => {
       setProcessing(true);
       setAddRewardActionModalOpen(false);
-      
-      // Check if the name and description remain the same
-      if (
-        values.action_id === values.action_id &&
-        values.reward_id === values.reward_id &&
-        values.is_exist === 1
-      ) {
-        showToast({
-          status: 'error',
-          message: 'Reward and Action is already existing, Cannot Add Reward and Action',
-        });
   
-        setProcessing(false);
-        return;
-      }
       try {
-
+        // Check if the name and description remain the same
+        if (
+          values.action_id === values.action_id &&
+          values.reward_id === values.reward_id &&
+          values.is_exist === 1
+        ) {
+          showToast({
+            status: 'error',
+            message: 'Reward and Action are already existing. Cannot Add Reward and Action',
+          });
   
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+          setProcessing(false);
+          return;
+        }
+  
+        const createResponse = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
           body: JSON.stringify(values),
           headers: {
@@ -527,33 +526,81 @@ if (isDataExisting) {
           },
         });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!createResponse.ok) {
+          throw new Error(`HTTP error! Status: ${createResponse.status}`);
         }
-  
-        const data = await response.json();
   
         showToast({
           status: "success",
           message: "Added Reward And Action Successfully",
         });
   
+        // Refetch data after creating
         RefetchActionPagination();
         RefetchRewardPagination();
-        setProcessing(false);
+  
+        // Clear form fields
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+  
+        // Refetch Campaign Reward Action data
         RefetchCampaignRewardActionPagination();
+  
+        // Set modal to open
         setAddRewardActionModalOpen(true);
+  
+        // Get the selectedRewardData after creating
+        const selectedReward = DataRewardPagination?.data.find(
+          (item: any) => item.id === parseInt(values.reward_id, 10)
+        );
+  
+        // Update the reward quantity using the selectedRewardData
+        if (selectedReward) {
+          const updateResponse = await fetch(`/api/private/editRewardQuantity/`, {
+            method: "POST",
+            body: JSON.stringify({
+              id: values.reward_id,
+              quantity: selectedReward.quantity - values.quantity,
+            }),
+            headers: {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+              "Content-Type": "application/json",
+            },
+          });
+  
+          if (!updateResponse.ok) {
+            throw new Error(`HTTP error! Status: ${updateResponse.status}`);
+          }
+  
+          showToast({
+            status: "success",
+            message: "Updated reward quantity",
+          });
+          RefetchActionPagination();
+          RefetchRewardPagination();
+    
+          // Clear form fields
+          createCampaignRewardRef.current?.setFieldValue('action_id', '');
+          createCampaignRewardRef.current?.setFieldValue('reward_id', '');
+          createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+    
+          // Refetch Campaign Reward Action data
+          RefetchCampaignRewardActionPagination();
+    
+          // Set modal to open
+          setAddRewardActionModalOpen(true);
+        }
       } catch (error) {
         showToast({
           status: "error",
           message: "Something went wrong",
         });
+        console.error(error);
+      } finally {
         setProcessing(false);
         setAddRewardActionModalOpen(false);
-        console.error(error);
       }
     },
     [
@@ -562,8 +609,13 @@ if (isDataExisting) {
       setAddRewardActionModalOpen,
       RefetchRewardPagination,
       createCampaignRewardRef,
+      DataRewardPagination,
+      RefetchActionPagination,
+      RefetchCampaignRewardActionPagination,
     ]
   );
+  
+  
   const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: RewardActionElement) => {
     console.log("Add reward clicked for row:", rowData);
@@ -718,7 +770,7 @@ if (isDataExisting) {
     setRemoveModalOpenRewardAction(false);
   };
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2 overflow-auto">
       {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Campaign
@@ -1252,8 +1304,8 @@ if (isDataExisting) {
                 </div>
               </div>  
             
-               <div className="overflow-x-auto max-h-96 items-center">
-                  <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
+               <div className="overflow-x-autow-full h-full mt-5 text-black">
+                  <table className="table text-base font-semibold text-center">
                     <thead>
                       <tr>
                         <th>Reward ID</th>
@@ -1296,6 +1348,7 @@ if (isDataExisting) {
                                       width={20}
                                       height={20}
                                       alt="Delete Icon"
+                                      className="hide-icon"
                                     />
                                     Delete
                                   </label>
@@ -1384,8 +1437,8 @@ if (isDataExisting) {
       </div>
 
       {/* table */}
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -1412,8 +1465,7 @@ if (isDataExisting) {
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
-                    <td className="flex">
-                      <div className="flex mx-auto">
+                    <td className="flex ">
                         <label className="btn btn-sm btn-accent mr-2"
                         htmlFor="my_modal_10"
                         onClick={() => handlegetProduct_idClick(element)}>
@@ -1422,6 +1474,7 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Add Reward
                         </label>
@@ -1432,6 +1485,7 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Edit
                         </label>
@@ -1442,10 +1496,11 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Delete Icon"
+                            className="hide-icon"
                           />
                           Delete
                         </label>
-                      </div>
+                 
                     </td>
                   </tr>
                 );

@@ -48,32 +48,33 @@ export default function Page() {
   const { showToast } = useToast();
   useEffect(() => {
     RefetchCampaignPagination();
-  }, [page]);
+  }, [page]); 
+  
+  // Function to make the ThunderClient request
+  const makeThunderClientRequest = async () => {
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+      }
 
-// Function to make the ThunderClient request
-const makeThunderClientRequest = async () => {
-  try {
-    let headersList = {
-      "Accept": "*/*",
-      "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+      let response = await fetch("/api/private/cronjobs/", { 
+        method: "POST",
+        headers: headersList
+      });
+
+      let data = await response.text();
+      console.log(data);
+    } catch (error) {
+      console.error("Error making ThunderClient request:", error);
     }
-
-    let response = await fetch("/api/private/cronjobs/", { 
-      method: "POST",
-      headers: headersList
-    });
-
-    let data = await response.text();
-    console.log(data);
-  } catch (error) {
-    console.error("Error making ThunderClient request:", error);
   }
-}
 
-// Use the useEffect hook to trigger the ThunderClient request when the page loads
-useEffect(() => {
-  makeThunderClientRequest();
-}, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+  // Use the useEffect hook to trigger the ThunderClient request when the page loads
+  useEffect(() => {
+    makeThunderClientRequest();
+  }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
 
 
   const {
@@ -493,29 +494,29 @@ if (isDataExisting) {
   };
 
   
+  
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
       setAddRewardActionModalOpen(false);
-      
-      // Check if the name and description remain the same
-      if (
-        values.action_id === values.action_id &&
-        values.reward_id === values.reward_id &&
-        values.is_exist === 1
-      ) {
-        showToast({
-          status: 'error',
-          message: 'Reward and Action is already existing, Cannot Add Reward and Action',
-        });
   
-        setProcessing(false);
-        return;
-      }
       try {
-
+        // Check if the name and description remain the same
+        if (
+          values.action_id === values.action_id &&
+          values.reward_id === values.reward_id &&
+          values.is_exist === 1
+        ) {
+          showToast({
+            status: 'error',
+            message: 'Reward and Action are already existing. Cannot Add Reward and Action',
+          });
   
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+          setProcessing(false);
+          return;
+        }
+  
+        const createResponse = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
           body: JSON.stringify(values),
           headers: {
@@ -525,33 +526,81 @@ if (isDataExisting) {
           },
         });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!createResponse.ok) {
+          throw new Error(`HTTP error! Status: ${createResponse.status}`);
         }
-  
-        const data = await response.json();
   
         showToast({
           status: "success",
           message: "Added Reward And Action Successfully",
         });
   
+        // Refetch data after creating
         RefetchActionPagination();
         RefetchRewardPagination();
-        setProcessing(false);
+  
+        // Clear form fields
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+  
+        // Refetch Campaign Reward Action data
         RefetchCampaignRewardActionPagination();
+  
+        // Set modal to open
         setAddRewardActionModalOpen(true);
+  
+        // Get the selectedRewardData after creating
+        const selectedReward = DataRewardPagination?.data.find(
+          (item: any) => item.id === parseInt(values.reward_id, 10)
+        );
+  
+        // Update the reward quantity using the selectedRewardData
+        if (selectedReward) {
+          const updateResponse = await fetch(`/api/private/editRewardQuantity/`, {
+            method: "POST",
+            body: JSON.stringify({
+              id: values.reward_id,
+              quantity: selectedReward.quantity - values.quantity,
+            }),
+            headers: {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+              "Content-Type": "application/json",
+            },
+          });
+  
+          if (!updateResponse.ok) {
+            throw new Error(`HTTP error! Status: ${updateResponse.status}`);
+          }
+  
+          showToast({
+            status: "success",
+            message: "Updated reward quantity",
+          });
+          RefetchActionPagination();
+          RefetchRewardPagination();
+    
+          // Clear form fields
+          createCampaignRewardRef.current?.setFieldValue('action_id', '');
+          createCampaignRewardRef.current?.setFieldValue('reward_id', '');
+          createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+    
+          // Refetch Campaign Reward Action data
+          RefetchCampaignRewardActionPagination();
+    
+          // Set modal to open
+          setAddRewardActionModalOpen(true);
+        }
       } catch (error) {
         showToast({
           status: "error",
           message: "Something went wrong",
         });
+        console.error(error);
+      } finally {
         setProcessing(false);
         setAddRewardActionModalOpen(false);
-        console.error(error);
       }
     },
     [
@@ -560,8 +609,13 @@ if (isDataExisting) {
       setAddRewardActionModalOpen,
       RefetchRewardPagination,
       createCampaignRewardRef,
+      DataRewardPagination,
+      RefetchActionPagination,
+      RefetchCampaignRewardActionPagination,
     ]
   );
+  
+  
   const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: RewardActionElement) => {
     console.log("Add reward clicked for row:", rowData);
@@ -571,28 +625,54 @@ if (isDataExisting) {
   };
   const onSubmitRewardAction = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
+  
     // Check for existing data
-  const isDataExisting = DataCampaignRewardActionPagination.data.some(
-    (element: RewardActionElement) =>
-      element.reward_id === values.reward_id &&
-      element.action_id === values.action_id &&
-      element.campaign_id === values.campaign_id &&
-      element.is_exist === 1
-  );
-
-  if (isDataExisting) {
-    showToast({
-      status: "error",
-      message: "Reward with this Reward and Action already exists",
-    });
-
-    setEditModalOpen(false);
-    return;
-  }
-
-    await CreateCampaignRewardActionhandle(values);
-    setEditModalOpen(false);
+    const isDataExisting = DataCampaignRewardActionPagination.data.some(
+      (element: RewardActionElement) =>
+        element.reward_id === values.reward_id &&
+        element.action_id === values.action_id &&
+        element.campaign_id === values.campaign_id &&
+        element.is_exist === 1
+    );
+  
+    if (isDataExisting) {
+      showToast({
+        status: "error",
+        message: "Reward with this Reward and Action already exists",
+      });
+  
+      setEditModalOpen(false);
+      return;
+    }
+  
+    try {
+      // Update the quantity in DataRewardPagination
+      const updatedDataRewardPagination = DataRewardPagination?.data.map((item: any) => {
+        if (item.id === values.reward_id) {
+          return { ...item, quantity: selectedRewardData?.quantity };
+        }
+        return item;
+      });
+  
+      // Set the updated DataRewardPagination
+      if (DataRewardPagination) {
+        DataRewardPagination.data = updatedDataRewardPagination;
+      }
+  
+      // Call the CreateCampaignRewardActionhandle function
+      await CreateCampaignRewardActionhandle(values);
+  
+      // Close the edit modal
+      setEditModalOpen(false);
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      console.error(error);
+    }
   };
+  
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEditPR) {
@@ -1380,9 +1460,7 @@ if (isDataExisting) {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
-  {element.status}
-</td>
+                    <td className="badge badge-info">{element.status}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
