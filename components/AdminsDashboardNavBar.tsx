@@ -43,6 +43,7 @@ export default function AdminsDashboardNavBar({
                 className=""
                 alt=""
               />
+              
             </a>
           </div>
           <div className="flex-none ">
@@ -188,6 +189,27 @@ export default function AdminsDashboardNavBar({
                     height={30}
                   />
                   Dashboard
+                </Link>
+              </li>
+              <li
+                className={`${
+                  navbarActive?.includes("/admin/customer")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/admin/customer"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/images/customer-service.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Customer
                 </Link>
               </li>
               <li
@@ -385,6 +407,27 @@ export default function AdminsDashboardNavBar({
             </Link>
           </li>
           <li
+                className={`${
+                  navbarActive?.includes("/admin/customer")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/admin/customer"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/images/customer-service.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Customer
+                </Link>
+              </li>
+          <li
             className={`${
               navbarActive?.includes("/admin/actions")
                 ? "bg-yellow-400 rounded-md"
@@ -513,23 +556,58 @@ export default function AdminsDashboardNavBar({
               Users
             </Link>
           </li>
-          <li>
-            <a className="justify-between">
-              Notification
-              <span className="badge">New</span>
-            </a>
+          <li
+            className={`${
+              navbarActive?.includes("/superadmin/users")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+              <Image
+                src="/images/notification.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Notifications
+            </Link>
+          </li>
+          <li
+            className={`${
+              navbarActive?.includes("/superadmin/settings")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link className="text-2xl font-bold" href={"/superadmin/settings"}>
+              <Image
+                src="/icons/settings.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Settings
+            </Link>
           </li>
           <li>
-            <a className="justify-between">
-              Profile
-              <span className="badge">New</span>
-            </a>
-          </li>
-          <li>
-            <a>Settings</a>
-          </li>
-          <li>
-            <a>Logout</a>
+            <button
+              onClick={() => {
+                logoutMutate.mutate();
+              }}
+              className="text-2xl font-bold"
+            >
+              <Image
+                src="/images/logout.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Logout
+            </button>
           </li>
         </ul>
       </div>

@@ -175,6 +175,7 @@ export default function SalesPersonDashboardNav({
             ></label>
             <ul className="menu p-4 w-80 min-h-full bg-white text-base-content">
               {/* Sidebar content here */}
+
               <li
                 className={`${
                   navbarActive?.includes("/salesperson/dashboard")
@@ -194,6 +195,27 @@ export default function SalesPersonDashboardNav({
                     height={30}
                   />
                   Dashboard
+                </Link>
+              </li>
+              <li
+                className={`${
+                  navbarActive?.includes("/salesperson/customer")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/customer"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/images/customer-service.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Customer
                 </Link>
               </li>
               <li
@@ -421,6 +443,27 @@ export default function SalesPersonDashboardNav({
             </Link>
           </li>
           <li
+                className={`${
+                  navbarActive?.includes("/salesperson/customer")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/salesperson/customer"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/images/customer-service.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />
+                  Customer
+                </Link>
+              </li>
+          <li
             className={`${
               navbarActive?.includes("/salesperson/actions")
                 ? "bg-yellow-400 rounded-md"
@@ -552,23 +595,58 @@ export default function SalesPersonDashboardNav({
               Users
             </Link>
           </li>
-          <li>
-            <a className="justify-between">
-              Notification
-              <span className="badge">New</span>
-            </a>
+          <li
+            className={`${
+              navbarActive?.includes("/salesperson/users")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link className="text-2xl font-bold" href={"/salesperson/users"}>
+              <Image
+                src="/images/notification.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Notifications
+            </Link>
+          </li>
+          <li
+            className={`${
+              navbarActive?.includes("/salesperson/settings")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link className="text-2xl font-bold" href={"/salesperson/settings"}>
+              <Image
+                src="/icons/settings.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Settings
+            </Link>
           </li>
           <li>
-            <a className="justify-between">
-              Profile
-              <span className="badge">New</span>
-            </a>
-          </li>
-          <li>
-            <a>Settings</a>
-          </li>
-          <li>
-            <a>Logout</a>
+            <button
+              onClick={() => {
+                logoutMutate.mutate();
+              }}
+              className="text-2xl font-bold"
+            >
+              <Image
+                src="/images/logout.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Logout
+            </button>
           </li>
         </ul>
       </div>

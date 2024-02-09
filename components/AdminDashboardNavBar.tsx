@@ -108,11 +108,12 @@ export default function AdminDashboardNavBar({
                 </div>
               </div>
             </div>
+
             <div className="dropdown hidden lg:block dropdown-end">
               <div
                 tabIndex={0}
                 role="button"
-                className="btn btn-ghost btn-circle avatar"
+                className="btn btn-ghost flex flex-col btn-circle avatar"
               >
                 <div className="w-10 rounded-full">
                   <Image
@@ -120,7 +121,6 @@ export default function AdminDashboardNavBar({
                     src="/images/user-profile.png"
                     width={40}
                     height={40}
-                    
                   />
                 </div>
               </div>
@@ -128,10 +128,15 @@ export default function AdminDashboardNavBar({
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
+                <li className="text-center font-bold ">Logged in as Jude</li>
                 <li>
-                  <button onClick={()=>{
-                    logoutMutate.mutate()
-                  }}>Logout</button>
+                  <button
+                    onClick={() => {
+                      logoutMutate.mutate();
+                    }}
+                  >
+                    Logout
+                  </button>
                 </li>
               </ul>
             </div>
@@ -191,6 +196,27 @@ export default function AdminDashboardNavBar({
                     height={30}
                   />
                   Dashboard
+                </Link>
+              </li>
+              <li
+                className={`${
+                  navbarActive?.includes("/superadmin/customer")
+                    ? "bg-yellow-400 rounded-md"
+                    : ""
+                }`}
+              >
+                <Link
+                  href={"/superadmin/customer"}
+                  className="text-2xl font-bold"
+                >
+                  <Image
+                    src="/images/customer-service.png"
+                    className="mr-2"
+                    alt=""
+                    width={30}
+                    height={30}
+                  />{" "}
+                  Customer
                 </Link>
               </li>
               <li
@@ -369,6 +395,7 @@ export default function AdminDashboardNavBar({
           className="drawer-overlay"
         ></label>
         <ul className="menu p-4 w-80 min-h-full bg-base-200">
+          <li className="text-center text-3xl font-bold ">Logged in as Jude</li>
           <li
             className={`${
               navbarActive?.includes("/superadmin/dashboard")
@@ -385,6 +412,24 @@ export default function AdminDashboardNavBar({
                 height={30}
               />
               Dashboard
+            </Link>
+          </li>
+          <li
+            className={`${
+              navbarActive?.includes("/superadmin/customer")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link href={"/superadmin/customer"} className="text-2xl font-bold">
+              <Image
+                src="/images/customer-service.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />{" "}
+              Customer
             </Link>
           </li>
           <li
@@ -516,23 +561,58 @@ export default function AdminDashboardNavBar({
               Users
             </Link>
           </li>
-          <li>
-            <a className="justify-between">
-              Notification
-              <span className="badge">New</span>
-            </a>
+          <li
+            className={`${
+              navbarActive?.includes("/superadmin/users")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link className="text-2xl font-bold" href={"/superadmin/users"}>
+              <Image
+                src="/images/notification.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Notifications
+            </Link>
+          </li>
+          <li
+            className={`${
+              navbarActive?.includes("/superadmin/settings")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link className="text-2xl font-bold" href={"/superadmin/settings"}>
+              <Image
+                src="/icons/settings.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Settings
+            </Link>
           </li>
           <li>
-            <a className="justify-between">
-              Profile
-              <span className="badge">New</span>
-            </a>
-          </li>
-          <li>
-            <a>Settings</a>
-          </li>
-          <li>
-            <a>Logout</a>
+            <button
+              onClick={() => {
+                logoutMutate.mutate();
+              }}
+              className="text-2xl font-bold"
+            >
+              <Image
+                src="/images/logout.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Logout
+            </button>
           </li>
         </ul>
       </div>
