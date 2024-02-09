@@ -770,7 +770,7 @@ if (isDataExisting) {
     setRemoveModalOpenRewardAction(false);
   };
   return (
-    <div className="w-full h-full px-2 overflow-auto">
+    <div className="w-full h-full px-2">
       {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Campaign
@@ -1304,8 +1304,8 @@ if (isDataExisting) {
                 </div>
               </div>  
             
-               <div className="overflow-x-autow-full h-full mt-5 text-black">
-                  <table className="table text-base font-semibold text-center">
+               <div className="overflow-x-auto w-full h-full mt-5 text-black">
+                  <table className="table table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                     <thead>
                       <tr>
                         <th>Reward ID</th>
@@ -1334,8 +1334,7 @@ if (isDataExisting) {
                               <td>{rewardName}</td>
                               <td>{actionName}</td>
                               <td>{element.quantity}</td>
-                              <td className="flex">
-                                <div className="flex mx-auto">
+                              <td className="inline place-content-center lg:flex">
                                   <label
                                     className="btn btn-sm btn-error"
                                     htmlFor="my_modal_11"
@@ -1352,7 +1351,6 @@ if (isDataExisting) {
                                     />
                                     Delete
                                   </label>
-                                </div>
                               </td>
                             </tr>
                           );
