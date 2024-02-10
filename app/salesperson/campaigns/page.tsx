@@ -257,7 +257,7 @@ if (
   };  
   return (
 
-    <div className="pl-10">
+    <div className="w-full h-full px-2">
 
 {/* edit modal */}
 <input
@@ -417,8 +417,8 @@ if (
       </div>
 
       {/* table */}
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -456,6 +456,7 @@ if (
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           View
                         </label>
@@ -465,7 +466,7 @@ if (
                   </tr>
                 );
               })
-            )}
+            )} 
           </tbody>
         </table>
         <div className="w-11/12 flex mx-auto">

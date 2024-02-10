@@ -770,7 +770,7 @@ if (isDataExisting) {
     setRemoveModalOpenRewardAction(false);
   };
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Campaign
@@ -1304,8 +1304,8 @@ if (isDataExisting) {
                 </div>
               </div>  
             
-               <div className="overflow-x-auto max-h-96 items-center">
-                  <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
+               <div className="overflow-x-auto w-full h-full mt-5 text-black">
+                  <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                     <thead>
                       <tr>
                         <th>Reward ID</th>
@@ -1436,8 +1436,8 @@ if (isDataExisting) {
       </div>
 
       {/* table */}
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -1464,8 +1464,7 @@ if (isDataExisting) {
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
-                    <td className="flex">
-                      <div className="flex mx-auto">
+                    <td className="flex place-content-center ">
                         <label className="btn btn-sm btn-accent mr-2"
                         htmlFor="my_modal_10"
                         onClick={() => handlegetProduct_idClick(element)}>
@@ -1474,6 +1473,7 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Add Reward
                         </label>
@@ -1484,6 +1484,7 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Edit
                         </label>
@@ -1494,10 +1495,10 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Delete Icon"
+                            className="hide-icon"
                           />
                           Delete
                         </label>
-                      </div>
                     </td>
                   </tr>
                 );

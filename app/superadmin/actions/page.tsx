@@ -587,7 +587,7 @@ export default function Page() {
                   <tr className="hover" key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="inline place-content-center lg:flex ">
+                    <td className="flex place-content-center">
                         <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-info mr-2"
