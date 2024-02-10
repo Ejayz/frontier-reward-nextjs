@@ -536,7 +536,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* add modal */}
       {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
@@ -1099,8 +1099,8 @@ export default function Page() {
         </div>
       </div> */}
 
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -1137,6 +1137,7 @@ export default function Page() {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           View
                         </label>

@@ -13,7 +13,7 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { act } from "react-dom/test-utils";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
-
+import Image from "next/image";
 type Element = {
   id: number;
   name: string;
@@ -322,7 +322,7 @@ export default function Page() {
   };  
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
       </label> */}
@@ -707,8 +707,8 @@ onSubmit={onSubmit}>
           </Formik>
         </div>
       </div> */}
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -743,11 +743,12 @@ onSubmit={onSubmit}>
                           className="btn btn-sm btn-info mr-2"
                           onClick={() => handleEditClick(element)}
                         >
-                          <img
+                          <Image
                             src="../icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           View
                         </label>

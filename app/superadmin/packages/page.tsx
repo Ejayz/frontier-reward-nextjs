@@ -586,7 +586,7 @@ export default function Page() {
  
 
   return (
-    <div className="w-full h-full px-2 overflow-auto">
+    <div className="w-full h-full px-2">
       {/* add modal */}
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Package
@@ -1162,7 +1162,7 @@ export default function Page() {
       </div>
 
       <div className="overflow-x-auto w-full h-full mt-5 text-black">
-        <table className="table text-base font-semibold text-center">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -1185,8 +1185,7 @@ export default function Page() {
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{element.multiplier}</td>
-
-                    <td className="flex">
+                    <td className="inline place-content-center lg:flex">
                         <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-accent mr-2"
