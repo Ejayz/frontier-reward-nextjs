@@ -66,6 +66,34 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
+// Fetch campaign data using useQuery
+const {
+  data: DataCampaign,
+  isLoading: isCampaignLoading,
+  isError: isCampaignError,
+} = useQuery({
+  queryKey: ["getCampaigns"],
+  queryFn: async () => {
+    let headersList = {
+      Accept: "*/*",
+      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+    };
+    // Fetch campaign data from the API
+    // Adjust the API endpoint and request logic as needed
+    const response = await fetch(`/api/private/getCampaignRewardAction`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Handle error if the API request fails
+      // Adjust the error handling logic as needed
+      throw new Error(data.message || "Failed to fetch campaigns");
+    }
+
+    return data;
+  },
+  // Other options for your use case
+});
+
   const createActionMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -255,24 +283,41 @@ export default function Page() {
       };
   
       try {
-        console.log("the values are: ",values);
+        // Check if the action is used in a campaign
+        console.log("the values are: ", values);  
+  
+        const isActionUsedInCampaign = DataCampaign.data.some(
+          (campaign: any) => campaign.action_id === values.id && campaign.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: 'error',
+            message: 'This action is currently used in an active campaign and cannot be updated.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
+        console.log("the values are: ", values);
         const response = await fetch(`/api/private/removeActions/`, {
           method: 'POST',
-          body: JSON.stringify(values), 
+          body: JSON.stringify(values),
           headers: headersList,
         });
   
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
   
         showToast({
           status: 'success',
           message: 'Action Deleted Successfully',
-        
         });
+  
         RefetchActionPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
@@ -282,14 +327,15 @@ export default function Page() {
           status: 'error',
           message: 'Something went wrong',
         });
+  
         setProcessing(false);
         setRemoveModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchActionPagination, editActionRef]
+    [setProcessing, showToast, setRemoveModalOpen, RefetchActionPagination, editActionRef, DataCampaign]
   );
-
+  
   
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
