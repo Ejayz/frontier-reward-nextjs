@@ -83,7 +83,7 @@ export default function Page() {
                   } else if (data.token.role == 3) {
                     nav.push("/salesperson/dashboard");
                   } else if (data.token.role == 4) {
-                    nav.push("/customer/dashboard");
+                    nav.push("/customer/campaigns");
                   } else {
                     toast.error(
                       "It seems this account has invalid role. Please contact or visit our office about this matter."

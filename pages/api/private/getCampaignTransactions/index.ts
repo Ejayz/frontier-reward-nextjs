@@ -58,7 +58,7 @@ export default async function handler(
         )
       );
     }
-
+    console.log(rows)
     return res.status(200).json({ code: 200, message: "Success", data: rows });
   } catch (error: any) {
     console.log(error);
