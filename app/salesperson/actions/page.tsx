@@ -283,7 +283,7 @@ export default function Page() {
 
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* add modal */}
       {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Action
@@ -581,6 +581,7 @@ export default function Page() {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           View
                         </label>

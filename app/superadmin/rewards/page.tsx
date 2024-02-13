@@ -11,6 +11,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
+import Image from "next/image";
 import { act } from "react-dom/test-utils";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
 
@@ -36,6 +37,34 @@ export default function Page() {
   useEffect(() => {
     RefetchRewardPagination();
   }, [page]);
+
+// Fetch campaign data using useQuery
+const {
+  data: DataPackageReward,
+  isLoading: isCampaignLoading,
+  isError: isCampaignError,
+} = useQuery({
+  queryKey: ["getCampaigns"],
+  queryFn: async () => {
+    let headersList = {
+      Accept: "*/*",
+      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+    };
+    // Fetch campaign data from the API
+    // Adjust the API endpoint and request logic as needed
+    const response = await fetch(`/api/private/getPackageReward`, );
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Handle error if the API request fails
+      // Adjust the error handling logic as needed
+      throw new Error(data.message || "Failed to fetch campaigns");
+    }
+
+    return data;
+  },
+  // Other options for your use case
+});
 
   const {
     data: DataRewardPagination,
@@ -317,6 +346,19 @@ export default function Page() {
   
       try {
         console.log("the values are: ",values);
+        const isActionUsedInCampaign = DataPackageReward.data.some(
+          (element: any) => element.reward_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: 'error',
+            message: 'This rewards is currently used and cannot be removed.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
         const response = await fetch(`/api/private/removeRewards/`, {
           method: 'POST',
           body: JSON.stringify(values), 
@@ -348,7 +390,7 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit]
+    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit,DataPackageReward]
   );
 
   
@@ -359,7 +401,7 @@ export default function Page() {
   };  
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       <label htmlFor="my_modal_6" className="btn btn-primary ">
         Add Rewards
       </label>
@@ -759,10 +801,10 @@ onSubmit={onSubmit}>
           </Formik>
         </div>
       </div>
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table table-zebra text-base font-semibold place-content-center text-center table-sm lg:table-lg">
           {/* head */}
-          <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+          <thead className="bg-gray-900 rounded-lg text-white font-semibold text-center">
             <tr className="rounded-lg">
               <th>Name</th>
               <th>Description</th>
@@ -787,33 +829,33 @@ onSubmit={onSubmit}>
                     <td>{rewardTypeName}</td>
                     <td>{element.quantity}</td>
 
-                    <td className="flex">
-                      <div className="flex mx-auto">
+                    <td className="inline place-content-center lg:flex ">
                         <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-info mr-2"
                           onClick={() => handleEditClick(element)}
                         >
-                          <img
+                          <Image
                             src="../icons/editicon.svg"
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Edit
                         </label>
                         <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
                         onClick={() => handleRemoveClick(element)}
                         >
-                          <img
+                          <Image
                             src="../icons/deleteicon.svg"
                             width={20}
                             height={20}
                             alt="Delete Icon"
+                            className="hide-icon"
                           />
                           Delete
                         </label>
-                      </div>
                     </td>
                   </tr>
                 );
