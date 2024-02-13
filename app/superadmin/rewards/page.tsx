@@ -38,6 +38,34 @@ export default function Page() {
     RefetchRewardPagination();
   }, [page]);
 
+// Fetch campaign data using useQuery
+const {
+  data: DataPackageReward,
+  isLoading: isCampaignLoading,
+  isError: isCampaignError,
+} = useQuery({
+  queryKey: ["getCampaigns"],
+  queryFn: async () => {
+    let headersList = {
+      Accept: "*/*",
+      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+    };
+    // Fetch campaign data from the API
+    // Adjust the API endpoint and request logic as needed
+    const response = await fetch(`/api/private/getPackageReward`, );
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Handle error if the API request fails
+      // Adjust the error handling logic as needed
+      throw new Error(data.message || "Failed to fetch campaigns");
+    }
+
+    return data;
+  },
+  // Other options for your use case
+});
+
   const {
     data: DataRewardPagination,
     isFetching: isFetchingRewardPagination,
@@ -318,6 +346,19 @@ export default function Page() {
   
       try {
         console.log("the values are: ",values);
+        const isActionUsedInCampaign = DataPackageReward.data.some(
+          (element: any) => element.reward_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: 'error',
+            message: 'This rewards is currently used and cannot be removed.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
         const response = await fetch(`/api/private/removeRewards/`, {
           method: 'POST',
           body: JSON.stringify(values), 
@@ -349,7 +390,7 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit]
+    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit,DataPackageReward]
   );
 
   

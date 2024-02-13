@@ -293,14 +293,13 @@ const {
         if (isActionUsedInCampaign) {
           showToast({
             status: 'error',
-            message: 'This action is currently used in an active campaign and cannot be updated.',
+            message: 'This action is currently used and cannot be removed.',
           });
   
           setProcessing(false);
           return;
         }
   
-        console.log("the values are: ", values);
         const response = await fetch(`/api/private/removeActions/`, {
           method: 'POST',
           body: JSON.stringify(values),

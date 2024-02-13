@@ -455,21 +455,48 @@ export default function Page() {
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
         "Content-Type": "application/json",
       };
-
+  
       try {
+        // Check if DataPackageRewardPagination is defined and has a 'data' property
+        if (!DataPackageRewardPagination || !DataPackageRewardPagination.data) {
+          showToast({
+            status: "error",
+            message: "Package data is not available.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
+        console.log("the values are: ", values);
+  
+        const isActionUsedInCampaign = DataPackageRewardPagination.data.some(
+          (element: any) => element.package_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: "error",
+            message: "This package is currently used and cannot be removed.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
         console.log("the values are: ", values);
         const response = await fetch(`/api/private/removePackage/`, {
           method: "POST",
           body: JSON.stringify(values),
           headers: headersList,
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
-
+  
         showToast({
           status: "success",
           message: "Package Deleted Successfully",
@@ -478,7 +505,7 @@ export default function Page() {
         RefetchPackageRewardPagination();
         setProcessing(false);
         removePacakgeRewardRef.current?.resetForm();
-        createPackageRewardRef.current?.setFieldValue('reward_id', '');
+        createPackageRewardRef.current?.setFieldValue("reward_id", "");
         setRemoveModalOpen(false);
       } catch (error) {
         showToast({
@@ -496,10 +523,12 @@ export default function Page() {
       setRemoveModalOpen,
       RefetchPackagesPagination,
       removePacakgeRewardRef,
-      createPackageRef,
-      removePacakgeRewardRef
+      createPackageRewardRef,
+      removePacakgeRewardRef,
+      DataPackageRewardPagination,
     ]
   );
+  
     
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
