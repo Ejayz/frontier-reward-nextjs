@@ -10,8 +10,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import Image from "next/image";
 import { useToast } from "@/hooks/useToast";
+import Image from "next/image";
 import { act } from "react-dom/test-utils";
 import LabeledSelectInput from "@/components/LabeledSelectInput";
 
@@ -37,6 +37,34 @@ export default function Page() {
   useEffect(() => {
     RefetchRewardPagination();
   }, [page]);
+
+// Fetch campaign data using useQuery
+const {
+  data: DataPackageReward,
+  isLoading: isCampaignLoading,
+  isError: isCampaignError,
+} = useQuery({
+  queryKey: ["getCampaigns"],
+  queryFn: async () => {
+    let headersList = {
+      Accept: "*/*",
+      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+    };
+    // Fetch campaign data from the API
+    // Adjust the API endpoint and request logic as needed
+    const response = await fetch(`/api/private/getPackageReward`, );
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Handle error if the API request fails
+      // Adjust the error handling logic as needed
+      throw new Error(data.message || "Failed to fetch campaigns");
+    }
+
+    return data;
+  },
+  // Other options for your use case
+});
 
   const {
     data: DataRewardPagination,
@@ -318,6 +346,19 @@ export default function Page() {
   
       try {
         console.log("the values are: ",values);
+        const isActionUsedInCampaign = DataPackageReward.data.some(
+          (element: any) => element.reward_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: 'error',
+            message: 'This rewards is currently used and cannot be removed.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
         const response = await fetch(`/api/private/removeRewards/`, {
           method: 'POST',
           body: JSON.stringify(values), 
@@ -349,7 +390,7 @@ export default function Page() {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit]
+    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit,DataPackageReward]
   );
 
   
@@ -761,9 +802,9 @@ onSubmit={onSubmit}>
         </div>
       </div>
       <div className="overflow-x-auto w-full h-full mt-5 text-black">
-        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
+        <table className="table table-zebra text-base font-semibold place-content-center text-center table-sm lg:table-lg">
           {/* head */}
-          <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+          <thead className="bg-gray-900 rounded-lg text-white font-semibold text-center">
             <tr className="rounded-lg">
               <th>Name</th>
               <th>Description</th>
@@ -788,7 +829,7 @@ onSubmit={onSubmit}>
                     <td>{rewardTypeName}</td>
                     <td>{element.quantity}</td>
 
-                    <td className="flex place-content-center">
+                    <td className="inline place-content-center lg:flex ">
                         <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-info mr-2"

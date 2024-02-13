@@ -417,24 +417,51 @@ if (isDataExisting) {
       };
   
       try {
-        console.log("the values are: ",values);
+        console.log("the values are: ", values);
+  
+        // Check if DataCampaignRewardActionPagination is defined and has a 'data' property
+        if (!DataCampaignRewardActionPagination || !DataCampaignRewardActionPagination.data) {
+          showToast({
+            status: 'error',
+            message: 'Campaign data is not available.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
+        const isActionUsedInCampaign = DataCampaignRewardActionPagination.data.some(
+          (campaign: any) => campaign.campaign_id === values.id && campaign.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: 'error',
+            message: 'This campaign is currently used and cannot be removed.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
+        console.log("the values are: ", values);
         const response = await fetch(`/api/private/removeCampaign/`, {
           method: 'POST',
-          body: JSON.stringify(values), 
+          body: JSON.stringify(values),
           headers: headersList,
         });
   
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
   
         showToast({
           status: 'success',
           message: 'Campaign Deleted Successfully',
-        
         });
+  
         RefetchCampaignPagination();
         setProcessing(false);
         editCampaignRef.current?.resetForm();
@@ -449,7 +476,7 @@ if (isDataExisting) {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchCampaignPagination, editCampaignRef]
+    [setProcessing, showToast, setRemoveModalOpen, RefetchCampaignPagination, editCampaignRef, DataCampaignRewardActionPagination]
   );
   
   const onSubmitRemove = async (values: any) => {
@@ -498,7 +525,7 @@ if (isDataExisting) {
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
-      setAddRewardActionModalOpen(false);
+      setAddRewardActionModalOpen(true);
   
       try {
         // Check if the name and description remain the same
@@ -548,7 +575,7 @@ if (isDataExisting) {
         RefetchCampaignRewardActionPagination();
   
         // Set modal to open
-        setAddRewardActionModalOpen(true);
+        setAddRewardActionModalOpen(false);
   
         // Get the selectedRewardData after creating
         const selectedReward = DataRewardPagination?.data.find(
@@ -573,11 +600,6 @@ if (isDataExisting) {
           if (!updateResponse.ok) {
             throw new Error(`HTTP error! Status: ${updateResponse.status}`);
           }
-  
-          showToast({
-            status: "success",
-            message: "Updated reward quantity",
-          });
           RefetchActionPagination();
           RefetchRewardPagination();
     
@@ -585,10 +607,10 @@ if (isDataExisting) {
           createCampaignRewardRef.current?.setFieldValue('action_id', '');
           createCampaignRewardRef.current?.setFieldValue('reward_id', '');
           createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+          selectedRewardData?.quantity ==0;
     
           // Refetch Campaign Reward Action data
           RefetchCampaignRewardActionPagination();
-    
           // Set modal to open
           setAddRewardActionModalOpen(true);
         }
@@ -600,7 +622,7 @@ if (isDataExisting) {
         console.error(error);
       } finally {
         setProcessing(false);
-        setAddRewardActionModalOpen(false);
+        setAddRewardActionModalOpen(true);
       }
     },
     [
@@ -1305,7 +1327,7 @@ if (isDataExisting) {
               </div>  
             
                <div className="overflow-x-auto w-full h-full mt-5 text-black">
-                  <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
+                  <table className="table table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                     <thead>
                       <tr>
                         <th>Reward ID</th>
@@ -1334,8 +1356,7 @@ if (isDataExisting) {
                               <td>{rewardName}</td>
                               <td>{actionName}</td>
                               <td>{element.quantity}</td>
-                              <td className="flex">
-                                <div className="flex mx-auto">
+                              <td className="inline place-content-center lg:flex">
                                   <label
                                     className="btn btn-sm btn-error"
                                     htmlFor="my_modal_11"
@@ -1348,10 +1369,10 @@ if (isDataExisting) {
                                       width={20}
                                       height={20}
                                       alt="Delete Icon"
+                                      className="hide-icon"
                                     />
                                     Delete
                                   </label>
-                                </div>
                               </td>
                             </tr>
                           );
@@ -1437,7 +1458,7 @@ if (isDataExisting) {
 
       {/* table */}
       <div className="overflow-x-auto w-full h-full mt-5 text-black">
-        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
+        <table className="table text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -1456,6 +1477,7 @@ if (isDataExisting) {
               </tr>
             ) : (
               DataCampaignPagination.data.map((element: any) => {
+                const isExpired = element.status === 'expired';
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
@@ -1464,7 +1486,9 @@ if (isDataExisting) {
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
-                    <td className="flex place-content-center ">
+                    <td className="flex ">
+                    {!isExpired && (
+          <>
                         <label className="btn btn-sm btn-accent mr-2"
                         htmlFor="my_modal_10"
                         onClick={() => handlegetProduct_idClick(element)}>
@@ -1499,6 +1523,8 @@ if (isDataExisting) {
                           />
                           Delete
                         </label>
+                 </>
+        )}
                     </td>
                   </tr>
                 );
