@@ -1172,7 +1172,7 @@ export default function Page() {
   });
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
 
       <dialog id="my_modal_1" ref={notifModal} className="modal">
@@ -1687,6 +1687,10 @@ export default function Page() {
                               value: "3",
                               text: "Sales",
                             },
+                            {
+                              value: "2",
+                              text: "Admin",
+                            },
                           ]}
                           setFieldValue={setFieldValue}
                           values={values.employee_type}
@@ -1865,9 +1869,9 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="overflow-x-auto mt-5 text-black">
+            <div className="overflow-x-auto w-full h-full mt-5 text-black">
               {values.selected == "" ? (
-                <table className="table text-base font-semibold">
+                <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                   {/* head */}
                   <thead className="bg-gray-900 rounded-lg text-white font-semibold">
                     <tr className="rounded-lg">
@@ -2081,7 +2085,7 @@ export default function Page() {
                                     );
                                   }}
                                   type="button"
-                                  className={`btn ${employee.user_type!=2?"btn-info":"btn-disabled"} mr-5`}
+                                  className="btn btn-info mr-5"
                                 >
                                   <Image
                                     src="/images/update-user.png"
@@ -2102,7 +2106,7 @@ export default function Page() {
                                       user_id: employee.user_id,
                                     });
                                   }}
-                                  className={`btn ${employee.user_type!=2?"btn-error":"btn-disabled"}`}
+                                  className="btn btn-error"
                                 >
                                   <Image
                                     src="/icons/deleteicon.svg"

@@ -257,13 +257,11 @@ const {
     },
     [setProcessing, showToast, setEditModalOpen, RefetchActionPagination, editActionRef, rowDataToEdit]
   );
-  
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateAction(values);
     setEditModalOpen(false);  
-    
   };  
 
   const RemoveinitialValues = {
@@ -273,11 +271,13 @@ const {
     removed_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
+
   const handleRemoveClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
+
   const handleRemoveAction = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -348,7 +348,6 @@ const {
     setModalOpen(false);  
     
   };  
-
  
   return (
     <div className="w-full h-full px-2">

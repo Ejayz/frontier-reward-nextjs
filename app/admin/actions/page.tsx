@@ -23,7 +23,7 @@ type Element = {
 };
 export default function Page() {
   const myDiv = document.getElementById("mydiv");
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [processing, setProcessing] = useState(false);
   const createActionRef = useRef<FormikProps<any>>(null);
   const editActionRef = useRef<FormikProps<any>>(null);
@@ -40,7 +40,7 @@ export default function Page() {
     isLoading,
     refetch: RefetchActionPagination,
   } = useQuery({
-    queryKey: ["getActionsPagination", page],
+    queryKey: ["getActionsPagination", page, searchTerm],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -65,6 +65,12 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+
+  const filteredData = (DataActionPagination?.data || []).filter(
+    (element: Element) =>
+      element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      element.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
 // Fetch campaign data using useQuery
 const {
@@ -251,13 +257,11 @@ const {
     },
     [setProcessing, showToast, setEditModalOpen, RefetchActionPagination, editActionRef, rowDataToEdit]
   );
-  
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateAction(values);
     setEditModalOpen(false);  
-    
   };  
 
   const RemoveinitialValues = {
@@ -267,11 +271,13 @@ const {
     removed_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
+
   const handleRemoveClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
+
   const handleRemoveAction = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -342,15 +348,38 @@ const {
     setModalOpen(false);  
     
   };  
-
-
+ 
   return (
     <div className="w-full h-full px-2">
-      {/* add modal */}
-      <label htmlFor="my_modal_6" className="btn btn-primary ">
-        Add Action
-      </label>
-
+<div className="flex w-full">
+  {/* add modal */}
+  <label htmlFor="my_modal_6" className="btn btn-primary">
+    Add Action
+  </label>
+  <div className="ml-auto">
+    <label className="input input-bordered flex items-center gap-2">
+      <input
+        type="text"
+        style={{ width: 300 }}
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-4 h-4 opacity-70"
+      >
+        <path
+          fillRule="evenodd"
+          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </label>
+  </div>
+</div>
       <input
         type="checkbox"
         id="my_modal_6"
@@ -627,7 +656,7 @@ const {
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataActionPagination.data.map((element: any) => {
+              filteredData.map((element: any) => {
                 return (
                   <tr className="hover" key={element.id}>
                     <td>{element.name}</td>
