@@ -285,7 +285,7 @@ export default function Page() {
     return <Loading></Loading>;
   } else {
     return (
-      <div className="w-full h-full pl-10">
+      <div className="w-full h-full px-2">
         <dialog ref={showRedeemTransaction} id="my_modal_1" className="modal">
           <div className="modal-box">
             <form method="dialog">
@@ -627,8 +627,8 @@ export default function Page() {
                   </table>
                 ) : values.selected == "campaign" ? (
                   <>
-                    <div className="flex flex-col w-11/12 mx-auto">
-                      <table className="table w-10/12 text-base mx-auto font-semibold">
+                    <div className="overflow-x-auto mt-5 text-black">
+                      <table className="table  text-base font-semibold text-center">
                         {/* head */}
                         <thead className="bg-gray-900 rounded-lg text-white font-semibold">
                           <tr className="rounded-lg">

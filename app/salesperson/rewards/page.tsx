@@ -27,6 +27,7 @@ type Element = {
 export default function Page() {
   const myDiv = document.getElementById("mydiv");
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [processing, setProcessing] = useState(false);
   const createActionRef = useRef<FormikProps<any>>(null);
   const editActionRef = useRef<FormikProps<any>>(null);
@@ -43,7 +44,7 @@ export default function Page() {
     isLoading: isLoadingRewardsPagination,
     refetch: RefetchRewardsPagination,
   } = useQuery({
-    queryKey: ["getActionsPagination", page],
+    queryKey: ["getActionsPagination", page,searchTerm],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -68,7 +69,11 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
-
+  const filteredData = (DataRewardPagination?.data || []).filter(
+    (element: Element) =>
+      element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      element.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     data: DataRewardTypePagination,
@@ -498,7 +503,29 @@ export default function Page() {
           </Formik>
         </div>
       </div> */}
-
+  <div className="ml-auto">
+    <label className="input input-bordered flex items-center gap-2">
+      <input
+        type="text"
+        style={{ width: 300 }}
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-4 h-4 opacity-70"
+      >
+        <path
+          fillRule="evenodd"
+          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </label>
+  </div>
       {/* edit modal */}
        <input
         type="checkbox"
@@ -725,7 +752,7 @@ onSubmit={onSubmit}>
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataRewardPagination.data.map((element: any) => {
+              filteredData.map((element: any) => {
                 const rewardType = DataRewardTypePagination?.data.find((item: any) => item.id === parseInt(element.reward_type_id));
                 const rewardTypeName = rewardType ? rewardType.name : "Unknown"; // Use a default value if not found
                
