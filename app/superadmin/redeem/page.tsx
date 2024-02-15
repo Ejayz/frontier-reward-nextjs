@@ -47,6 +47,7 @@ type PackageElement = {
 };
 export default function Page() {
   const [processing, setProcessing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [redeemPage, setRedeemPage] = useState(0);
   const addRedeemModal = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
@@ -140,7 +141,7 @@ export default function Page() {
     isFetching: isRedeemableFetching,
     refetch: refetchRedeemable,
   } = useQuery({
-    queryKey: ["getRedeemable", redeemPage],
+    queryKey: ["getRedeemable", redeemPage,searchTerm],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -248,7 +249,7 @@ export default function Page() {
   });
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* Update Modal*/}
 
       <dialog ref={updateRedeemModal} id="my_modal_3" className="modal">
@@ -524,8 +525,8 @@ export default function Page() {
           </Formik>
         </div>
       </div>
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
