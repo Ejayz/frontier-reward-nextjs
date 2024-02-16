@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@planetscale/database": "^1.11.0",
-    "@react-email/components": "^0.0.12",
+    "@react-email/components": "0.0.12",
     "@tanstack/react-query": "^5.13.4",
     "apexcharts": "^3.44.2",
     "bcrypt": "^5.1.1",
