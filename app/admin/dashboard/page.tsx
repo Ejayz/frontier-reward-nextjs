@@ -127,7 +127,7 @@ export default function Page() {
         )}
       </div>
       <div className="w-full flex text-black flex-col  lg:flex-row">
-        <div className="w-1/2 h-full flex flex-col">
+        <div className="w-1/2 h-full mt-24 flex flex-row">
           <Chart
             options={RedeemTransactions.options}
             series={isLoading || isFetching ? [0, 0, 0] : data.data.redeem}
@@ -145,7 +145,7 @@ export default function Page() {
             className="shadow-ml"
           />
         </div>
-        <div className="lg:w-1/2 w-full grid gap-2 p-4 grid-cols-2 ">
+        <div className="lg:w-1/2 w-full grid gap-2 mt-24 p-4 grid-cols-2 ">
           <div className="stats shadow-2xl">
             <div className="stat">
               <div className="stat-title">Active Campaign</div>

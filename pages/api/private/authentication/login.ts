@@ -60,6 +60,7 @@ export default async function handler(
             results[0].employee_id == null
               ? results[0].customer_id
               : results[0].employee_id,
+          package_id: results[0].package_id,
           is_employee: results[0].employee_id == null ? false : true,
           is_email_verified: results[0].email_verified_at ? true : false,
           code: results[0].code,
@@ -83,6 +84,7 @@ export default async function handler(
             results[0].employee_id == null
               ? results[0].customer_id
               : results[0].employee_id,
+          package_id: results[0].package_id,
           is_employee: results[0].employee_id == null ? false : true,
           is_email_verified: results[0].email_verified_at ? true : false,
           code: results[0].code,
@@ -104,6 +106,7 @@ export default async function handler(
             results[0].employee_id == null
               ? results[0].customer_id
               : results[0].employee_id,
+          package_id: results[0].package_id,
           is_employee: results[0].employee_id == null ? false : true,
           is_email_verified: results[0].email_verified_at ? true : false,
         },

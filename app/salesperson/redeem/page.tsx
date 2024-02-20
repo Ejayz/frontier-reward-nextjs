@@ -47,6 +47,8 @@ type PackageElement = {
 };
 export default function Page() {
   const [processing, setProcessing] = useState(false);
+  
+  const [searchTerm, setSearchTerm] = useState("");
   const [redeemPage, setRedeemPage] = useState(0);
   const addRedeemModal = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();

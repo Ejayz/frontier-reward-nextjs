@@ -1,4 +1,4 @@
-import {
+  import {
   Body,
   Container,
   Head,
@@ -22,7 +22,7 @@ const baseUrl = process.env.VERCEL_URL
 export const NotionMagicLinkEmail = ({
   loginCode = "sparo-ndigo-amurt-secan",
 }: NotionMagicLinkEmailProps) => (
-  <Html>
+  <Html>  
     <Head />
     <Preview>Log in with this magic link</Preview>
     <Body style={main}>

@@ -37,7 +37,7 @@ created_at: string;
 };
 export default function Page() {
   const myDiv = document.getElementById("mydiv");
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [processing, setProcessing] = useState(false);
   const createCampaignRef = useRef<FormikProps<any>>(null);
   const editCampaignRef = useRef<FormikProps<any>>(null);
@@ -48,32 +48,33 @@ export default function Page() {
   const { showToast } = useToast();
   useEffect(() => {
     RefetchCampaignPagination();
-  }, [page]);
+  }, [page]); 
+  
+  // Function to make the ThunderClient request
+  const makeThunderClientRequest = async () => {
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+      }
 
-// Function to make the ThunderClient request
-const makeThunderClientRequest = async () => {
-  try {
-    let headersList = {
-      "Accept": "*/*",
-      "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+      let response = await fetch("/api/private/cronjobs/", { 
+        method: "POST",
+        headers: headersList
+      });
+
+      let data = await response.text();
+      console.log(data);
+    } catch (error) {
+      console.error("Error making ThunderClient request:", error);
     }
-
-    let response = await fetch("/api/private/cronjobs/", { 
-      method: "POST",
-      headers: headersList
-    });
-
-    let data = await response.text();
-    console.log(data);
-  } catch (error) {
-    console.error("Error making ThunderClient request:", error);
   }
-}
 
-// Use the useEffect hook to trigger the ThunderClient request when the page loads
-useEffect(() => {
-  makeThunderClientRequest();
-}, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+  // Use the useEffect hook to trigger the ThunderClient request when the page loads
+  useEffect(() => {
+    makeThunderClientRequest();
+  }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
 
 
   const {
@@ -82,7 +83,7 @@ useEffect(() => {
     isLoading,
     refetch: RefetchCampaignPagination,
   } = useQuery({
-    queryKey: ["getCampaignPagination", page],
+    queryKey: ["getCampaignPagination", page,searchTerm],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -107,7 +108,11 @@ useEffect(() => {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
-
+  const filteredData = (DataCampaignPagination?.data || []).filter(
+    (element: Element) =>
+      element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      element.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     data: DataActionPagination,
@@ -416,24 +421,51 @@ if (isDataExisting) {
       };
   
       try {
-        console.log("the values are: ",values);
+        console.log("the values are: ", values);
+  
+        // Check if DataCampaignRewardActionPagination is defined and has a 'data' property
+        if (!DataCampaignRewardActionPagination || !DataCampaignRewardActionPagination.data) {
+          showToast({
+            status: 'error',
+            message: 'Campaign data is not available.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
+        const isActionUsedInCampaign = DataCampaignRewardActionPagination.data.some(
+          (campaign: any) => campaign.campaign_id === values.id && campaign.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: 'error',
+            message: 'This campaign is currently used and cannot be removed.',
+          });
+  
+          setProcessing(false);
+          return;
+        }
+  
+        console.log("the values are: ", values);
         const response = await fetch(`/api/private/removeCampaign/`, {
           method: 'POST',
-          body: JSON.stringify(values), 
+          body: JSON.stringify(values),
           headers: headersList,
         });
   
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
   
         showToast({
           status: 'success',
           message: 'Campaign Deleted Successfully',
-        
         });
+  
         RefetchCampaignPagination();
         setProcessing(false);
         editCampaignRef.current?.resetForm();
@@ -448,7 +480,7 @@ if (isDataExisting) {
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchCampaignPagination, editCampaignRef]
+    [setProcessing, showToast, setRemoveModalOpen, RefetchCampaignPagination, editCampaignRef, DataCampaignRewardActionPagination]
   );
   
   const onSubmitRemove = async (values: any) => {
@@ -493,29 +525,29 @@ if (isDataExisting) {
   };
 
   
+  
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
-      setAddRewardActionModalOpen(false);
-      
-      // Check if the name and description remain the same
-      if (
-        values.action_id === values.action_id &&
-        values.reward_id === values.reward_id &&
-        values.is_exist === 1
-      ) {
-        showToast({
-          status: 'error',
-          message: 'Reward and Action is already existing, Cannot Add Reward and Action',
-        });
+      setAddRewardActionModalOpen(true);
   
-        setProcessing(false);
-        return;
-      }
       try {
-
+        // Check if the name and description remain the same
+        if (
+          values.action_id === values.action_id &&
+          values.reward_id === values.reward_id &&
+          values.is_exist === 1
+        ) {
+          showToast({
+            status: 'error',
+            message: 'Reward and Action are already existing. Cannot Add Reward and Action',
+          });
   
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+          setProcessing(false);
+          return;
+        }
+  
+        const createResponse = await fetch(`/api/private/createCampaignRewardAction/`, {
           method: "POST",
           body: JSON.stringify(values),
           headers: {
@@ -525,33 +557,76 @@ if (isDataExisting) {
           },
         });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!createResponse.ok) {
+          throw new Error(`HTTP error! Status: ${createResponse.status}`);
         }
-  
-        const data = await response.json();
   
         showToast({
           status: "success",
           message: "Added Reward And Action Successfully",
         });
   
+        // Refetch data after creating
         RefetchActionPagination();
         RefetchRewardPagination();
-        setProcessing(false);
+  
+        // Clear form fields
         createCampaignRewardRef.current?.setFieldValue('action_id', '');
         createCampaignRewardRef.current?.setFieldValue('reward_id', '');
         createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+  
+        // Refetch Campaign Reward Action data
         RefetchCampaignRewardActionPagination();
-        setAddRewardActionModalOpen(true);
+  
+        // Set modal to open
+        setAddRewardActionModalOpen(false);
+  
+        // Get the selectedRewardData after creating
+        const selectedReward = DataRewardPagination?.data.find(
+          (item: any) => item.id === parseInt(values.reward_id, 10)
+        );
+  
+        // Update the reward quantity using the selectedRewardData
+        if (selectedReward) {
+          const updateResponse = await fetch(`/api/private/editRewardQuantity/`, {
+            method: "POST",
+            body: JSON.stringify({
+              id: values.reward_id,
+              quantity: selectedReward.quantity - values.quantity,
+            }),
+            headers: {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+              "Content-Type": "application/json",
+            },
+          });
+  
+          if (!updateResponse.ok) {
+            throw new Error(`HTTP error! Status: ${updateResponse.status}`);
+          }
+          RefetchActionPagination();
+          RefetchRewardPagination();
+    
+          // Clear form fields
+          createCampaignRewardRef.current?.setFieldValue('action_id', '');
+          createCampaignRewardRef.current?.setFieldValue('reward_id', '');
+          createCampaignRewardRef.current?.setFieldValue('quantity', 0);
+          selectedRewardData?.quantity ==0;
+    
+          // Refetch Campaign Reward Action data
+          RefetchCampaignRewardActionPagination();
+          // Set modal to open
+          setAddRewardActionModalOpen(true);
+        }
       } catch (error) {
         showToast({
           status: "error",
           message: "Something went wrong",
         });
-        setProcessing(false);
-        setAddRewardActionModalOpen(false);
         console.error(error);
+      } finally {
+        setProcessing(false);
+        setAddRewardActionModalOpen(true);
       }
     },
     [
@@ -560,8 +635,13 @@ if (isDataExisting) {
       setAddRewardActionModalOpen,
       RefetchRewardPagination,
       createCampaignRewardRef,
+      DataRewardPagination,
+      RefetchActionPagination,
+      RefetchCampaignRewardActionPagination,
     ]
   );
+  
+  
   const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: RewardActionElement) => {
     console.log("Add reward clicked for row:", rowData);
@@ -571,28 +651,54 @@ if (isDataExisting) {
   };
   const onSubmitRewardAction = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
+  
     // Check for existing data
-  const isDataExisting = DataCampaignRewardActionPagination.data.some(
-    (element: RewardActionElement) =>
-      element.reward_id === values.reward_id &&
-      element.action_id === values.action_id &&
-      element.campaign_id === values.campaign_id &&
-      element.is_exist === 1
-  );
-
-  if (isDataExisting) {
-    showToast({
-      status: "error",
-      message: "Reward with this Reward and Action already exists",
-    });
-
-    setEditModalOpen(false);
-    return;
-  }
-
-    await CreateCampaignRewardActionhandle(values);
-    setEditModalOpen(false);
+    const isDataExisting = DataCampaignRewardActionPagination.data.some(
+      (element: RewardActionElement) =>
+        element.reward_id === values.reward_id &&
+        element.action_id === values.action_id &&
+        element.campaign_id === values.campaign_id &&
+        element.is_exist === 1
+    );
+  
+    if (isDataExisting) {
+      showToast({
+        status: "error",
+        message: "Reward with this Reward and Action already exists",
+      });
+  
+      setEditModalOpen(false);
+      return;
+    }
+  
+    try {
+      // Update the quantity in DataRewardPagination
+      const updatedDataRewardPagination = DataRewardPagination?.data.map((item: any) => {
+        if (item.id === values.reward_id) {
+          return { ...item, quantity: selectedRewardData?.quantity };
+        }
+        return item;
+      });
+  
+      // Set the updated DataRewardPagination
+      if (DataRewardPagination) {
+        DataRewardPagination.data = updatedDataRewardPagination;
+      }
+  
+      // Call the CreateCampaignRewardActionhandle function
+      await CreateCampaignRewardActionhandle(values);
+  
+      // Close the edit modal
+      setEditModalOpen(false);
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      console.error(error);
+    }
   };
+  
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
     if (rowDataToEditPR) {
@@ -690,11 +796,37 @@ if (isDataExisting) {
     setRemoveModalOpenRewardAction(false);
   };
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* add modal */}
-      <label htmlFor="my_modal_6" className="btn btn-primary ">
-        Add Campaign
-      </label>
+      <div className="flex w-full">
+  {/* add modal */}
+  <label htmlFor="my_modal_6" className="btn btn-primary">
+    Add Campaign
+  </label>
+  <div className="ml-auto">
+    <label className="input input-bordered flex items-center gap-2">
+      <input
+        type="text"
+        style={{ width: 300 }}
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-4 h-4 opacity-70"
+      >
+        <path
+          fillRule="evenodd"
+          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </label>
+  </div>
+</div>
       <input
         type="checkbox"
         id="my_modal_6"
@@ -1224,8 +1356,8 @@ if (isDataExisting) {
                 </div>
               </div>  
             
-               <div className="overflow-x-auto max-h-96 items-center">
-                  <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
+               <div className="overflow-x-auto w-full h-full mt-5 text-black">
+                  <table className="table table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                     <thead>
                       <tr>
                         <th>Reward ID</th>
@@ -1254,8 +1386,7 @@ if (isDataExisting) {
                               <td>{rewardName}</td>
                               <td>{actionName}</td>
                               <td>{element.quantity}</td>
-                              <td className="flex">
-                                <div className="flex mx-auto">
+                              <td className="inline place-content-center lg:flex">
                                   <label
                                     className="btn btn-sm btn-error"
                                     htmlFor="my_modal_11"
@@ -1268,10 +1399,10 @@ if (isDataExisting) {
                                       width={20}
                                       height={20}
                                       alt="Delete Icon"
+                                      className="hide-icon"
                                     />
                                     Delete
                                   </label>
-                                </div>
                               </td>
                             </tr>
                           );
@@ -1356,8 +1487,8 @@ if (isDataExisting) {
       </div>
 
       {/* table */}
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -1375,19 +1506,19 @@ if (isDataExisting) {
                 <td colSpan={3}>Loading...</td>
               </tr>
             ) : (
-              DataCampaignPagination.data.map((element: any) => {
+              filteredData.map((element: any) => {
+                const isExpired = element.status === 'expired';
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
-  {element.status}
-</td>
+                    <td className="badge badge-info">{element.status}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 
-                    <td className="flex">
-                      <div className="flex mx-auto">
+                    <td className="flex ">
+                    {!isExpired && (
+          <>
                         <label className="btn btn-sm btn-accent mr-2"
                         htmlFor="my_modal_10"
                         onClick={() => handlegetProduct_idClick(element)}>
@@ -1396,6 +1527,7 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Add Reward
                         </label>
@@ -1406,6 +1538,7 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Edit Icon"
+                            className="hide-icon"
                           />
                           Edit
                         </label>
@@ -1416,10 +1549,12 @@ if (isDataExisting) {
                             width={20}
                             height={20}
                             alt="Delete Icon"
+                            className="hide-icon"
                           />
                           Delete
                         </label>
-                      </div>
+                 </>
+        )}
                     </td>
                   </tr>
                 );

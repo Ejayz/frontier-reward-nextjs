@@ -80,7 +80,7 @@ export default function Page() {
       };
 
       let response = await fetch(
-        `http://localhost:3000/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
+        `/api/private/getRedeemTransaction?page=${redeemPage}&keyword=${searchForm.current?.values.keyword}`,
         {
           method: "GET",
           headers: headersList,
@@ -182,7 +182,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       }
     },
   });
@@ -210,7 +210,7 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       } else {
         toast.error(data.message);
       }
@@ -243,7 +243,7 @@ export default function Page() {
         setRedeemTransactionID(null);
         RedeemTransactionRefetch();
         showRedeemTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       } else {
         toast.error(data.message);
       }
@@ -276,7 +276,7 @@ export default function Page() {
         setCampaignTransactionID(null);
         campaignRefetch();
         showConfirmCampaignTransaction.current?.close();
-        toast.success(data.message)
+        toast.success(data.message);
       }
     },
   });
@@ -285,7 +285,7 @@ export default function Page() {
     return <Loading></Loading>;
   } else {
     return (
-      <div className="overflow-x-auto mt-5 w-full h-full text-black">
+      <div className="w-full h-full px-2">
         <dialog ref={showRedeemTransaction} id="my_modal_1" className="modal">
           <div className="modal-box">
             <form method="dialog">
@@ -602,9 +602,9 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto mt-5 flex flex-col w-full text-black">
+              <div className="overflow-x-auto w-full h-full mt-5 text-black">
                 {values.selected == "" ? (
-                  <table className="table text-base font-semibold">
+                  <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                     {/* head */}
                     <thead className="bg-gray-900 rounded-lg text-white font-semibold">
                       <tr className="rounded-lg">

@@ -1172,7 +1172,7 @@ export default function Page() {
   });
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
 
       <dialog id="my_modal_1" ref={notifModal} className="modal">
@@ -1869,9 +1869,9 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="overflow-x-auto mt-5 text-black">
+            <div className="overflow-x-auto w-full h-full mt-5 text-black">
               {values.selected == "" ? (
-                <table className="table text-base font-semibold">
+                <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
                   {/* head */}
                   <thead className="bg-gray-900 rounded-lg text-white font-semibold">
                     <tr className="rounded-lg">

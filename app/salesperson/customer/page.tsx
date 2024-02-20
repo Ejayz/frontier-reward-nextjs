@@ -1172,7 +1172,7 @@ export default function Page() {
   });
 
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
 
       <dialog id="my_modal_1" ref={notifModal} className="modal">
@@ -1241,9 +1241,9 @@ export default function Page() {
       </dialog>
 
       {/* The button to open modal */}
-      <label htmlFor="add_user" className="btn btn-accent">
+      {/* <label htmlFor="add_user" className="btn btn-accent">
         Add User
-      </label>
+      </label> */}
 
       {/* Put this part before </body> tag */}
       <input
@@ -1810,7 +1810,7 @@ export default function Page() {
         innerRef={searchForm}
         initialValues={{
           keyword: "",
-          selected: "",
+          selected: "Customer",
         }}
         onSubmit={(values: any) => {
           if (values.selected == "Customer") {
@@ -1841,26 +1841,6 @@ export default function Page() {
                         />
                       </div>
                     </div>
-                    <SelectInput
-                      field_name="selected"
-                      className="select select-bordered join-item"
-                      placeholder="User Type"
-                      SelectOptions={[
-                        {
-                          value: "Customer",
-                          text: "Customer",
-                        },
-                        {
-                          value: "Employee",
-                          text: "Employee",
-                        },
-                      ]}
-                      errors={errors.selected}
-                      touched={touched.selected}
-                      setFieldValue={setFieldValue}
-                      values={values.selected}
-                    />
-
                     <div className="indicator">
                       <button className="btn join-item">Search</button>
                     </div>
@@ -1869,301 +1849,112 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="overflow-x-auto mt-5 text-black">
-              {values.selected == "" ? (
-                <table className="table text-base font-semibold">
-                  {/* head */}
-                  <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-                    <tr className="rounded-lg">
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* row 3 */}
+            <div className="overflow-x-auto w-full h-full mt-5 text-black">
+              <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
+                {/* head */}
+                <thead className="bg-gray-900 rounded-lg text-white font-semibold">
+                  <tr className="rounded-lg">
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Package</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customerIsFetching || customerIsLoading ? (
                     <tr className="row">
                       <th className="text-center" colSpan={6}>
-                        Please select user type filter above .
+                        <span className="loading loading-lg"></span>
                       </th>
                     </tr>
-                  </tbody>
-                </table>
-              ) : values.selected == "Customer" ? (
-                <>
-                  <table className="table text-base font-semibold">
-                    {/* head */}
-                    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-                      <tr className="rounded-lg">
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Package</th>
-                        <th>Actions</th>
+                  ) : customerData.data.length == 0 ? (
+                    <tr className="row">
+                      <th className="text-center" colSpan={6}>
+                        No data found.
+                      </th>
+                    </tr>
+                  ) : (
+                    customerData.data.map((customer: any, index: number) => (
+                      <tr key={customer.propsId} className="row">
+                        <td>{index + 1}</td>
+                        <td>
+                          {customer.first_name}{" "}
+                          {customer.middle_name == null ||
+                          customer.middle_name == ""
+                            ? ""
+                            : customer.middle_name}{" "}
+                          {customer.last_name}{" "}
+                          {customer.suffix == null || customer.suffix == ""
+                            ? ""
+                            : customer.suffix}
+                        </td>
+                        <td>{customer.email}</td>
+                        <td>{customer.phone_number}</td>
+                        <td>{customer.package_name}</td>
+                        <td>
+                          <button
+                            onClick={() => {
+                              nav.push(
+                                `/superadmin/customer/view/?user_id=${customer.customer_id}`
+                              );
+                            }}
+                            type="button"
+                            className="btn btn-info mr-5"
+                          >
+                            <Image
+                              src="/images/update-car.png"
+                              alt="edit"
+                              width={20}
+                              height={20}
+                              className="hide-icon"
+                            />
+                            <span>View Account</span>
+                          </button>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {customerIsFetching || customerIsLoading ? (
-                        <tr className="row">
-                          <th className="text-center" colSpan={6}>
-                            <span className="loading loading-lg"></span>
-                          </th>
-                        </tr>
-                      ) : customerData.data.length == 0 ? (
-                        <tr className="row">
-                          <th className="text-center" colSpan={6}>
-                            No data found.
-                          </th>
-                        </tr>
-                      ) : (
-                        customerData.data.map(
-                          (customer: any, index: number) => (
-                            <tr key={customer.propsId} className="row">
-                              <td>{index + 1}</td>
-                              <td>
-                                {customer.first_name}{" "}
-                                {customer.middle_name == null ||
-                                customer.middle_name == ""
-                                  ? ""
-                                  : customer.middle_name}{" "}
-                                {customer.last_name}{" "}
-                                {customer.suffix == null ||
-                                customer.suffix == ""
-                                  ? ""
-                                  : customer.suffix}
-                              </td>
-                              <td>{customer.email}</td>
-                              <td>{customer.phone_number}</td>
-                              <td>{customer.package_name}</td>
-                              <td>
-                                <button
-                                  onClick={() => {
-                                    nav.push(
-                                      `/superadmin/users/updatecustomercar/?user_id=${customer.customer_id}`
-                                    );
-                                  }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-car.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Vehicle</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    nav.push(
-                                      `/superadmin/users/updatecustomeraccount/?user_id=${customer.customer_id}`
-                                    );
-                                  }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-user.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Account</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn  btn-error"
-                                  onClick={() => {
-                                    removeCustomerMutation.mutate({
-                                      Customer_Id: customer.customer_id,
-                                      User_Id: customer.user_id,
-                                    });
-                                  }}
-                                >
-                                  <Image
-                                    src="/icons/deleteicon.svg"
-                                    width={20}
-                                    height={20}
-                                    alt="Delete Icon"
-                                  />
-                                  Remove Customer
-                                </button>
-                              </td>
-                            </tr>
-                          )
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                  <div className="w-11/12 flex mx-auto">
-                    <div className="join mx-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (page !== 0) {
-                            const newPage = page - 1;
-                            setPage(newPage);
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        «
-                      </button>
-                      <button className="join-item btn">
-                        {isFetching ? (
-                          <span className="loading loading-dots loading-md"></span>
-                        ) : (
-                          `Page ${page + 1}`
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (customerData.data.length >= 10) {
-                            const newPage = page + 1;
-                            setPage(newPage);
-                          } else {
-                            return;
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        »
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : values.selected == "Employee" ? (
-                <>
-                  <table className="table text-base font-semibold">
-                    {/* head */}
-                    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-                      <tr className="rounded-lg">
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {EmployeeIsFetching || EmployeeIsLoading ? (
-                        <tr className="text-center">
-                          <td colSpan={6}>Getting employee list.</td>
-                        </tr>
-                      ) : EmployeeData.data.length == 0 ? (
-                        <tr className="text-center">
-                          <td colSpan={6}>No employee found.</td>
-                        </tr>
-                      ) : (
-                        EmployeeData.data.map(
-                          (employee: any, index: number) => (
-                            <tr key={index} className="row">
-                              <th>{index + 1}</th>
-                              <td>
-                                {employee.first_name} {employee.middle_name}{" "}
-                                {employee.last_name}{" "}
-                                {employee.suffix == "" ||
-                                employee.suffix == "N/A" ||
-                                employee == null
-                                  ? ""
-                                  : employee.suffix}
-                              </td>
-                              <td>{employee.name}</td>
-                              <td>{employee.email}</td>
-                              <td>{employee.phone_number}</td>
-                              <td>
-                                <button
-                                  onClick={() => {
-                                    nav.push(
-                                      `/superadmin/users/updateemployee/?user_id=${employee.CoreId}`
-                                    );
-                                  }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-user.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Account</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    removeEmployeeMutation.mutate({
-                                      employee_id: employee.CoreId,
-                                      user_id: employee.user_id,
-                                    });
-                                    console.log({
-                                      employee_id: employee.CoreId,
-                                      user_id: employee.user_id,
-                                    });
-                                  }}
-                                  className="btn btn-error"
-                                >
-                                  <Image
-                                    src="/icons/deleteicon.svg"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Remove Account</span>
-                                </button>
-                              </td>
-                            </tr>
-                          )
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                  <div className="w-11/12 flex mx-auto">
-                    <div className="join mx-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (employeePage !== 0) {
-                            const newPage = employeePage - 1;
-                            setEmployeePage(newPage);
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        «
-                      </button>
-                      <button className="join-item btn">
-                        {EmployeeIsFetching || EmployeeIsLoading ? (
-                          <span className="loading loading-dots loading-md"></span>
-                        ) : (
-                          `Page ${employeePage + 1}`
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (EmployeeData.data.length >= 10) {
-                            const newPage = employeePage + 1;
-                            setEmployeePage(newPage);
-                          } else {
-                            return;
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        »
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <></>
-              )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+              <div className="w-11/12 flex mx-auto">
+                <div className="join mx-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (page !== 0) {
+                        const newPage = page - 1;
+                        setPage(newPage);
+                      }
+                    }}
+                    className="join-item btn"
+                  >
+                    «
+                  </button>
+                  <button className="join-item btn">
+                    {isFetching ? (
+                      <span className="loading loading-dots loading-md"></span>
+                    ) : (
+                      `Page ${page + 1}`
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (customerData.data.length >= 10) {
+                        const newPage = page + 1;
+                        setPage(newPage);
+                      } else {
+                        return;
+                      }
+                    }}
+                    className="join-item btn"
+                  >
+                    »
+                  </button>
+                </div>
+              </div>
             </div>
           </Form>
         )}

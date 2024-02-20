@@ -66,7 +66,7 @@ export default async function handler(
         return res.status(400).json({ message: "Something went wrong" });
       }
     const data=await resend.emails.send({
-      from: "Register@PointsAndPerks <register.noreply@sledgehammerdevelopmentteam.uk>",
+      from: "Register@PointsAndPerks <register.noreply@pointsandperks.ca>",
       to: [email],
       subject: "Welcome to Perks and Points",
       react: AccountCreation({
