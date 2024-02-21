@@ -152,7 +152,37 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+  const {
+    data: DataRedeemPagination,
+    isFetching: isFetchingRedeemPagination,
+    isLoading: isLoadingRedeemPagination,
+    refetch: RefetchRedeemPagination,
+  } = useQuery({
+    queryKey: ["getRedeem", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getRedeem`, {
+        method: "GET",
+        headers: headersList,
+      });
 
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   const [selectedValue, setSelectedValue] = useState("");
   const handleSelectChange = (event: any) => {
     const newValue = event.target.value;
@@ -472,7 +502,6 @@ export default function Page() {
           setProcessing(false);
           return;
         }
-  
         console.log("the values are: ", values);
   
         const isActionUsedInCampaign = DataPackageRewardPagination.data.some(
@@ -488,7 +517,29 @@ export default function Page() {
           setProcessing(false);
           return;
         }
+        try{
+        if (!DataRedeemPagination || !DataRedeemPagination.data) {
+          showToast({
+            status: "error",
+            message: "Package data is not available.",
+          });
   
+          setProcessing(false);
+          return;
+        }
+        const isActionUsedInRedeem = DataRedeemPagination.data.some(
+          (element: any) => element.package_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInRedeem) {
+          showToast({
+            status: "error",
+            message: "This package is currently used and cannot be removed.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
         console.log("the values are: ", values);
         const response = await fetch(`/api/private/removePackage/`, {
           method: "POST",
@@ -521,6 +572,15 @@ export default function Page() {
         setRemoveModalOpen(false);
         console.error(error);
       }
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      setProcessing(false);
+      setRemoveModalOpen(false);
+      console.error(error);
+    }
     },
     [
       setProcessing,

@@ -179,7 +179,37 @@ const {
       setModalOpen(false);
     },
   });
+  const {
+    data: DataRedeemPagination,
+    isFetching: isFetchingRedeemPagination,
+    isLoading: isLoadingRedeemPagination,
+    refetch: RefetchRedeemPagination,
+  } = useQuery({
+    queryKey: ["getRedeem", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getRedeem`, {
+        method: "GET",
+        headers: headersList,
+      });
 
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   const queryClient = useQueryClient();
   const [isModalOpen, setModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -363,6 +393,21 @@ const {
           setProcessing(false);
           return;
         }
+         try {
+          console.log("the values are: ",values);
+          const isActionUsedInRedeem = DataRedeemPagination.data.some(
+            (element: any) => element.reward_id === values.id && element.is_exist === 1
+          );
+    
+          if (isActionUsedInRedeem) {
+            showToast({
+              status: 'error',
+              message: 'This rewards is currently used and cannot be removed.',
+            });
+    
+            setProcessing(false);
+            return;
+          }
         const response = await fetch(`/api/private/removeRewards/`, {
           method: 'POST',
           body: JSON.stringify(values), 
@@ -393,6 +438,16 @@ const {
         setRemoveModalOpen(false);
         console.error(error);
       }
+    }
+      catch (error) {
+        showToast({
+          status: 'error',
+          message: 'Something went wrong',
+        });
+        setProcessing(false);
+        setRemoveModalOpen(false);
+        console.error(error);
+      } 
     },
     [setProcessing, showToast,setRemoveModalOpen, RefetchRewardPagination, editRewardRef,rowDataToEdit,DataPackageReward]
   );

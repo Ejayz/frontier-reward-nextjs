@@ -50,7 +50,7 @@ export default function Page() {
     },
   });
   return (
-    <div className="w-full h-screen bg-white flex flex-col mx-auto">
+    <div className=" overflow-x-auto lg:overflow-hidden w-full h-screen bg-white">
       <div className="carousel w-full mt-2 mx-auto">
         {carousel == 1 ? (
           <div id="slide1" className="carousel-item relative w-full">
@@ -126,27 +126,27 @@ export default function Page() {
           </div>
         )}
       </div>
-      <div className="w-full flex text-black flex-col  lg:flex-row">
-        <div className="w-1/2 h-full mt-24 flex flex-row">
+      <div className="w-full h-full px-5 mt-5 inline-block lg:mt-10 lg:flex">
+      <div className="w-full h-24 lg:w-1/2 inline place-content-center lg:flex lg:mt-10">
           <Chart
             options={RedeemTransactions.options}
             series={isLoading || isFetching ? [0, 0, 0] : data.data.redeem}
             type="pie"
-            width={350}
-            height={350}
-            className="shadow-ml"
+            width={400}
+            height={400}
+            className="shadow-ml" 
           />
           <Chart
             options={CampaignTransactions.options}
             series={isLoading || isFetching ? [0, 0, 0] : data.data.campaign}
             type="pie"
-            width={350}
-            height={350}
-            className="shadow-ml"
+            width={400}
+            height={400}
+            className="shadow-ml "
           />
         </div>
-        <div className="lg:w-1/2 w-full grid gap-2 mt-24 p-4 grid-cols-2 ">
-          <div className="stats shadow-2xl">
+      <div className="w-full h-1/2 inline-block gap-5 mt-5 lg:mt-60 lg:flex lg:w-1/2 lg:h-40">
+          <div className="w-full stats shadow-2xl border-4 border-indigo-200 border-l-yellow-500">
             <div className="stat">
               <div className="stat-title">Active Campaign</div>
               <div className="stat-value">
@@ -154,7 +154,7 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <div className="stats shadow-2xl">
+          <div className="w-full stats shadow-2xl border-4 border-indigo-200 border-l-yellow-500">
             <div className="stat">
               <div className="stat-title">Active Actions</div>
               <div className="stat-value">
@@ -162,7 +162,7 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <div className="stats shadow-2xl">
+          <div className="w-full stats shadow-2xl border-4 border-indigo-200 border-l-yellow-500">
             <div className="stat">
               <div className="stat-title">Users</div>
               <div className="stat-value">
@@ -170,7 +170,7 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <div className="stats shadow-2xl">
+          <div className="w-full stats shadow-2xl border-4 border-indigo-200 border-l-yellow-500">
             <div className="stat">
               <div className="stat-title">Packages</div>
               <div className="stat-value">
@@ -178,8 +178,8 @@ export default function Page() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div>   
+       </div>
     </div>
   );
 }
