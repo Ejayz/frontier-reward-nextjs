@@ -51,6 +51,7 @@ export default async function handler(
       code: 200,
       message: "Update Actions successfully",
     });
+    
   } catch (error) {
     console.error(error);
   

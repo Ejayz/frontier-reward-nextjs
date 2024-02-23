@@ -71,7 +71,6 @@ export default function Page() {
       element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       element.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
 // Fetch campaign data using useQuery
 const {
   data: DataCampaign,
@@ -350,14 +349,15 @@ const {
   };  
  
   return (
-    <div className="w-full h-full px-2">
+    <div className="w-full h-full px-2"> 
+
 <div className="flex w-full">
-  {/* add modal */}
-  <label htmlFor="my_modal_6" className="btn btn-primary">
+      <label htmlFor="my_modal_6" className="btn btn-primary">
     Add Action
-  </label>
+  </label>  
   <div className="ml-auto">
-    <label className="input input-bordered flex items-center gap-2">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
         style={{ width: 300 }}
@@ -378,7 +378,7 @@ const {
         />
       </svg>
     </label>
-  </div>
+      </div>
 </div>
       <input
         type="checkbox"
