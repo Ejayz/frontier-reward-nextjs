@@ -4,12 +4,16 @@ import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import Cookies from "cookies";
 import { RowDataPacket } from "mysql2";
-
+import { Resend } from "resend";
+import NewRedeem from "@/react-email-starter/emails/new-redeem-created";
+import twilio from "twilio";
+const RESEND_API = process.env.RESEND_SECRET || "";
 dotenv.config();
-
+const resend = new Resend(RESEND_API);
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
 export default async function handler(
+
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -20,23 +24,78 @@ export default async function handler(
   const auth = new Cookies(req, res).get("auth") || "";
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
+    let current_user = 0;
     if (typeof verify === "string") {
-      return res.status(401).json({ code: 401, message: "Unauthorized" });
+      return res.status(401).json({ code: 401, message: "Invalid token" });
+    } else if (verify?.main_id) {
+      // Access the id property only if it exists in the JwtPayload
+      current_user = verify.main_id;
+      console.log("Current user ID:", current_user);
+    } else {
+      return res
+        .status(401)
+        .json({ code: 401, message: "Invalid token format" });
     }
+    const { user_email, user_phonenumber } = req.body;
+
+    const [usersData]=<RowDataPacket[]>(await connection.query("SELECT * FROM users WHERE is_exist=? && user_type=?", [1,4]));
+
+    if (usersData.length === 0) {
+      console.log("No users found with is_exist = 1");
+    } else {
+      console.log("Users data:");
+      usersData.forEach((user:any) => {
+        const { email, phone_number} = user;
+        //console.log("User email:", email);
+        //console.log("User phonenumber:", phone_number);
+        //console.log("--------"); // Separate each user for better readability
+        const base_url = `https://${req.headers.host}/`;
+        const data = resend.emails.send({
+          from: "Register@PointsAndPerks <register.noreply@pointsandperks.ca>",
+          to: [email], // Use the user's email
+          subject: "Welcome to Perks and Points",
+          react: NewRedeem({
+            email,
+            base_url,
+          }),
+          text: `Welcome to Perks and Points!`,
+        });
+        // Sending SMS using Twilio
+        try {
+          const accountSid = 'ACa8885500a174ce819aa528dff9a5715e';
+          const authToken = 'ae8b9d43c48addb87575c751528c7096';
+          const client = new twilio.Twilio(accountSid, authToken);
+
+           client.messages.create({
+            to: phone_number,
+            from: '+17855092315', // Your Twilio phone number
+            body: 'Dear Customers,\n\nWe\'re delighted to inform you that a new redeem has been created for your benefit. 🌟 Kindly explore and redeem exclusive offers on our app.'
+            +'\n\nVisit [App Link].\n\nBest regards,\n[Your Company Name]',
+          });
+          
+        } catch (smsError) {
+          console.error('Error sending SMS:', smsError);
+        }
+      
+      });
+    }
+
     const { name, description, cost, package_id, reward_id } = req.body;
 
     const [rows] = <RowDataPacket[]>(
       await connection.query(
         "INSERT INTO redeem (name, description, point_cost, package_id, reward_id,employee_id) VALUES (?, ?, ?, ?, ?,?)",
-        [name, description, cost, package_id, reward_id, verify.id]
+        [name, description, cost, package_id, reward_id, current_user]
       )
     );
     if (rows.affectedRows === 0) {
       return res.status(400).json({ code: 400, message: "Bad Request" });
     }
+   
     return res
       .status(200)
-      .json({ code: 200, message: "New redeemable added." });
+      .json({ code: 200, message: "New redeemable added.",});
+      
   } catch (error: any) {
     console.log(error);
     if (error.message === "jwt expired") {
