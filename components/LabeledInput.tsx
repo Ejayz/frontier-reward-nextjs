@@ -10,6 +10,7 @@ export default function LabeledInput({
   touched,
   classes,
   label,
+  readOnly,
 }: any) {
   
   return (

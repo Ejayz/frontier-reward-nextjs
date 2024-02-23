@@ -153,6 +153,69 @@ export default function Page() {
     placeholderData: keepPreviousData,
   });
 
+  const {
+    data: DataCampaignPagination,
+    isFetching: isFetchingCampaignPagination,
+    isLoading: isLoadingCampaignPagination,
+    refetch: refetchCampaignPagination,
+  } = useQuery({
+    queryKey: ["getReward", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getCampaigns`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+
+  const {
+    data: DataRedeemPagination,
+    isFetching: isFetchingRedeemPagination,
+    isLoading: isLoadingRedeemPagination,
+    refetch: RefetchRedeemPagination,
+  } = useQuery({
+    queryKey: ["getRedeem", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getRedeem`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   const [selectedValue, setSelectedValue] = useState("");
   const handleSelectChange = (event: any) => {
     const newValue = event.target.value;
@@ -462,7 +525,6 @@ export default function Page() {
       };
   
       try {
-        // Check if DataPackageRewardPagination is defined and has a 'data' property
         if (!DataPackageRewardPagination || !DataPackageRewardPagination.data) {
           showToast({
             status: "error",
@@ -472,8 +534,6 @@ export default function Page() {
           setProcessing(false);
           return;
         }
-  
-        console.log("the values are: ", values);
   
         const isActionUsedInCampaign = DataPackageRewardPagination.data.some(
           (element: any) => element.package_id === values.id && element.is_exist === 1
@@ -489,29 +549,89 @@ export default function Page() {
           return;
         }
   
-        console.log("the values are: ", values);
-        const response = await fetch(`/api/private/removePackage/`, {
-          method: "POST",
-          body: JSON.stringify(values),
-          headers: headersList,
-        });
+        try {
+          if (!DataRedeemPagination || !DataRedeemPagination.data) {
+            showToast({
+              status: "error",
+              message: "Package data is not available.",
+            });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+            setProcessing(false);
+            return;
+          }
+  
+          const isActionUsedInRedeem = DataRedeemPagination.data.some(
+            (element: any) => element.package_id === values.id && element.is_exist === 1
+          );
+  
+          if (isActionUsedInRedeem) {
+            showToast({
+              status: "error",
+              message: "This package is currently used and cannot be removed.",
+            });
+  
+            setProcessing(false);
+            return;
+          }
+  
+          try {
+            console.log("the values are: ", values);
+  
+            const isActionUsedInCampaign = DataCampaignPagination.data.some(
+              (element: any) => element.package_id === values.id && element.is_exist === 1
+            );
+  
+            if (isActionUsedInCampaign) {
+              showToast({
+                status: 'error',
+                message: 'This action is currently used and cannot be removed.',
+              });
+  
+              setProcessing(false);
+              return;
+            }
+  
+            console.log("the values are: ", values);
+            const response = await fetch(`/api/private/removePackage/`, {
+              method: "POST",
+              body: JSON.stringify(values),
+              headers: headersList,
+            });
+  
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+  
+            const data = await response.json();
+  
+            showToast({
+              status: "success",
+              message: "Package Deleted Successfully",
+            });
+            RefetchPackagesPagination();
+            RefetchPackageRewardPagination();
+            setProcessing(false);
+            removePacakgeRewardRef.current?.resetForm();
+            createPackageRewardRef.current?.setFieldValue("reward_id", "");
+            setRemoveModalOpen(false);
+          } catch (error) {
+            showToast({
+              status: "error",
+              message: "Something went wrong",
+            });
+            setProcessing(false);
+            setRemoveModalOpen(false);
+            console.error(error);
+          }
+        } catch (error) {
+          showToast({
+            status: "error",
+            message: "Something went wrong",
+          });
+          setProcessing(false);
+          setRemoveModalOpen(false);
+          console.error(error);
         }
-  
-        const data = await response.json();
-  
-        showToast({
-          status: "success",
-          message: "Package Deleted Successfully",
-        });
-        RefetchPackagesPagination();
-        RefetchPackageRewardPagination();
-        setProcessing(false);
-        removePacakgeRewardRef.current?.resetForm();
-        createPackageRewardRef.current?.setFieldValue("reward_id", "");
-        setRemoveModalOpen(false);
       } catch (error) {
         showToast({
           status: "error",
@@ -531,8 +651,11 @@ export default function Page() {
       createPackageRewardRef,
       removePacakgeRewardRef,
       DataPackageRewardPagination,
+      DataRedeemPagination,
+      DataCampaignPagination,
     ]
   );
+  
   
     
   const onSubmitRemove = async (values: any) => {
