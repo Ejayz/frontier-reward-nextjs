@@ -262,27 +262,6 @@ export default function SalesPersonDashboardNav({
               </li>
               <li
                 className={`${
-                  navbarActive?.includes("/salesperson/customer")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/salesperson/customer"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/icons/rating.png"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />{" "}
-                  Customer
-                </Link>
-              </li>
-              <li
-                className={`${
                   navbarActive?.includes("/salesperson/campaigns")
                     ? "bg-yellow-400 rounded-md"
                     : ""

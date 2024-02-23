@@ -375,7 +375,7 @@ export default function Page() {
   {/* <label htmlFor="addRedeemModal" className="btn btn-primary ">
         Add Redeem
       </label> */}
-   <div className="ml-auto">
+<div className="w-80">
     <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
@@ -383,6 +383,7 @@ export default function Page() {
         placeholder="Search..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        className="text-lg font-semibold"
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"

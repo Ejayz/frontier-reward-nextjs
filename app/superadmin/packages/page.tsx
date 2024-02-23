@@ -688,9 +688,11 @@ export default function Page() {
     Add Package
   </label>
   <div className="ml-auto">
-    <label className="input input-bordered flex items-center gap-2">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
+        className="text-lg font-semibold"
         style={{ width: 300 }}
         placeholder="Search..."
         value={searchTerm}
@@ -700,7 +702,7 @@ export default function Page() {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
         fill="currentColor"
-        className="w-4 h-4 opacity-70"
+        className="w-8 h-8 opacity-70"
       >
         <path
           fillRule="evenodd"
@@ -709,7 +711,7 @@ export default function Page() {
         />
       </svg>
     </label>
-  </div>
+      </div>
 </div>
       <input
         type="checkbox"

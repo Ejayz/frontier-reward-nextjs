@@ -1,36 +1,28 @@
-// pages/api/private/twilio.js
-
-import twilio from 'twilio';
-import dotenv from 'dotenv';
 import { NextApiRequest, NextApiResponse } from 'next';
+import twilio from 'twilio';
 
-dotenv.config();
+export default async function handler(req:NextApiRequest, res:NextApiResponse) {
+  const accountSid = 'ACa8885500a174ce819aa528dff9a5715e';
+  const authToken = 'ad17cdf417595e3a4ad0a08e5b162294';
+  const client = new twilio.Twilio(accountSid, authToken);
 
-const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+  const numbers = req.body.numbers; // Array of phone numbers
+  const message = 'Your bulk message here!';
 
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-export default async function handler(req: NextApiRequest,res: NextApiResponse) {
   try {
-    // Your condition to determine whether to send an SMS or not
-    const shouldSendSMS = true; // Replace with your condition
-
-    if (shouldSendSMS) {
-      const message = await client.messages.create({
-        body: 'Hello from Twilio',
-        to: '+639654508419', // Replace with the recipient's phone number
-        from: TWILIO_PHONE_NUMBER,
+    const promises = numbers.map((number:any) => {
+      return client.messages.create({
+        to: number,
+        from: '17855092315',
+        body: message,
       });
+    });
 
-      console.log(message.sid);
-      res.status(200).json({ message: 'SMS sent successfully' });
-    } else {
-      res.status(200).json({ message: 'SMS not sent' });
-    }
+    await Promise.all(promises);
+
+    res.status(200).json({ success: true, message: 'Bulk messages sent successfully' });
   } catch (error) {
-    console.error('Twilio Error:', error);
-    res.status(500).json({ message: 'Error sending SMS' });
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Error sending bulk messages' });
   }
 }

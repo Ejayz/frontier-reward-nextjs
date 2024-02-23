@@ -1830,19 +1830,19 @@ export default function Page() {
                           field_name="keyword"
                           type="text"
                           placeholder="Search"
-                          className="input input-bordered join-item"
+                          className="input input-bordered join-item text-lg font-semibold"
                           errors={errors.keyword}
                           touched={touched.keyword}
                           onChange={(e: any) => {
                             setKeyword(e.target.value);
                           }}
-                          classes="text-base"
+                          classes="text-lg font-semibold"
                           label="Search"
                         />
                       </div>
                     </div>
                     <div className="indicator">
-                      <button className="btn join-item">Search</button>
+                      <button className="btn join-item btn-primary text-lg font-semibold">Search</button>
                     </div>
                   </div>
                 </div>
