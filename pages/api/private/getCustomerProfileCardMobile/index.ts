@@ -22,8 +22,8 @@ export default async function handler(
   let rows;
   let fields;
   try {
-    const verify=jwt.verify(auth, JWT_SECRET);
-    if(typeof verify === "string"){
+    const verify = jwt.verify(auth, JWT_SECRET);
+    if (typeof verify === "string") {
       return res.status(401).json({ code: 401, message: "Invalid token" });
     }
 
@@ -34,7 +34,9 @@ export default async function handler(
       )
     );
     console.log(rows);
-    return res.status(200).json({ code: 200, message: "Success", data: rows });
+    return res
+      .status(200)
+      .json({ code: 200, message: "Success", data: rows[0] });
   } catch (error: any) {
     console.log(error);
     if (error.name === "TokenExpiredError") {
