@@ -6,6 +6,7 @@ import Cookies from "cookies";
 import { RowDataPacket } from "mysql2";
 import { Resend } from "resend";
 import NewRedeem from "@/react-email-starter/emails/new-redeem-created";
+
 import twilio from "twilio";
 const RESEND_API = process.env.RESEND_SECRET || "";
 dotenv.config();
@@ -60,23 +61,24 @@ export default async function handler(
           }),
           text: `Welcome to Perks and Points!`,
         });
-        // Sending SMS using Twilio
-        try {
-          const accountSid = 'ACa8885500a174ce819aa528dff9a5715e';
-          const authToken = 'ae8b9d43c48addb87575c751528c7096';
-          const client = new twilio.Twilio(accountSid, authToken);
-
-           client.messages.create({
-            to: phone_number,
-            from: '+17855092315', // Your Twilio phone number
-            body: 'Dear Customers,\n\nWe\'re delighted to inform you that a new redeem has been created for your benefit. 🌟 Kindly explore and redeem exclusive offers on our app.'
-            +'\n\nVisit [App Link].\n\nBest regards,\n[Your Company Name]',
+        const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+        const body = "Ice creams are coming!";
+        const numbers = [phone_number];
+        const service = twilio.notify.services(process.env.TWILIO_NOTIFY_SERVICE_SID);
+        const bindings = numbers.map(number => {
+          return JSON.stringify({ binding_type: 'sms', address: number });
+        });
+        service.notifications
+          .create({
+                toBinding: bindings,
+                body: body
+          })
+          .then((notification:any) => {
+                console.log("notification sent successfully");
+          })
+          .catch((err:any) => {
+                console.error("notification failed to send");
           });
-          
-        } catch (smsError) {
-          console.error('Error sending SMS:', smsError);
-        }
-      
       });
     }
 

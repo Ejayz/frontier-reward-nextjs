@@ -480,7 +480,7 @@ export default function Page() {
                 />
                 <LabeledInput
   field_name="reward_id"
-  placeholder="Package"
+  placeholder="Redeemable Reward"
   className="input input-bordered"
   errors={errors.reward_id}
   touched={touched.reward_id}

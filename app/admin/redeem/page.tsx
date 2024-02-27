@@ -348,6 +348,7 @@ export default function Page() {
                     touched={touched.name}
                     classes="mb-2"
                     label="Name"
+                    datatip="Input the name of the redeemable."
                   />
                   <LabeledInput
                     field_name="description"
@@ -358,6 +359,7 @@ export default function Page() {
                     touched={touched.description}
                     classes="mb-2"
                     label="Description"
+                    datatip="Input the description of the redeemable."
                   />
                   <LabeledInput
                     field_name="cost"
@@ -368,6 +370,7 @@ export default function Page() {
                     touched={touched.cost}
                     classes="mb-2"
                     label="Cost"
+                    datatip="Input the cost of the redeemable."
                   />
                   <LabeledSelectInput
                     field_name="package_id"
@@ -377,6 +380,7 @@ export default function Page() {
                     touched={touched.package_id}
                     classes="mb-2"
                     label="Package"
+                    datatip="Select a package name for the redeemable."
                     SelectOptions={
                       isPackagesFetching || isPackagesLoading
                         ? []
@@ -393,6 +397,7 @@ export default function Page() {
                     touched={touched.reward_id}
                     classes="mb-2"
                     label="Reward"
+                    datatip="Select a reward name for the redeemable."
                     SelectOptions={
                       isRewardsFetching || isRewardsLoading
                         ? []
@@ -495,6 +500,7 @@ export default function Page() {
                   touched={touched.name}
                   classes="mb-2"
                   label="Name"
+                  datatip="Input the name of the redeemable."
                 />
                 <LabeledInput
                   field_name="description"
@@ -505,6 +511,7 @@ export default function Page() {
                   touched={touched.description}
                   classes="mb-2"
                   label="Description"
+                  datatip="Input the description of the redeemable."
                 />
                 <LabeledInput
                   field_name="cost"
@@ -515,6 +522,7 @@ export default function Page() {
                   touched={touched.cost}
                   classes="mb-2"
                   label="Cost"
+                  datatip="Input the cost of the redeemable."
                 />
                 <LabeledSelectInput
                   field_name="package_id"
@@ -524,6 +532,7 @@ export default function Page() {
                   touched={touched.package_id}
                   classes="mb-2"
                   label="Package"
+                  datatip="Select a package name for the redeemable."
                   SelectOptions={
                     isPackagesFetching || isPackagesLoading
                       ? []
@@ -534,12 +543,13 @@ export default function Page() {
                 />
                 <LabeledSelectInput
                   field_name="reward_id"
-                  placeholder="Package"
+                  placeholder="Redeemable Reward"
                   className="input input-bordered"
                   errors={errors.reward_id}
                   touched={touched.reward_id}
                   classes="mb-2"
                   label="Reward"
+                  datatip="Select a reward name for the redeemable."
                   SelectOptions={
                     isRewardsFetching || isRewardsLoading ? [] : getRewards.data
                   }

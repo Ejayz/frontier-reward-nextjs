@@ -556,6 +556,13 @@ const {
           >
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
+                  <label className="label flex place-content-start gap-2">
+                  <span className="label-text text-base font-semibold">
+                    Reward Type
+                  </span>   
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward name for the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                </label>
                 <select
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -577,10 +584,12 @@ const {
                     </option>
                   ))}
                 </select>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Quantity
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the quantity of the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -603,10 +612,12 @@ const {
                   )}
                 </ErrorMessage>
 
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Name
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the name of the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div> 
                 </label>
                 <Field
                   type="text"
@@ -629,10 +640,12 @@ const {
                   )}
                 </ErrorMessage>
 
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Description
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the description of the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -702,6 +715,15 @@ validationSchema={rewardValidation}
 onSubmit={onSubmit}>
    {({ errors, touched, values, setFieldValue }) => (
            <Form>
+                <label className="label flex place-content-start gap-2">
+                  <span className="label-text text-base font-semibold">
+                    Reward Type
+                  </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward type for the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                </label>
+                
+               
   <select
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -723,10 +745,12 @@ onSubmit={onSubmit}>
                     </option>
                   ))}
                 </select>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Quantity
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the quantity of the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -749,10 +773,12 @@ onSubmit={onSubmit}>
                   )}
                 </ErrorMessage>
 
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Name
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the name of the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -775,10 +801,12 @@ onSubmit={onSubmit}>
                   )}
                 </ErrorMessage>
 
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Description
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the description of the reward">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"

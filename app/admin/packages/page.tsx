@@ -152,39 +152,6 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
-
-  const {
-    data: DataCampaignPagination,
-    isFetching: isFetchingCampaignPagination,
-    isLoading: isLoadingCampaignPagination,
-    refetch: refetchCampaignPagination,
-  } = useQuery({
-    queryKey: ["getReward", page],
-    queryFn: async () => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-      };
-      let response = await fetch(`/api/private/getCampaigns`, {
-        method: "GET",
-        headers: headersList,
-      });
-
-      let data = await response.json();
-      if (!response.ok) {
-        showToast({
-          status: "error",
-          message: data.message,
-        });
-      }
-      return data;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    gcTime: 0,
-    placeholderData: keepPreviousData,
-  });
-
   const {
     data: DataRedeemPagination,
     isFetching: isFetchingRedeemPagination,
@@ -525,6 +492,7 @@ export default function Page() {
       };
   
       try {
+        // Check if DataPackageRewardPagination is defined and has a 'data' property
         if (!DataPackageRewardPagination || !DataPackageRewardPagination.data) {
           showToast({
             status: "error",
@@ -534,6 +502,7 @@ export default function Page() {
           setProcessing(false);
           return;
         }
+        console.log("the values are: ", values);
   
         const isActionUsedInCampaign = DataPackageRewardPagination.data.some(
           (element: any) => element.package_id === values.id && element.is_exist === 1
@@ -548,90 +517,52 @@ export default function Page() {
           setProcessing(false);
           return;
         }
-  
-        try {
-          if (!DataRedeemPagination || !DataRedeemPagination.data) {
-            showToast({
-              status: "error",
-              message: "Package data is not available.",
-            });
-  
-            setProcessing(false);
-            return;
-          }
-  
-          const isActionUsedInRedeem = DataRedeemPagination.data.some(
-            (element: any) => element.package_id === values.id && element.is_exist === 1
-          );
-  
-          if (isActionUsedInRedeem) {
-            showToast({
-              status: "error",
-              message: "This package is currently used and cannot be removed.",
-            });
-  
-            setProcessing(false);
-            return;
-          }
-  
-          try {
-            console.log("the values are: ", values);
-  
-            const isActionUsedInCampaign = DataCampaignPagination.data.some(
-              (element: any) => element.package_id === values.id && element.is_exist === 1
-            );
-  
-            if (isActionUsedInCampaign) {
-              showToast({
-                status: 'error',
-                message: 'This action is currently used and cannot be removed.',
-              });
-  
-              setProcessing(false);
-              return;
-            }
-  
-            console.log("the values are: ", values);
-            const response = await fetch(`/api/private/removePackage/`, {
-              method: "POST",
-              body: JSON.stringify(values),
-              headers: headersList,
-            });
-  
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-  
-            const data = await response.json();
-  
-            showToast({
-              status: "success",
-              message: "Package Deleted Successfully",
-            });
-            RefetchPackagesPagination();
-            RefetchPackageRewardPagination();
-            setProcessing(false);
-            removePacakgeRewardRef.current?.resetForm();
-            createPackageRewardRef.current?.setFieldValue("reward_id", "");
-            setRemoveModalOpen(false);
-          } catch (error) {
-            showToast({
-              status: "error",
-              message: "Something went wrong",
-            });
-            setProcessing(false);
-            setRemoveModalOpen(false);
-            console.error(error);
-          }
-        } catch (error) {
+        try{
+        if (!DataRedeemPagination || !DataRedeemPagination.data) {
           showToast({
             status: "error",
-            message: "Something went wrong",
+            message: "Package data is not available.",
           });
+  
           setProcessing(false);
-          setRemoveModalOpen(false);
-          console.error(error);
+          return;
         }
+        const isActionUsedInRedeem = DataRedeemPagination.data.some(
+          (element: any) => element.package_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInRedeem) {
+          showToast({
+            status: "error",
+            message: "This package is currently used and cannot be removed.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
+        console.log("the values are: ", values);
+        const response = await fetch(`/api/private/removePackage/`, {
+          method: "POST",
+          body: JSON.stringify(values),
+          headers: headersList,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        showToast({
+          status: "success",
+          message: "Package Deleted Successfully",
+        });
+        RefetchPackagesPagination();
+        RefetchPackageRewardPagination();
+        setProcessing(false);
+        removePacakgeRewardRef.current?.resetForm();
+        createPackageRewardRef.current?.setFieldValue("reward_id", "");
+        setRemoveModalOpen(false);
       } catch (error) {
         showToast({
           status: "error",
@@ -641,6 +572,15 @@ export default function Page() {
         setRemoveModalOpen(false);
         console.error(error);
       }
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      setProcessing(false);
+      setRemoveModalOpen(false);
+      console.error(error);
+    }
     },
     [
       setProcessing,
@@ -651,11 +591,8 @@ export default function Page() {
       createPackageRewardRef,
       removePacakgeRewardRef,
       DataPackageRewardPagination,
-      DataRedeemPagination,
-      DataCampaignPagination,
     ]
   );
-  
   
     
   const onSubmitRemove = async (values: any) => {
@@ -837,10 +774,12 @@ export default function Page() {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -863,10 +802,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -889,10 +830,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -961,10 +904,12 @@ export default function Page() {
           >
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Reward Name
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select reward name for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
                   name="reward_id"
@@ -1091,10 +1036,12 @@ export default function Page() {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1117,10 +1064,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1143,10 +1092,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"

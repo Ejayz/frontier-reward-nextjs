@@ -1241,10 +1241,7 @@ export default function Page() {
       </dialog>
 
       {/* The button to open modal */}
-      <label htmlFor="add_user" className="btn btn-accent">
-        Add User
-      </label>
-
+    
       {/* Put this part before </body> tag */}
       <input
         type="checkbox"

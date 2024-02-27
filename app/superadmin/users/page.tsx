@@ -1317,6 +1317,7 @@ export default function Page() {
                           touched={touched.first_name}
                           classes="text-base"
                           label="First Name"
+                          datatip="Input the first name for the account."
                         />
                         <LabeledInput
                           field_name="middle_name"
@@ -1327,6 +1328,7 @@ export default function Page() {
                           touched={touched.middle_name}
                           classes="text-base"
                           label="Middle Name"
+                          datatip="Input the middle name for the account."
                         />
                         <LabeledInput
                           field_name="last_name"
@@ -1337,6 +1339,7 @@ export default function Page() {
                           touched={touched.last_name}
                           classes="text-base"
                           label="Last Name"
+                          datatip="Input the last name for the account."
                         />
                         <LabeledInput
                           field_name="suffix"
@@ -1347,6 +1350,7 @@ export default function Page() {
                           touched={touched.suffix}
                           classes="text-base"
                           label="Suffix"
+                          datatip="Input the suffix for the account."
                         />
                         <LabeledInput
                           field_name="email"
@@ -1357,6 +1361,7 @@ export default function Page() {
                           touched={touched.email}
                           classes="text-base"
                           label="Email"
+                          datatip="Input the email for the account."
                         />
                         <LabeledInputPhone
                           field_name="phone_number"
@@ -1366,6 +1371,7 @@ export default function Page() {
                           touched={touched.phone_number}
                           classes="text-base"
                           label="Phone Number"
+                          datatip="Input the phone number for the account."
                           value={values.phone_number}
                           setFieldValue={setFieldValue}
                           setPhoneInfo={setPhoneInfo}
@@ -1380,6 +1386,7 @@ export default function Page() {
                           touched={touched.points}
                           classes="text-base"
                           label="Points"
+                          datatip="Input the points for the account."
                         />
                         <LabeledSelectInput
                           field_name="package"
@@ -1390,6 +1397,7 @@ export default function Page() {
                           touched={touched.package}
                           classes="text-base"
                           label="Package"
+                          datatip="Select a package for the account."
                           SelectOptions={
                             isFetching || isLoading ? [] : data.data
                           }
@@ -1405,6 +1413,7 @@ export default function Page() {
                           touched={touched.country}
                           classes="text-base"
                           label="Country"
+                          datatip="Select the country for the account."
                           SelectOptions={countries}
                           setFieldValue={setFieldValue}
                           values={values.country}
@@ -1418,6 +1427,7 @@ export default function Page() {
                           touched={touched.address_line}
                           classes="text-base"
                           label="Address Line"
+                          datatip="Input the address line for the account."
                         />
                         <LabeledInput
                           field_name="address_line2"
@@ -1428,6 +1438,7 @@ export default function Page() {
                           touched={touched.address_line2}
                           classes="text-base"
                           label="Address Line 2"
+                          datatip="Input the address line 2 for the account."
                         />
                         <LabeledInput
                           field_name="city"
@@ -1438,6 +1449,7 @@ export default function Page() {
                           touched={touched.city}
                           classes="text-base"
                           label="City"
+                          datatip="Input the city for the account."
                         />
                         <LabeledInput
                           field_name="state_province_region"
@@ -1448,6 +1460,7 @@ export default function Page() {
                           touched={touched.state_province_region}
                           classes="text-base"
                           label="State/Province/Region"
+                          datatip="Input the state/province/region for the account."
                         />
                         <LabeledInput
                           field_name="zip_code"
@@ -1458,6 +1471,7 @@ export default function Page() {
                           touched={touched.zip_code}
                           classes="text-base"
                           label="Zip/Postal Code"
+                          datatip="Input the zip/postal code for the account."
                         />
                       </div>
                     </Form>
@@ -1508,6 +1522,7 @@ export default function Page() {
                           touched={touched.vin_no}
                           classes="text-base"
                           label="Vehicle VIN No"
+                          datatip="Input the vehicle VIN number for the vehicle of the account."
                         />
 
                         <LabeledInput
@@ -1519,6 +1534,7 @@ export default function Page() {
                           touched={touched.year}
                           classes="text-base"
                           label="Vehicle Year"
+                          datatip="Input the vehicle year for the vehicle of the account."
                         />
                         <LabeledInput
                           field_name="model"
@@ -1529,6 +1545,7 @@ export default function Page() {
                           touched={touched.model}
                           classes="text-base"
                           label="Vehicle Model"
+                          datatip="Input the vehicle model for the vehicle of the account."
                         />
                         <LabeledInput
                           field_name="trim"
@@ -1539,6 +1556,7 @@ export default function Page() {
                           touched={touched.trim}
                           classes="text-base"
                           label="Vehicle Trim"
+                          datatip="Input the vehicle trim for the vehicle of the account."
                         />
                         <LabeledInput
                           field_name="color"
@@ -1549,6 +1567,7 @@ export default function Page() {
                           touched={touched.color}
                           classes="text-base"
                           label="Vehicle Color"
+                          datatip="Input the vehicle color for the vehicle of the account."
                         />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
@@ -1682,6 +1701,7 @@ export default function Page() {
                           touched={touched.employee_type}
                           classes="text-base"
                           label="Employee Type"
+                          datatip="Select the employee type for the account."
                           SelectOptions={[
                             {
                               value: "3",
@@ -1704,6 +1724,7 @@ export default function Page() {
                           touched={touched.firstName}
                           classes="text-base"
                           label="First Name"
+                          datatip="Input the first name for the account."
                         />
                         <LabeledInput
                           field_name="middleName"
@@ -1714,6 +1735,7 @@ export default function Page() {
                           touched={touched.middleName}
                           classes="text-base"
                           label="Middle Name"
+                          datatip="Input the middle name for the account."
                         />
                         <LabeledInput
                           field_name="lastName"
@@ -1724,6 +1746,7 @@ export default function Page() {
                           touched={touched.lastName}
                           classes="text-base"
                           label="Last Name"
+                          datatip="Input the last name for the account."
                         />
                         <LabeledInput
                           field_name="suffix"
@@ -1734,6 +1757,7 @@ export default function Page() {
                           touched={touched.suffix}
                           classes="text-base"
                           label="Suffix"
+                          datatip="Input the suffix for the account."
                         />
                         <LabeledInput
                           field_name="email"
@@ -1744,6 +1768,7 @@ export default function Page() {
                           touched={touched.email}
                           classes="text-base"
                           label="Email"
+                          datatip="Input the email for the account."
                         />
                         <LabeledInputPhone
                           field_name="phone_number"
@@ -1753,10 +1778,12 @@ export default function Page() {
                           touched={touched.phone_number}
                           classes="text-base"
                           label="Phone Number"
+                          datatip="Input the phone number for the account."
                           value={values.phone_number}
                           setFieldValue={setFieldValue}
                           setPhoneInfo={setAdminPhone}
                           costumerValidation={customerValidation}
+                          
                         />
                       </div>
                       <div className="modal-action">

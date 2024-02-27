@@ -389,7 +389,7 @@ const {
         onChange={() => setModalOpen(!isModalOpen)}
       />
       <div className="modal" role="dialog">
-        <div className="modal-box">
+        <div className="modal-box z-20">
           <form method="dialog">
             <label
               htmlFor="my_modal_6"
@@ -436,17 +436,20 @@ const {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
-                    <span className="label-text text-base font-semibold">
+                  <label className="label flex place-content-start gap-2">
+                    <span className="label-text text-base font-semibold ">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
                     placeholder="Enter Action Name"
-                    className="input input-bordered"
+                    className="w-full input input-bordered"
                     name="name"
                   />
+                  
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -462,11 +465,14 @@ const {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
+                 
                   <Field
                     type="text"
                     placeholder="Enter Action Description"
@@ -530,11 +536,14 @@ const {
           >
             <Form>
               <div className="form-control bg-white">
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Name
-                  </span>
+                  </span>   
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
+             
                 <Field
                   type="text"
                   placeholder="Enter Action Name"
@@ -542,11 +551,13 @@ const {
                   name="name"
                 />
                 {/* ... add other form fields as needed ... */}
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Description
-                  </span>
+                  </span><div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
+                
                 <Field
                   type="text"
                   placeholder="Enter Action Description"
