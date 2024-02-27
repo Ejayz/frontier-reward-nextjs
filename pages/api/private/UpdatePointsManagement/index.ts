@@ -16,7 +16,7 @@ export default async function handler(
   if (req.method != "POST") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
-  const { points, multiplier, total_points, customer_id } = req.body;
+  const { points, customer_id } = req.body;
   const auth = new Cookies(req, res).get("auth") || "";
   const connection = await instance.getConnection();
 
@@ -36,23 +36,14 @@ export default async function handler(
       });
     }
     console.log(verify);
-    const [getCustomerPoints] = <RowDataPacket[]>(
-      await connection.query(
-        "select * from customer_info where id=? and is_exist=1",
-        [customer_id]
-      )
-    );
-    const customer_updated_points =
-      parseFloat(getCustomerPoints[0].points) + total_points;
+
     connection.beginTransaction();
     const query =
-      "INSERT INTO `fronteir_rewards_normed_dev_mode`.`points_transaction` (`points`, `multiplier`, `total_points`, `customer_updated_points`, `customer_id`, `employee_id`) VALUES (?, ?, ?, ?, ?, ?);";
+      "INSERT INTO `fronteir_rewards_normed_dev_mode`.`points_transaction` (`points`,  `customer_updated_points`, `customer_id`, `employee_id`) VALUES (?, ?, ?, ?);";
     const [rows, fields] = <RowDataPacket[]>(
       await connection.query(query, [
         points,
-        multiplier,
-        total_points,
-        customer_updated_points,
+        points,
         customer_id,
         verify.main_id,
       ])
@@ -66,7 +57,7 @@ export default async function handler(
     const [updatePoints] = <RowDataPacket[]>(
       await connection.query(
         "UPDATE customer_info SET points=? , updated_at=CURRENT_TIMESTAMP  where is_exist=1 and id=?",
-        [customer_updated_points, customer_id]
+        [points, customer_id]
       )
     );
     if (updatePoints.affectedRows > 0) {
