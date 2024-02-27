@@ -26,13 +26,13 @@ export default async function handler(
     if (typeof verify === "string") {
       return res.status(401).json({
         code: 401,
-        message: "Authentication expird or invalid. Please try again.",
+        message: "Authentication expired or invalid. Please try again.",
       });
     }
     if (!verify) {
       return res.status(401).json({
         code: 401,
-        message: "Authentication expird or invalid. Please try again.",
+        message: "Authentication expired or invalid. Please try again.",
       });
     }
     console.log(verify);
