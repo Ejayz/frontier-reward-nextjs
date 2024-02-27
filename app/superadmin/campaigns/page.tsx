@@ -949,6 +949,9 @@ if (isDataExisting) {
                       Name
                     </span>
                   </label>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input name for the campaign name">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-2 h-7">?</div>
+</div>
                   <Field
                     type="text"
                     placeholder="Enter Campaign Name"
@@ -974,7 +977,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
-                  </label>
+                  </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input description for the campaign description">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-2 h-7">?</div>
+</div>
                   <Field
                     type="text"
                     placeholder="Enter Campaign Description"
@@ -999,10 +1004,12 @@ if (isDataExisting) {
                   <span className="label-text text-base font-semibold">
                     Package Name
                   </span>
-                </label>
+                </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a package for the campaign">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-13 h-7">?</div>
+</div>
                 <select
   name="package_id"
-  className="select select-bordered w-full max-w-xs font-semibold text-base"
+  className="select select-bordered max-w-xs font-semibold text-base"
   id=""
   onChange={handleSelectChangePackage}
   value={selectedValuePacakage}
@@ -1033,7 +1040,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
-                  </label>
+                  </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign start">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-10 h-7">?</div>
+</div>
                   <Field
   type="date"
   id="start_date"
@@ -1061,7 +1070,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       End Date
                     </span>
-                  </label>
+                  </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign end">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-10 h-7">?</div>
+</div>
                   <Field
           type="date"
           id="end_date"
@@ -1139,7 +1150,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
-                  </label>
+                  </label> <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input name for the campaign name">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-2 h-7">?</div>
+</div>
                   <Field
                     type="text"
                     placeholder="Enter Campaign Name"
@@ -1165,7 +1178,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
-                  </label>
+                  </label> <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input description for the campaign description">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-2 h-7">?</div>
+</div>
                   <Field
                     type="text"
                     placeholder="Enter Campaign Description"
@@ -1186,6 +1201,13 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
+                  <label className="label">
+                  <span className="label-text text-base font-semibold">
+                    Package Name
+                  </span>
+                </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a package for the campaign">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-13 h-7">?</div>
+</div>
                   <select
   name="package_id"
   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -1210,7 +1232,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
-                  </label>
+                  </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign start">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-10 h-7">?</div>
+</div>
                   <Field
           type="date"
           id="start_date"
@@ -1240,7 +1264,9 @@ if (isDataExisting) {
                     <span className="label-text text-base font-semibold">
                       End Date
                     </span>
-                  </label>
+                  </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign end">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-10 h-7">?</div>
+</div>
                   <Field
           type="date"
           id="end_date"
@@ -1384,7 +1410,9 @@ if (isDataExisting) {
                   <span className="label-text text-base font-semibold">
                     Action Name
                   </span>
-                </label>
+                </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a action for the campaign">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-13 h-7">?</div>
+</div>
                 <select
   name="action_id"
   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -1403,7 +1431,9 @@ if (isDataExisting) {
                   <span className="label-text text-base font-semibold">
                     Reward Name
                   </span>
-                </label>
+                </label><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a reward for the campaign">
+                  <div  className="opacity-50 badge badge-primary badge-lg absolute top-2 right-20 h-7">?</div>
+</div>
                 <select
   name="reward_id"
   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -1624,7 +1654,9 @@ if (isDataExisting) {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="badge badge-info">{element.status}</td>
+                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
+  {element.status}
+</td>
                     <td>{packageName}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>

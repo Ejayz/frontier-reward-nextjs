@@ -1624,7 +1624,9 @@ if (isDataExisting) {
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="badge badge-info">{element.status}</td>
+                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
+  {element.status}
+</td>
                     <td>{packageName}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>

@@ -126,8 +126,8 @@ export default function Page() {
           </div>
         )}
       </div>
-      <div className="w-full h-full px-5 mt-5 inline-block lg:mt-10 lg:flex">
-      <div className="w-full h-24 lg:w-1/2 inline place-content-center lg:flex lg:mt-10">
+      <div className="w-full h-full px-5 mt-5 gap-4 inline-block lg:mt-5 lg:flex">
+      <div className="inline place-content-center lg:place-content-start lg:flex lg:mt-10">
           <Chart
             options={RedeemTransactions.options}
             series={isLoading || isFetching ? [0, 0, 0] : data.data.redeem}
@@ -145,7 +145,7 @@ export default function Page() {
             className="shadow-ml "
           />
         </div>
-      <div className="w-full h-1/2 inline-block gap-5 mt-5 lg:mt-60 lg:flex lg:w-1/2 lg:h-40">
+      <div className="w-full h-1/2 inline-block gap-3 mt-6 lg:pt-5 lg:flex lg:w-1/2 lg:h-40">
           <div className="w-full stats shadow-2xl border-4 border-indigo-200 border-l-yellow-500">
             <div className="stat">
               <div className="stat-title">Active Campaign</div>
