@@ -944,11 +944,14 @@ if (isDataExisting) {
             {({ errors, touched , values }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input name for the campaign">
+                    <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
+                
                   <Field
                     type="text"
                     placeholder="Enter Campaign Name"
@@ -970,10 +973,12 @@ if (isDataExisting) {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input description for the campaign description">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -995,14 +1000,16 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Package Name
                   </span>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a package name for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="package_id"
-  className="select select-bordered w-full max-w-xs font-semibold text-base"
+  className="select select-bordered max-w-xs font-semibold text-base"
   id=""
   onChange={handleSelectChangePackage}
   value={selectedValuePacakage}
@@ -1029,10 +1036,12 @@ if (isDataExisting) {
                     )}
                   </ErrorMessage>
                   {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign start">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
   type="date"
@@ -1057,10 +1066,12 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       End Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign end">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1135,11 +1146,13 @@ if (isDataExisting) {
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
-                  </label>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input name for the campaign name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  </label> 
                   <Field
                     type="text"
                     placeholder="Enter Campaign Name"
@@ -1161,11 +1174,13 @@ if (isDataExisting) {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
-                  </label>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input description for the campaign description">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  </label> 
                   <Field
                     type="text"
                     placeholder="Enter Campaign Description"
@@ -1186,6 +1201,13 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
+                  <label className="label flex place-content-start gap-2">
+                  <span className="label-text text-base font-semibold">
+                    Package Name
+                  </span>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a package for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                </label>
                   <select
   name="package_id"
   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -1206,10 +1228,12 @@ if (isDataExisting) {
   ))}
 </select>
                   {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign start">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1236,10 +1260,12 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       End Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign end">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1380,10 +1406,11 @@ if (isDataExisting) {
             {({errors, touched, values,setFieldValue}) => (
             <Form>
               <div className="form-control bg-white">
-              <label className="label">
+              <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Action Name
-                  </span>
+                  </span><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a action for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="action_id"
@@ -1399,10 +1426,11 @@ if (isDataExisting) {
     </option>
   ))}
 </select>
-              <label className="label">
+              <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Reward Name
-                  </span>
+                  </span><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a reward for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="reward_id"
@@ -1419,15 +1447,18 @@ if (isDataExisting) {
   ))}
 </select>
 <span className="label-text text-base font-semibold"> Available Quantity:  {selectedRewardData?.quantity}</span>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Quantity
                   </span>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input quantity for reward of the campaign">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="number"
                   placeholder="Enter Quantity"
                   className="input input-bordered"
+                  style = {{width: 350}}
                   name="quantity"
                 />
                       <ErrorMessage name="quantity" className="flex">

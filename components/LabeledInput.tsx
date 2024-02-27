@@ -11,12 +11,15 @@ export default function LabeledInput({
   classes,
   label,
   readOnly,
+  datatip
 }: any) {
   
   return (
     <div className="form-control">
-      <label className="label">
+      <label className="label flex place-content-start gap-2">
         <span className="label-text">{label}</span>
+        <div className="tooltip tooltip-right text-base tooltip-info " data-tip={datatip}>
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
       </label>
       <Field
         name={field_name}

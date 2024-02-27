@@ -834,7 +834,7 @@ export default function Page() {
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for points the package ">
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
                   <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
@@ -1036,10 +1036,12 @@ export default function Page() {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1062,10 +1064,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1088,10 +1092,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
