@@ -48,6 +48,9 @@ export default async function handler(
     const customer_updated_points =
       convertedCustomerPoints + convertedTotalPoints;
 
+    console.log(convertedCustomerPoints);
+    console.log(convertedTotalPoints);
+    console.log(customer_updated_points);
     connection.beginTransaction();
     const query =
       "INSERT INTO `fronteir_rewards_normed_dev_mode`.`points_transaction` (`points`, `multiplier`, `total_points`, `customer_updated_points`, `customer_id`, `employee_id`) VALUES (?, ?, ?, ?, ?, ?);";
