@@ -47,9 +47,9 @@ export default async function handler(
       console.log("Users data:");
       usersData.forEach((user:any) => {
         const { email, phone_number} = user;
-        //console.log("User email:", email);
-        //console.log("User phonenumber:", phone_number);
-        //console.log("--------"); // Separate each user for better readability
+        console.log("User email:", email);
+        console.log("User phonenumber:", phone_number);
+        console.log("--------"); // Separate each user for better readability
         const base_url = `https://${req.headers.host}/`;
         const data = resend.emails.send({
           from: "Register@PointsAndPerks <register.noreply@pointsandperks.ca>",

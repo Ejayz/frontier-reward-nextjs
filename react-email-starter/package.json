@@ -9,8 +9,8 @@
     "mail": "email dev -p 3001",
     "export": "email export",
     "firstscoop": "nodenv firstscoop.js",
-  "multipack": "nodenv multipack.js",
-  "99flake": "nodenv 99flake.js"
+    "multipack": "nodenv multipack.js",
+    "99flake": "nodenv 99flake.js"
   },
   "dependencies": {
     "@react-email/components": "0.0.12",

@@ -29,7 +29,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse){
         const [CheckVinResult, CheckVinFields] = <RowDataPacket[]>await connection.query(`SELECT * FROM customer_vehicle_info WHERE vin_id=? and is_exist=1`, [vin_no])
         if(CheckVinResult.length > 0){
             await connection.rollback();
-            return res.status(400).json({code:400, message:"Vin already exist"})
+            return res.status(400).json({code:400, message:"VIN already exist"})
         }
         const [CustomerVehicleUpdateResult, CustomerVehicleUpdateFields] = <RowDataPacket[]>await connection.query(`UPDATE customer_vehicle_info SET vin_id=?,year=?,model=?,trim=?,color=?,updated_at=current_timestamp() WHERE id=? and is_exist=1`, [vin_no, year, model, trim, color, car_id])
         if(CustomerVehicleUpdateResult.affectedRows == 0){

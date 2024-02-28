@@ -71,41 +71,67 @@ import {
             <Text className={"text-base font-sans"}>
               <strong>Perks and Points Team</strong>
             </Text>
+          
             <Text className={"text-base font-sans"}>
               If you have any questions, You may reach us here:
             </Text>
-  
-            <Text className={"text-base font-sans"}>
-              <strong>Email us at: </strong>
-              <a
+    <br />
+            <div className="flex justify-center gap-4">
+            <Text className={"text-lg font-sans flex gap-2"}>
+            <a
                 href={`mailto:ask@pointsandperks.com`}
                 style={{ color: "#0000ff" }}
-              >
-                indiancarguy@gmail.com
+                className="mt-4"
+              ><Img
+            src="./static/mail.svg"
+            alt="Points and Perks Logo"
+            width={60}
+            height={60}
+            className="place-content-start "
+          />
               </a>
             </Text>
   
-            <Text className={"text-base font-sans"}>
-              <strong>Call us at: </strong>
-              <a href="tel:1-800-123-4567" style={{ color: "#0000ff" }}>
-                6133158020
+            <Text className={"text-lg font-sans flex gap-2"}>
+            
+              <a href="tel:1-800-123-4567" style={{ color: "#0000ff" }} className="mt-4">
+             <Img
+                src="./static/phone.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start "
+              />
               </a>
             </Text>
-            <Text className={"text-base font-sans"}>
-              <strong>Visit our website: </strong>
+            <Text className={"text-lg font-sans flex gap-2"}>
+           
               <a
                 href="http://www.pointsandperks.com"
                 style={{ color: "#0000ff" }}
-              >
-                www.pointsandperks.com
+                className="mt-4"
+              > <Img
+                src="./static/browser.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start"
+              />
               </a>
             </Text>
-            <Text className={"text-base font-sans"}>
-              <strong>Visit our dealership: </strong>
-              <span style={{ color: "#0000ff" }}>
-                10060 Jasper Ave NW Suite 2020 Edmonton, AB, T5J 3R8 Canada
+            <Text className={"text-lg font-sans flex gap-2"}>  
+         
+              <span style={{ color: "#0000ff" }} className="mt-4">   
+              <Img
+                src="./static/location.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start"
+              />
               </span>
             </Text>
+            </div>
             <br />
             <Text className={"text-sm font-sans"}>
               If you did not register for an account, please disregard or delete
