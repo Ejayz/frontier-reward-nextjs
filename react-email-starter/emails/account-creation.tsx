@@ -51,7 +51,7 @@ const AccountCreation = ({
       <Head />
       <Preview>noreply@pointsandperks-Account created.</Preview>
       <Body className="bg-white text-black">
-        <Container className="flex border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
+        <Container className="border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
           <Section className="mt-4 text-center">
             <Img
               src={`${baseUrl}/static/logo-nav.png`}
@@ -63,7 +63,46 @@ const AccountCreation = ({
             <Text className="text-2xl mx-auto font-sans w-full font-bold">
               Welcome {last_name}, {first_name}!
             </Text>
-          </Section>
+          </Section>  <Section className="flex justify-center">
+            <Text className="text-2xl mx-auto font-sans w-full font-bold">
+            <a
+                href={`mailto:ask@pointsandperks.com`}
+                style={{ color: "#0000ff" }}
+                className="mt-4"
+              ><Img
+            src="https://pointsandperks.ca/static/mail.png"
+            alt="Points and Perks Logo"
+            width={60}
+            height={60}
+          />
+              </a>
+            </Text>
+            <Text className="text-2xl mx-auto font-sans w-full font-bold">
+              <a
+                href="https://pap.pointsandperks.ca/"
+                style={{ color: "#0000ff" }}
+                className="mt-4"
+              > <Img
+                src="https://pointsandperks.ca/static/browser.png"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+              />
+              </a>
+            </Text>
+            <Text className="text-2xl mx-auto font-sans w-full font-bold">  
+              <a href="https://maps.app.goo.gl/FohkqgaFKQto7LKd7"
+                style={{ color: "#0000ff" }}
+                className="mt-4">   
+              <Img
+                src="https://pointsandperks.ca/static/location.png"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+              />
+              </a>
+            </Text>
+            </Section>
           <Text className={"text-xl font-sans"}>
             Your account has been created. Please use the following credentials
             to login:
@@ -90,49 +129,7 @@ const AccountCreation = ({
               If you have any questions, You may reach us here:
             </Text>
     <br />
-    <center>
-            <div className="flex place-content-center w-full mx-auto gap-4">
-            <Text className={"text-lg font-sans flex gap-2"}>
-            <a
-                href={`mailto:ask@pointsandperks.com`}
-                style={{ color: "#0000ff" }}
-                className="mt-4"
-              ><Img
-            src="https://pointsandperks.ca/static/mail.png"
-            alt="Points and Perks Logo"
-            width={60}
-            height={60}
-          />
-              </a>
-            </Text>
-            <Text className={"text-lg font-sans flex gap-2"}>
-              <a
-                href="https://pap.pointsandperks.ca/"
-                style={{ color: "#0000ff" }}
-                className="mt-4"
-              > <Img
-                src="https://pointsandperks.ca/static/browser.png"
-                alt="Points and Perks Logo"
-                width={60}
-                height={60}
-              />
-              </a>
-            </Text>
-            <Text className={"text-lg font-sans flex gap-2"}>  
-         
-              <a href="https://maps.app.goo.gl/FohkqgaFKQto7LKd7"
-                style={{ color: "#0000ff" }}
-                className="mt-4">   
-              <Img
-                src="https://pointsandperks.ca/static/location.png"
-                alt="Points and Perks Logo"
-                width={60}
-                height={60}
-              />
-              </a>
-            </Text>
-            </div>
-            </center>
+        
             <br />
             <Text className={"text-lg font-sans"}>
               If you did not register for an account, please disregard or delete
