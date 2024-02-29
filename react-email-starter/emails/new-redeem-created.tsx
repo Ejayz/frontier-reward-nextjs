@@ -48,7 +48,7 @@ import {
           <Container className="border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
             <Section className="mt-4 text-center">
               <Img
-                src={`${baseUrl}/static/logo-nav.png`}
+                src={`https://pointsandperks.ca/static/logo-nav.png`}
                 alt="Points and Perks Logo"
                 width={215}
                 height={48}
@@ -83,7 +83,7 @@ import {
                 style={{ color: "#0000ff" }}
                 className="mt-4"
               ><Img
-            src="./static/mail.svg"
+            src="https://pointsandperks.ca/static/lstatic/mail.svg"
             alt="Points and Perks Logo"
             width={60}
             height={60}
@@ -96,7 +96,7 @@ import {
             
               <a href="tel:1-800-123-4567" style={{ color: "#0000ff" }} className="mt-4">
              <Img
-                src="./static/phone.svg"
+                src="https://pointsandperks.ca/static/lstatic/phone.svg"
                 alt="Points and Perks Logo"
                 width={60}
                 height={60}
@@ -111,7 +111,7 @@ import {
                 style={{ color: "#0000ff" }}
                 className="mt-4"
               > <Img
-                src="./static/browser.svg"
+                src="https://pointsandperks.ca/static/lstatic/browser.svg"
                 alt="Points and Perks Logo"
                 width={60}
                 height={60}
@@ -123,7 +123,7 @@ import {
          
               <span style={{ color: "#0000ff" }} className="mt-4">   
               <Img
-                src="./static/location.svg"
+                src="https://pointsandperks.ca/static/lstatic/location.svg"
                 alt="Points and Perks Logo"
                 width={60}
                 height={60}
