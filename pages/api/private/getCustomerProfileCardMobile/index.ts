@@ -22,19 +22,21 @@ export default async function handler(
   let rows;
   let fields;
   try {
-    const verify=jwt.verify(auth, JWT_SECRET);
-    if(typeof verify === "string"){
+    const verify = jwt.verify(auth, JWT_SECRET);
+    if (typeof verify === "string") {
       return res.status(401).json({ code: 401, message: "Invalid token" });
     }
 
     [rows] = <RowDataPacket[]>(
       await connection.query(
-        `SELECT  first_name,last_name,suffix,middle_name,email,phone_number,points,address_1,address_2,country,city,zip_code,state_province,name,customer_info.created_at from customer_info LEFT JOIN users ON customer_info.user_id = users.id LEFT JOIN customer_address ON customer_address.id=customer_info.id LEFT JOIN  packages  ON packages.id = customer_info.package_id where customer_info.id = ? and customer_info.is_exist =1  `,
+        `SELECT  first_name,last_name,suffix,middle_name,email,phone_number,points,address_1,address_2,country,city,zip_code,state_province,name,customer_info.created_at,packages.multiplier as multiplier from customer_info LEFT JOIN users ON customer_info.user_id = users.id LEFT JOIN customer_address ON customer_address.id=customer_info.id LEFT JOIN  packages  ON packages.id = customer_info.package_id where customer_info.id = ? and customer_info.is_exist =1  `,
         [user_id]
       )
     );
     console.log(rows);
-    return res.status(200).json({ code: 200, message: "Success", data: rows });
+    return res
+      .status(200)
+      .json({ code: 200, message: "Success", data: rows[0] });
   } catch (error: any) {
     console.log(error);
     if (error.name === "TokenExpiredError") {

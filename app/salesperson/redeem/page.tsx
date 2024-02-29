@@ -27,6 +27,7 @@ import { parse } from "path";
 import { toast } from "react-toastify";
 import Loading from "../loading";
 import { get } from "http";
+import { text } from "stream/consumers";
 
 type Element = {
   id: number;
@@ -47,7 +48,6 @@ type PackageElement = {
 };
 export default function Page() {
   const [processing, setProcessing] = useState(false);
-  
   const [searchTerm, setSearchTerm] = useState("");
   const [redeemPage, setRedeemPage] = useState(0);
   const addRedeemModal = useRef<HTMLInputElement>(null);
@@ -60,6 +60,7 @@ export default function Page() {
     data: getRewards,
     isLoading: isRewardsLoading,
     isFetching: isRewardsFetching,
+    refetch: refetchRewards,
   } = useQuery({
     queryKey: ["getRewards"],
     queryFn: async () => {
@@ -83,6 +84,7 @@ export default function Page() {
     data: getPackages,
     isLoading: isPackagesLoading,
     isFetching: isPackagesFetching,
+    refetch: refetchPackages,
   } = useQuery({
     queryKey: ["getPackages"],
     queryFn: async () => {
@@ -101,7 +103,35 @@ export default function Page() {
     },
     refetchOnWindowFocus: false,
   });
+  const {
+    data: getRedeemable,
+    isLoading: isRedeemableLoading,
+    isFetching: isRedeemableFetching,
+    refetch: refetchRedeemable,
+  } = useQuery({
+    queryKey: ["getRedeemable", redeemPage,searchTerm],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
 
+      let response = await fetch(`/api/private/getRedeem?page=${redeemPage}`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
+  });
+  const filteredData = (getRedeemable?.data || []).filter(
+    (element: any) =>
+      element.redeem_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      element.redeem_description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const addRedeemValidation = yup.object().shape({
     name: yup.string().required("Name is required"),
     description: yup.string().required("Description is required"),
@@ -124,6 +154,9 @@ export default function Page() {
       });
 
       let data = await response.json();
+      refetchPackages();
+      refetchRewards();
+      refetchRedeemable();
       return data;
     },
     onError: (error: any) => {
@@ -134,33 +167,10 @@ export default function Page() {
       addRedeemForm.current?.resetForm();
       addRedeemModal.current?.click();
     },
+    
   });
 
-  const {
-    data: getRedeemable,
-    isLoading: isRedeemableLoading,
-    isFetching: isRedeemableFetching,
-    refetch: refetchRedeemable,
-  } = useQuery({
-    queryKey: ["getRedeemable", redeemPage],
-    queryFn: async () => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-      };
-
-      let response = await fetch(`/api/private/getRedeem?page=${redeemPage}`, {
-        method: "GET",
-        headers: headersList,
-      });
-
-      let data = await response.json();
-      return data;
-    },
-    refetchOnWindowFocus: false,
-    placeholderData:keepPreviousData
-  });
-
+ 
   const removeRedeemMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -176,6 +186,9 @@ export default function Page() {
       });
 
       let data = await response.json();
+      refetchPackages();
+      refetchRewards();
+      refetchRedeemable();
       return data;
     },
     onError: (error: any) => {
@@ -204,7 +217,7 @@ export default function Page() {
         "content-type": "application/json",
       };
 
-      let response = await fetch(`/api/private/getRedeemData`, {
+      let response = await fetch(`/api/private/getRedeemData/`, {
         method: "POST",
         headers: headersList,
         body: JSON.stringify({ id: updatableId }),
@@ -231,6 +244,9 @@ export default function Page() {
       });
 
       let data = await response.json();
+      refetchPackages();
+      refetchRewards();
+      refetchRedeemable();
       return data;
     },
     onError: (error: any) => {
@@ -248,11 +264,11 @@ export default function Page() {
       }
     },
   });
-
+  const [selectedRewardName, setSelectedRewardName] = useState<string>('');
+  const [selectedPackageName, setSelectedPackageName] = useState<string>('');
   return (
-    <div className="w-full h-full pl-10">
+    <div className="w-full h-full px-2">
       {/* Update Modal*/}
-
       <dialog ref={updateRedeemModal} id="my_modal_3" className="modal">
         <div className="modal-box">
           <form method="dialog">
@@ -325,82 +341,27 @@ export default function Page() {
             >
               {({ errors, touched, setFieldValue, values }) => (
                 <Form>
-                  <LabeledInput
-                    field_name="name"
-                    type="text"
-                    placeholder="Redeemable Name"
-                    className="input input-bordered"
-                    errors={errors.name}
-                    touched={touched.name}
-                    classes="mb-2"
-                    label="Name"
-                  />
-                  <LabeledInput
-                    field_name="description"
-                    type="text"
-                    placeholder="Redeemable Description"
-                    className="input input-bordered"
-                    errors={errors.description}
-                    touched={touched.description}
-                    classes="mb-2"
-                    label="Description"
-                  />
-                  <LabeledInput
-                    field_name="cost"
-                    type="number"
-                    placeholder="Redeemable Cost"
-                    className="input input-bordered"
-                    errors={errors.cost}
-                    touched={touched.cost}
-                    classes="mb-2"
-                    label="Cost"
-                  />
-                <LabeledSelectInput
-                    field_name="package_id"
-                    placeholder="Packages"
-                    className="input input-bordered"
-                    errors={errors.package_id}
-                    touched={touched.package_id}
-                    classes="mb-2"
-                    label="Package"
-                    SelectOptions={
-                      isPackagesFetching || isPackagesLoading
-                        ? []
-                        : getPackages.data
-                    }
-                    setFieldValue={setFieldValue}
-                    values={values.package_id}
-                  />
-                  <LabeledSelectInput
-                    field_name="reward_id"
-                    placeholder="Reward Redeemable"
-                    className="input input-bordered"
-                    errors={errors.reward_id}
-                    touched={touched.reward_id}
-                    classes="mb-2"
-                    label="Reward"
-                    SelectOptions={
-                      isRewardsFetching || isRewardsLoading
-                        ? []
-                        : getRewards.data
-                    }
-                    setFieldValue={setFieldValue}
-                    values={values.reward_id}
-                  />
-
+                  <label className="label">Redeemable Name</label>
+                  <input type="text" className="input input-bordered" name="name" value={values.name} readOnly/>
+                   <label className="label">Redeemable Description</label>
+                  <input type="text" className="input input-bordered" name="description" value={values.description} readOnly/>
+                   <label className="label">Cost</label>
+                  <input type="text" className="input input-bordered" name="cost" value={values.cost} readOnly/>
+                   <label className="label">Package</label>
+                  <input type="text" className="input input-bordered" value={selectedPackageName} readOnly/>
+                  <label className="label">Reward</label>
+                  <input type="text" className="input input-bordered" value={selectedRewardName} readOnly/>
                   <div className="modal-action">
-                    <button type="submit" className="btn btn-primary">
-                     Update
-                    </button>
+                  
                     <button
                       type="button"
-                      className="btn"
+                      className="btn btn-primary"
                       onClick={() => {
                         updateRedeemForm.current?.resetForm();
                         updateRedeemModal.current?.close();
                       }}
                     >
-                      Close
+                      Back
                     </button>
                   </div>
                 </Form>
@@ -409,11 +370,36 @@ export default function Page() {
           )}
         </div>
       </dialog>
-
-      {/* add modal */}
-      <label htmlFor="addRedeemModal" className="btn btn-primary ">
+      <div className="w-full px-2">
+  {/* add modal */}
+  {/* <label htmlFor="addRedeemModal" className="btn btn-primary ">
         Add Redeem
-      </label>
+      </label> */}
+<div className="w-80">
+    <label className="input input-bordered flex items-center gap-2">
+      <input
+        type="text"
+        style={{ width: 300 }}
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="text-lg font-semibold"
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-4 h-4 opacity-70"
+      >
+        <path
+          fillRule="evenodd"
+          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </label>
+  </div>
+</div>
       <input
         ref={addRedeemModal}
         type="checkbox"
@@ -477,27 +463,13 @@ export default function Page() {
                   label="Cost"
                 />
                 <LabeledSelectInput
-                  field_name="reward_id"
-                  placeholder="Redeemable Reward"
+                  field_name="package_id"
+                  placeholder="Redeemable Package"
                   className="input input-bordered"
                   errors={errors.package_id}
                   touched={touched.package_id}
                   classes="mb-2"
                   label="Package"
-                  SelectOptions={
-                    isRewardsFetching || isRewardsLoading ? [] : getRewards.data
-                  }
-                  setFieldValue={setFieldValue}
-                  values={values.reward_id}
-                />
-                <LabeledSelectInput
-                  field_name="package_id"
-                  placeholder="Package"
-                  className="input input-bordered"
-                  errors={errors.package_id}
-                  touched={touched.package_id}
-                  classes="mb-2"
-                  label="Reward"
                   SelectOptions={
                     isPackagesFetching || isPackagesLoading
                       ? []
@@ -506,6 +478,16 @@ export default function Page() {
                   setFieldValue={setFieldValue}
                   values={values.package_id}
                 />
+                <LabeledInput
+  field_name="reward_id"
+  placeholder="Redeemable Reward"
+  className="input input-bordered"
+  errors={errors.reward_id}
+  touched={touched.reward_id}
+  classes="mb-2"
+  label="Reward"
+  values={values.reward_id}
+/>
 
                 <div className="modal-action">
                   <button type="submit" className="btn btn-primary">
@@ -526,8 +508,8 @@ export default function Page() {
           </Formik>
         </div>
       </div>
-      <div className="overflow-x-auto mt-5 text-black">
-        <table className="table  text-base font-semibold text-center">
+      <div className="overflow-x-auto w-full h-full mt-5 text-black">
+        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -553,51 +535,30 @@ export default function Page() {
                 </td>
               </tr>
             ) : (
-              getRedeemable.data.map((item: any, index: number) => {
+              filteredData.map((item: any) => {
                 return (
-                  <tr key={index}>
+                  <tr key={item.redeem_id}>
                     <td>{item.redeem_name}</td>
                     <td>{item.redeem_description}</td>
                     <td>{`${item.point_cost} Frontier Points`}</td>
                     <td>{item.reward_name}</td>
                     <td>{item.package_name}</td>
                     <td>
-                      <button
-                        onClick={async () => {
-                          await setUpdatableId(item.redeem_id);
-                          await updateRedeemModal.current?.showModal();
-                        }}
-                        className="btn btn-sm mx-5 btn-info"
-                      >
-                        <Image
-                          src="/icons/editicon.svg"
-                          alt="edit"
-                          width={20}
-                          height={20}
-                        />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          const confirm = window.confirm(
-                            "Are you sure you want to delete this?"
-                          );
-                          if (confirm) {
-                            removeRedeemMutation.mutate({
-                              id: item.redeem_id,
-                            });
-                          }
-                        }}
-                        className="btn btn-sm btn-error"
-                      >
-                        <Image
-                          src="/icons/deleteicon.svg"
-                          alt="edit"
-                          width={20}
-                          height={20}
-                        />
-                        <span>Remove</span>
-                      </button>
+                    <button
+  onClick={() => {
+    setUpdatableId(item.redeem_id);
+    updateRedeemModal.current?.showModal();
+    // Pass item.reward_name to the modal (you can set it in the state or props)
+    // For simplicity, let's assume there's a state variable 'selectedRewardName'
+    setSelectedRewardName(item.reward_name);
+    setSelectedPackageName(item.package_name);
+  }}
+  className="btn btn-sm mx-5 btn-info"
+>
+  <Image src="/icons/editicon.svg" alt="edit" width={20} height={20} />
+  <span>View</span>
+</button>
+                      
                     </td>
                   </tr>
                 );
@@ -617,12 +578,17 @@ export default function Page() {
             >
               «
             </button>
-            <button className="join-item btn">Page {redeemPage+1}</button>
-            <button onClick={()=>{
-              if(getRedeemable.data.length == 10){
-                setRedeemPage(redeemPage+1)
-              }
-            }} className="join-item btn">»</button>
+            <button className="join-item btn">Page {redeemPage + 1}</button>
+            <button
+              onClick={() => {
+                if (getRedeemable.data.length == 10) {
+                  setRedeemPage(redeemPage + 1);
+                }
+              }}
+              className="join-item btn"
+            >
+              »
+            </button>
           </div>
         </div>
       </div>

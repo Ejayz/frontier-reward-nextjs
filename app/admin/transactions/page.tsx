@@ -552,20 +552,20 @@ export default function Page() {
                             field_name="keyword"
                             type="text"
                             placeholder="Search"
-                            className="input input-bordered join-item"
+                            className="input input-bordered join-item text-lg font-semibold"
                             errors={errors.keyword}
                             touched={touched.keyword}
                             onChange={(e: any) => {
                               setKeyword(e.target.value);
                             }}
-                            classes="text-base"
+                            classes="text-lg font-semibold"
                             label="Search"
                           />
                         </div>
                       </div>
                       <SelectInput
                         field_name="selected"
-                        className="select select-bordered join-item"
+                        className="select select-bordered join-item text-lg font-semibold"
                         placeholder="Transaction Type"
                         SelectOptions={[
                           {
@@ -592,7 +592,7 @@ export default function Page() {
                               RedeemTransactionRefetch();
                             }
                           }}
-                          className="btn join-item"
+                          className="btn join-item btn-primary text-lg font-semibold"
                         >
                           Search
                         </button>

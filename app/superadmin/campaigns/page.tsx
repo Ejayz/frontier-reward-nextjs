@@ -15,6 +15,7 @@ import { create } from "domain";
 type Element = {
   name: string;
   description: string;
+  package_id: number;
   start_date: string;
   end_date: string;
   updated_at: string;
@@ -113,6 +114,38 @@ export default function Page() {
       element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       element.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const {
+    data: DataPackagePagination,
+    isFetching: isFetchingPackagePagination,
+    isLoading: isLoadingPackagePagination,
+    refetch: RefetchPackagePagination,
+  } = useQuery({
+    queryKey: ["getPackagePagination", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getPackages`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
 
   const {
     data: DataActionPagination,
@@ -238,7 +271,8 @@ export default function Page() {
           status: "success",
           message: "Campaign Created Successfully",
         });
-
+        // Reset the select element
+    handleSelectChangePackage({ target: { value: "" } });
         RefetchCampaignPagination();
         setProcessing(false);
         createCampaignRef.current?.resetForm();
@@ -246,10 +280,9 @@ export default function Page() {
       } else {
         showToast({
           status: "error",
-          message: "Something went wrong",
+          message: "Something went wrong, fill all fields and try again",
         });
         setProcessing(false);
-
         setModalOpen(false);
       }
     },
@@ -276,6 +309,7 @@ export default function Page() {
    const campaignValidation = yup.object().shape({
     name: yup.string().required('Name is required'),
     description: yup.string().required('Description is required'),
+    package_id: yup.number().required('Package is required'),
     start_date: yup.date().required('Start Date is required'),
     end_date: yup.date().required('End Date is required'),
   });
@@ -291,10 +325,12 @@ export default function Page() {
     reward_id: yup.number().required('Reward Name is required'),
   });
 
+  
   // ... other functions ...
   const UpdateinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
+    package_id: rowDataToEdit ? rowDataToEdit.package_id : 0,
     start_date: rowDataToEdit ? new Date(rowDataToEdit.start_date).toLocaleDateString() : "",
     end_date: rowDataToEdit ? new Date(rowDataToEdit.end_date).toLocaleDateString() : "",
     id: rowDataToEdit ? rowDataToEdit.id : 0,
@@ -315,7 +351,8 @@ export default function Page() {
 // Check if the name and description remain the same
 if (
   values.name === rowDataToEdit?.name &&
-  values.description === rowDataToEdit?.description
+  values.description === rowDataToEdit?.description &&
+  values.package_id === rowDataToEdit?.package_id
 ) {
   showToast({
     status: 'error',
@@ -330,6 +367,7 @@ const isDataExisting = DataCampaignPagination.data.some(
     element.id !== rowDataToEdit?.id &&
     element.name === values.name &&
     element.description === values.description &&
+    element.package_id === values.package_id &&
     element.is_exist === 1
 );
 
@@ -395,6 +433,7 @@ if (isDataExisting) {
   const RemoveinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
+    package_id: rowDataToEdit ? rowDataToEdit.package_id : 0,
     start_date: rowDataToEdit && rowDataToEdit.start_date
       ? new Date(rowDataToEdit.start_date)
       : "",
@@ -498,6 +537,17 @@ if (isDataExisting) {
     campaign_id: rowDataToEditPR ? rowDataToEditPR.id : 0, // Use the correct value here
     quantity: rowDataToEditPR ? rowDataToEditPR.quantity : 0,
   };
+  
+  const [selectedValuePacakage, setSelectedValuePackage] = useState("");
+  const handleSelectChangePackage = (event: any) => {
+    const newValueAction = event.target.value;
+    console.log(newValueAction);
+    setSelectedValuePackage(newValueAction);
+  
+    // Convert the string to a number using parseInt or the unary plus operator
+    const numericValueAction = parseInt(newValueAction, 10);
+    createCampaignRef.current?.setFieldValue("package_id", numericValueAction);
+  };
   const handleSelectChangeAction = (event: any) => {
     const newValueAction = event.target.value;
     console.log(newValueAction);
@@ -524,8 +574,7 @@ if (isDataExisting) {
     createCampaignRewardRef.current?.setFieldValue("reward_id", numericValueReward);
   };
 
-  
-  
+
   const CreateCampaignRewardActionhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -642,11 +691,11 @@ if (isDataExisting) {
   );
   
   
-  const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
+  const [campaigIdToAddReward, setCampiagnIdToAddReward] = useState(0);
   const handlegetProduct_idClick = (rowData: RewardActionElement) => {
     console.log("Add reward clicked for row:", rowData);
     setRowDataToEditPR(rowData);
-    setPackageIdToAddReward(rowData.id);
+    setCampiagnIdToAddReward(rowData.id);
     setAddRewardActionModalOpen(false);
   };
   const onSubmitRewardAction = async (values: any) => {
@@ -706,11 +755,11 @@ if (isDataExisting) {
         action_id: rowDataToEditPR.action_id,
         reward_id: rowDataToEditPR.reward_id,
         quantity: rowDataToEditPR.quantity,
-        campaign_id: packageIdToAddReward,
+        campaign_id: campaigIdToAddReward,
       
       });
     }
-  }, [rowDataToEditPR, packageIdToAddReward]);
+  }, [rowDataToEditPR, campaigIdToAddReward]);
 
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + 1); // Add one day to exclude yesterday
@@ -804,9 +853,11 @@ if (isDataExisting) {
     Add Campaign
   </label>
   <div className="ml-auto">
-    <label className="input input-bordered flex items-center gap-2">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
+        className="text-lg font-semibold"
         style={{ width: 300 }}
         placeholder="Search..."
         value={searchTerm}
@@ -816,7 +867,7 @@ if (isDataExisting) {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
         fill="currentColor"
-        className="w-4 h-4 opacity-70"
+        className="w-8 h-8 opacity-70"
       >
         <path
           fillRule="evenodd"
@@ -825,7 +876,7 @@ if (isDataExisting) {
         />
       </svg>
     </label>
-  </div>
+      </div>
 </div>
       <input
         type="checkbox"
@@ -849,6 +900,7 @@ if (isDataExisting) {
             initialValues={{
               name: "",
               description: "",
+              package_id: selectedValuePacakage || (rowDataToEdit ? rowDataToEdit.package_id : 0),
               start_date: "",
               end_date: "",
               is_exist: true,
@@ -859,15 +911,16 @@ if (isDataExisting) {
             onSubmit={async (values, { resetForm }) => {
               console.log("Form submitted with values:", values);
               setProcessing(true);
+              
               const isDataExisting = DataCampaignPagination.data.some(
                 (element: Element) =>
-                  element.name === values.name && element.description === values.description
+                  element.name === values.name && element.description === values.description && element.package_id === values.package_id && element.is_exist === 1
               );
             
               if (isDataExisting) {
                 showToast({
                   status: "error",
-                  message: "Camapign with this name and description already exists",
+                  message: "Camapign with this data is already exists",
                 });
             
                 setProcessing(false);
@@ -879,6 +932,7 @@ if (isDataExisting) {
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
+                package_id: selectedValuePacakage,
                 start_date: values.start_date,
                 end_date: values.end_date,
                 created_at: values.created_at,
@@ -887,14 +941,17 @@ if (isDataExisting) {
               createCampaignMutation.mutate(bodyContent);
             }}
           >
-            {({ errors, touched }) => (
+            {({ errors, touched , values }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input name for the campaign">
+                    <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
+                
                   <Field
                     type="text"
                     placeholder="Enter Campaign Name"
@@ -916,10 +973,12 @@ if (isDataExisting) {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input description for the campaign description">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -941,11 +1000,48 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
+                  <label className="label flex place-content-start gap-2">
+                  <span className="label-text text-base font-semibold">
+                    Package Name
+                  </span>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a package name for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                </label>
+                <select
+  name="package_id"
+  className="select select-bordered max-w-xs font-semibold text-base"
+  id=""
+  onChange={handleSelectChangePackage}
+  value={selectedValuePacakage}
+>
+  <option value="">Select Package Name</option>
+  {DataPackagePagination?.data.map((item: any) => (
+    <option key={item.id} value={item.id}>
+      {item.name}
+    </option>
+  ))}
+</select>
+<ErrorMessage name="package_id" className="flex">
+                    {(msg) => (
+                      <div className="text-red-600 flex">
+                        <Image
+                          src="/icons/warning.svg"
+                          width={20}
+                          height={20}
+                          alt="Error Icon"
+                          className="error-icon pr-1"
+                        />
+                        {msg}
+                      </div>
+                    )}
+                  </ErrorMessage>
                   {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign start">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
   type="date"
@@ -970,10 +1066,12 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       End Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign end">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1004,6 +1102,7 @@ if (isDataExisting) {
                     <label
                       htmlFor="my_modal_6"
                       className="btn btn-neutral mr-2"
+                      onClick={() => {handleSelectChangePackage({ target: { value: "" } }); }}
                     >
                       Cancel
                     </label>
@@ -1040,16 +1139,20 @@ if (isDataExisting) {
           <Formik
              initialValues={UpdateinitialValues}
              enableReinitialize={true}
+             innderRef={editCampaignRef}
+             validationSchema={campaignValidation}
              onSubmit={onSubmit}
           >
-            {({ errors, touched }) => (
+            {({ errors, touched, values, setFieldValue }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
-                  </label>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input name for the campaign name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  </label> 
                   <Field
                     type="text"
                     placeholder="Enter Campaign Name"
@@ -1071,11 +1174,13 @@ if (isDataExisting) {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
-                  </label>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input description for the campaign description">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  </label> 
                   <Field
                     type="text"
                     placeholder="Enter Campaign Description"
@@ -1096,11 +1201,39 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
+                  <label className="label flex place-content-start gap-2">
+                  <span className="label-text text-base font-semibold">
+                    Package Name
+                  </span>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a package for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                </label>
+                  <select
+  name="package_id"
+  className="select select-bordered w-full max-w-xs font-semibold text-base"
+  id=""
+  onChange={(event) => {
+    const selectedValue = event.target.value;
+    console.log("the value is: ",selectedValue);
+    const selectedValueAsInt = parseInt(selectedValue, 10);
+    setFieldValue('package_id', selectedValueAsInt);
+  }}
+  value={values.package_id} // Fix the variable name here
+>
+  <option value="">Select Package Name</option>
+  {DataPackagePagination?.data.map((item: any) => (
+    <option key={item.id} value={item.id}>
+      {item.name}
+    </option>
+  ))}
+</select>
                   {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign start">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1127,10 +1260,12 @@ if (isDataExisting) {
                       </div>
                     )}
                   </ErrorMessage>
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       End Date
                     </span>
+                    <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a date when the campaign end">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1271,10 +1406,11 @@ if (isDataExisting) {
             {({errors, touched, values,setFieldValue}) => (
             <Form>
               <div className="form-control bg-white">
-              <label className="label">
+              <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Action Name
-                  </span>
+                  </span><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a action for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="action_id"
@@ -1290,10 +1426,11 @@ if (isDataExisting) {
     </option>
   ))}
 </select>
-              <label className="label">
+              <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Reward Name
-                  </span>
+                  </span><div className="tooltip tooltip-top text-base tooltip-info " data-tip="Select a reward for the campaign">
+                <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="reward_id"
@@ -1310,15 +1447,18 @@ if (isDataExisting) {
   ))}
 </select>
 <span className="label-text text-base font-semibold"> Available Quantity:  {selectedRewardData?.quantity}</span>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Quantity
                   </span>
+                  <div className="tooltip tooltip-top text-base tooltip-info " data-tip="Input quantity for reward of the campaign">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="number"
                   placeholder="Enter Quantity"
                   className="input input-bordered"
+                  style = {{width: 350}}
                   name="quantity"
                 />
                       <ErrorMessage name="quantity" className="flex">
@@ -1495,6 +1635,7 @@ if (isDataExisting) {
               <th>Name</th>
               <th>Description</th>
               <th>Status</th>
+              <th>Package</th>
               <th>Start Date</th>
               <th>End Date</th>
               <th>Actions</th>
@@ -1508,11 +1649,16 @@ if (isDataExisting) {
             ) : (
               filteredData.map((element: any) => {
                 const isExpired = element.status === 'expired';
+                const packageId = DataPackagePagination?.data.find((item: any) => item.id === parseInt(element.package_id));
+                const packageName = packageId ? packageId.name : "Unknown"; // Use a default value if not found
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="badge badge-info">{element.status}</td>
+                    <td className={`badge ${element.status === 'active' ? 'badge-info' : 'badge-error'}`}>
+  {element.status}
+</td>
+                    <td>{packageName}</td>
                     <td>{new Date(element.start_date).toLocaleDateString()}</td>
                     <td>{new Date(element.end_date).toLocaleDateString()}</td>
 

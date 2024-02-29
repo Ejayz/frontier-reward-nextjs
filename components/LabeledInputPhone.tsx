@@ -10,12 +10,15 @@ export default function LabeledInputPhone({
   value,
   setFieldValue,
   setPhoneInfo,
+  datatip
 }: any) {
   console.log(errors, touched);
   return (
     <div className="form-control">
-      <label className="label">
+      <label className="label flex place-content-start gap-2">
         <span className="label-text">{label}</span>
+        <div className="tooltip tooltip-right text-base tooltip-info " data-tip={datatip}>
+      <div  className="badge badge-lg w-5 h-5">?</div></div>
       </label>
       <PhoneInput
         name={field_name}

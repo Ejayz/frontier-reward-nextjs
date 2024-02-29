@@ -24,7 +24,7 @@ export default async function handler(
     const verify = jwt.verify(auth, JWT_SECRET);
 
     // Extract data from the request body
-    const { id, name, description, updated_at } =
+    const { id, name, description,package_id, updated_at } =
       req.body;
 
     // Validate that required parameters are present
@@ -32,6 +32,7 @@ export default async function handler(
       !id ||
       !name ||
       !description ||
+      !package_id ||
       !updated_at
     ) {
       return res.status(400).json({
@@ -42,8 +43,8 @@ export default async function handler(
 
     // Update the action in the databaase
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
-      `UPDATE campaign SET name=?, description=?, updated_at=current_timestamp()  WHERE id=?`,
-      [name, description, id]
+      `UPDATE campaign SET name=?, description=?,package_id=?, updated_at=current_timestamp()  WHERE id=?`,
+      [name, description,package_id, id]
     );
 
     // Respond with success status

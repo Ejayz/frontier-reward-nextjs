@@ -152,7 +152,37 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+  const {
+    data: DataRedeemPagination,
+    isFetching: isFetchingRedeemPagination,
+    isLoading: isLoadingRedeemPagination,
+    refetch: RefetchRedeemPagination,
+  } = useQuery({
+    queryKey: ["getRedeem", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getRedeem`, {
+        method: "GET",
+        headers: headersList,
+      });
 
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   const [selectedValue, setSelectedValue] = useState("");
   const handleSelectChange = (event: any) => {
     const newValue = event.target.value;
@@ -472,7 +502,6 @@ export default function Page() {
           setProcessing(false);
           return;
         }
-  
         console.log("the values are: ", values);
   
         const isActionUsedInCampaign = DataPackageRewardPagination.data.some(
@@ -488,7 +517,29 @@ export default function Page() {
           setProcessing(false);
           return;
         }
+        try{
+        if (!DataRedeemPagination || !DataRedeemPagination.data) {
+          showToast({
+            status: "error",
+            message: "Package data is not available.",
+          });
   
+          setProcessing(false);
+          return;
+        }
+        const isActionUsedInRedeem = DataRedeemPagination.data.some(
+          (element: any) => element.package_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInRedeem) {
+          showToast({
+            status: "error",
+            message: "This package is currently used and cannot be removed.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
         console.log("the values are: ", values);
         const response = await fetch(`/api/private/removePackage/`, {
           method: "POST",
@@ -521,6 +572,15 @@ export default function Page() {
         setRemoveModalOpen(false);
         console.error(error);
       }
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      setProcessing(false);
+      setRemoveModalOpen(false);
+      console.error(error);
+    }
     },
     [
       setProcessing,
@@ -628,9 +688,11 @@ export default function Page() {
     Add Package
   </label>
   <div className="ml-auto">
-    <label className="input input-bordered flex items-center gap-2">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
+        className="text-lg font-semibold"
         style={{ width: 300 }}
         placeholder="Search..."
         value={searchTerm}
@@ -640,7 +702,7 @@ export default function Page() {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
         fill="currentColor"
-        className="w-4 h-4 opacity-70"
+        className="w-8 h-8 opacity-70"
       >
         <path
           fillRule="evenodd"
@@ -649,7 +711,7 @@ export default function Page() {
         />
       </svg>
     </label>
-  </div>
+      </div>
 </div>
       <input
         type="checkbox"
@@ -712,10 +774,12 @@ export default function Page() {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -738,10 +802,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -764,10 +830,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -836,10 +904,12 @@ export default function Page() {
           >
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Reward Name
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select reward name for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
                   name="reward_id"
@@ -966,10 +1036,12 @@ export default function Page() {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -992,10 +1064,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1018,10 +1092,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"

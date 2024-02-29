@@ -11,6 +11,7 @@ export default function LabeledSelectInput({
   SelectOptions,
   setFieldValue,
   values,
+  datatip,
 }: any) {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
@@ -19,8 +20,10 @@ export default function LabeledSelectInput({
 
   return (
     <div className="form-control">
-      <label className="label">
+      <label className="label flex place-content-start gap-2">
         <span className="label-text">{label}</span>
+        <div className="tooltip tooltip-right text-base tooltip-info " data-tip={datatip}>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
       </label>
       <Field
         name={field_name}

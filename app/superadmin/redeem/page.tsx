@@ -59,6 +59,7 @@ export default function Page() {
     data: getRewards,
     isLoading: isRewardsLoading,
     isFetching: isRewardsFetching,
+    refetch: refetchRewards,
   } = useQuery({
     queryKey: ["getRewards"],
     queryFn: async () => {
@@ -82,6 +83,7 @@ export default function Page() {
     data: getPackages,
     isLoading: isPackagesLoading,
     isFetching: isPackagesFetching,
+    refetch: refetchPackages,
   } = useQuery({
     queryKey: ["getPackages"],
     queryFn: async () => {
@@ -100,41 +102,6 @@ export default function Page() {
     },
     refetchOnWindowFocus: false,
   });
-
-  const addRedeemValidation = yup.object().shape({
-    name: yup.string().required("Name is required"),
-    description: yup.string().required("Description is required"),
-    cost: yup.number().required("Cost is required").min(1),
-    package_id: yup.string().required("Package is required"),
-    reward_id: yup.string().required("Reward is required"),
-  });
-  const addRedeemMutation = useMutation({
-    mutationFn: async (values: any) => {
-      let headersList = {
-        Accept: "*/*",
-        "Content-Type": "application/json",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-      };
-
-      let response = await fetch("/api/private/createRedeem/", {
-        method: "POST",
-        headers: headersList,
-        body: JSON.stringify(values),
-      });
-
-      let data = await response.json();
-      return data;
-    },
-    onError: (error: any) => {
-      toast.error(error.message);
-    },
-    onSuccess: (data: any) => {
-      toast.success(data.message);
-      addRedeemForm.current?.resetForm();
-      addRedeemModal.current?.click();
-    },
-  });
-
   const {
     data: getRedeemable,
     isLoading: isRedeemableLoading,
@@ -161,9 +128,48 @@ export default function Page() {
   });
   const filteredData = (getRedeemable?.data || []).filter(
     (element: any) =>
-      element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      element.description.toLowerCase().includes(searchTerm.toLowerCase())
+      element.redeem_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      element.redeem_description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const addRedeemValidation = yup.object().shape({
+    name: yup.string().required("Name is required"),
+    description: yup.string().required("Description is required"),
+    cost: yup.number().required("Cost is required").min(1),
+    package_id: yup.string().required("Package is required"),
+    reward_id: yup.string().required("Reward is required"),
+  });
+  const addRedeemMutation = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "Content-Type": "application/json",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch("/api/private/createRedeem/", {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+
+      let data = await response.json();
+      refetchPackages();
+      refetchRewards();
+      refetchRedeemable();
+      return data;
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+    onSuccess: (data: any) => {
+      toast.success(data.message);
+      addRedeemForm.current?.resetForm();
+      addRedeemModal.current?.click();
+    },
+    
+  });
+
+ 
   const removeRedeemMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -179,6 +185,9 @@ export default function Page() {
       });
 
       let data = await response.json();
+      refetchPackages();
+      refetchRewards();
+      refetchRedeemable();
       return data;
     },
     onError: (error: any) => {
@@ -234,6 +243,9 @@ export default function Page() {
       });
 
       let data = await response.json();
+      refetchPackages();
+      refetchRewards();
+      refetchRedeemable();
       return data;
     },
     onError: (error: any) => {
@@ -255,7 +267,6 @@ export default function Page() {
   return (
     <div className="w-full h-full px-2">
       {/* Update Modal*/}
-
       <dialog ref={updateRedeemModal} id="my_modal_3" className="modal">
         <div className="modal-box">
           <form method="dialog">
@@ -337,6 +348,7 @@ export default function Page() {
                     touched={touched.name}
                     classes="mb-2"
                     label="Name"
+                    datatip="Input the name of the redeemable."
                   />
                   <LabeledInput
                     field_name="description"
@@ -347,6 +359,7 @@ export default function Page() {
                     touched={touched.description}
                     classes="mb-2"
                     label="Description"
+                    datatip="Input the description of the redeemable."
                   />
                   <LabeledInput
                     field_name="cost"
@@ -357,6 +370,7 @@ export default function Page() {
                     touched={touched.cost}
                     classes="mb-2"
                     label="Cost"
+                    datatip="Input the cost of the redeemable."
                   />
                   <LabeledSelectInput
                     field_name="package_id"
@@ -366,6 +380,7 @@ export default function Page() {
                     touched={touched.package_id}
                     classes="mb-2"
                     label="Package"
+                    datatip="Select a package name for the redeemable."
                     SelectOptions={
                       isPackagesFetching || isPackagesLoading
                         ? []
@@ -382,6 +397,7 @@ export default function Page() {
                     touched={touched.reward_id}
                     classes="mb-2"
                     label="Reward"
+                    datatip="Select a reward name for the redeemable."
                     SelectOptions={
                       isRewardsFetching || isRewardsLoading
                         ? []
@@ -417,10 +433,12 @@ export default function Page() {
   <label htmlFor="addRedeemModal" className="btn btn-primary ">
         Add Redeem
       </label>
-  <div className="ml-auto">
-    <label className="input input-bordered flex items-center gap-2">
+      <div className="ml-auto">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
+        className="text-lg font-semibold"
         style={{ width: 300 }}
         placeholder="Search..."
         value={searchTerm}
@@ -430,7 +448,7 @@ export default function Page() {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
         fill="currentColor"
-        className="w-4 h-4 opacity-70"
+        className="w-8 h-8 opacity-70"
       >
         <path
           fillRule="evenodd"
@@ -439,7 +457,7 @@ export default function Page() {
         />
       </svg>
     </label>
-  </div>
+      </div>
 </div>
       <input
         ref={addRedeemModal}
@@ -482,6 +500,7 @@ export default function Page() {
                   touched={touched.name}
                   classes="mb-2"
                   label="Name"
+                  datatip="Input the name of the redeemable."
                 />
                 <LabeledInput
                   field_name="description"
@@ -492,6 +511,7 @@ export default function Page() {
                   touched={touched.description}
                   classes="mb-2"
                   label="Description"
+                  datatip="Input the description of the redeemable."
                 />
                 <LabeledInput
                   field_name="cost"
@@ -502,36 +522,39 @@ export default function Page() {
                   touched={touched.cost}
                   classes="mb-2"
                   label="Cost"
+                  datatip="Input the cost of the redeemable."
                 />
                 <LabeledSelectInput
-                  field_name="reward_id"
-                  placeholder="Redeemable Reward"
+                  field_name="package_id"
+                  placeholder="Redeemable Package"
                   className="input input-bordered"
                   errors={errors.package_id}
                   touched={touched.package_id}
                   classes="mb-2"
                   label="Package"
+                  datatip="Select a package name for the redeemable."
                   SelectOptions={
                     isPackagesFetching || isPackagesLoading
                       ? []
                       : getPackages.data
                   }
                   setFieldValue={setFieldValue}
-                  values={values.reward_id}
+                  values={values.package_id}
                 />
                 <LabeledSelectInput
-                  field_name="package_id"
-                  placeholder="Package"
+                  field_name="reward_id"
+                  placeholder="Redeemable Reward"
                   className="input input-bordered"
-                  errors={errors.package_id}
-                  touched={touched.package_id}
+                  errors={errors.reward_id}
+                  touched={touched.reward_id}
                   classes="mb-2"
                   label="Reward"
+                  datatip="Select a reward name for the redeemable."
                   SelectOptions={
                     isRewardsFetching || isRewardsLoading ? [] : getRewards.data
                   }
                   setFieldValue={setFieldValue}
-                  values={values.package_id}
+                  values={values.reward_id}
                 />
 
                 <div className="modal-action">
@@ -580,9 +603,9 @@ export default function Page() {
                 </td>
               </tr>
             ) : (
-              filteredData.map((item: any, index: number) => {
+              filteredData.map((item: any) => {
                 return (
-                  <tr key={index}>
+                  <tr key={item.reward_id}>
                     <td>{item.redeem_name}</td>
                     <td>{item.redeem_description}</td>
                     <td>{`${item.point_cost} Frontier Points`}</td>
