@@ -45,121 +45,7 @@ export default function Page() {
   const handleShowUserType = (event: any) => {
     setShowUsersType(event.target.value);
   };
-  const removeEmployeeMutation = useMutation({
-    mutationFn: async (values: any) => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-        "Content-Type": "application/json",
-      };
-      let response = await fetch("/api/private/removeEmployee", {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: headersList,
-      });
-      return response.json();
-    },
-    onSuccess: async (data: any) => {
-      if (data.code == 200) {
-        EmployeeRefetch();
-        showToast({
-          status: "success",
-          message: data.message,
-        });
-      } else {
-        showToast({
-          status: "error",
-          message: data.message,
-        });
-      }
-    },
-    onError: async (error: any) => {
-      showToast({
-        status: "error",
-        message: error.message,
-      });
-    },
-  });
-  const [employeePage, setEmployeePage] = useState(0);
-  const {
-    data: EmployeeData,
-    error: EmployeeError,
-    isLoading: EmployeeIsLoading,
-    isFetching: EmployeeIsFetching,
-    refetch: EmployeeRefetch,
-  } = useQuery({
-    queryKey: [
-      "getEmployees",
-      searchForm.current?.values.selected == "employee",
-      employeePage,
-      searchForm.current?.values.keyword,
-    ],
-    queryFn: async () => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-      };
 
-      let response = await fetch(
-        `/api/private/getEmployee?keyword=${searchForm.current?.values.keyword}&page=${employeePage}`,
-        {
-          method: "GET",
-          headers: headersList,
-        }
-      );
-
-      let data = await response.json();
-      console.log("Employee", data);
-      if (!response.ok) {
-        toast.error(data.message);
-      }
-      return data;
-    },
-    refetchOnWindowFocus: true,
-    staleTime: 0,
-  });
-
-  const {
-    data: customerData,
-    error: customerError,
-    isLoading: customerIsLoading,
-    isFetching: customerIsFetching,
-    refetch: customerRefetch,
-  } = useQuery({
-    queryKey: [
-      "getCustomers",
-      searchForm.current?.values.selected == "Customer",
-      page,
-      searchForm.current?.values.keyword,
-    ],
-    queryFn: async () => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-      };
-
-      let response = await fetch(
-        `/api/private/getCustomer?keyword=${searchForm.current?.values.keyword}&page=${page}`,
-        {
-          method: "GET",
-          headers: headersList,
-        }
-      );
-
-      let data = await response.json();
-      console.log(data);
-      if (!response.ok) {
-        toast.error(data.message);
-      }
-      data.data.forEach((datas: any) => {
-        datas.propsId = Math.pow(Math.random(), 2);
-      });
-
-      return data;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-  });
   const countries = [
     {
       value: "Afghanistan",
@@ -938,30 +824,13 @@ export default function Page() {
       text: "Zimbabwe",
     },
   ];
-  useEffect(() => {
-    customerRefetch();
-  }, [searchForm.current?.values.keyword]);
-  useEffect(() => {
-    console.log(keyword);
-  }, [keyword]);
+
   const confirmBox = useRef<HTMLInputElement>(null);
   const CustomerAccountDetail = useRef<FormikProps<any>>(null);
   const VehicleDetail = useRef<FormikProps<any>>(null);
   const notificationContainer = useRef<HTMLDivElement>(null);
   const EmployeeForm = useRef<FormikProps<any>>(null);
   const [phoneInfo, setPhoneInfo] = useState<phoneType>({
-    areaCodes: [
-      204, 226, 236, 249, 250, 289, 306, 343, 365, 387, 403, 416, 418, 431, 437,
-      438, 450, 506, 514, 519, 548, 579, 581, 587, 604, 613, 639, 647, 672, 705,
-      709, 742, 778, 780, 782, 807, 819, 825, 867, 873, 902, 905,
-    ],
-    dialCode: "1",
-    format: "(...) ...-....",
-    iso2: "ca",
-    name: "Canada",
-    priority: 1,
-  });
-  const [adminPhone, setAdminPhone] = useState<phoneType>({
     areaCodes: [
       204, 226, 236, 249, 250, 289, 306, 343, 365, 387, 403, 416, 418, 431, 437,
       438, 450, 506, 514, 519, 548, 579, 581, 587, 604, 613, 639, 647, 672, 705,
@@ -1002,6 +871,7 @@ export default function Page() {
     staleTime: 0,
   });
   const [vehiclelist, setVehicleList] = useState<vehicleType[]>([]);
+
   const customerValidation = yup.object({
     first_name: yup.string().required("First Name is required."),
     middle_name: yup.string(),
@@ -1038,20 +908,6 @@ export default function Page() {
       .string()
       .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid VIN number")
       .required("VIN number is required"),
-  });
-
-  const adminSchema = yup.object().shape({
-    phone_number: yup
-      .string()
-      .phone(
-        adminPhone?.iso2.toUpperCase(),
-        `Enter a valid phone number for ${adminPhone?.name}`
-      )
-      .required("Phone Number is required."),
-    firstName: yup.string().required("First Name is required."),
-    middleName: yup.string(),
-    lastName: yup.string().required("Last Name is required."),
-    email: yup.string().email().required("Email is required."),
   });
 
   const [dataToRemove, setDataToRemove] = useState<{
@@ -1097,6 +953,7 @@ export default function Page() {
       });
     },
   });
+
   const CreateCustomerMutation = useMutation({
     mutationFn: async (values: any) => {
       console.log(values);
@@ -1135,46 +992,9 @@ export default function Page() {
     },
   });
 
-  const removeCustomerMutation = useMutation({
-    mutationFn: async (values: any) => {
-      let headersList = {
-        Accept: "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-        "Content-Type": "application/json",
-      };
-      let response = await fetch("/api/private/removeCustomer", {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: headersList,
-      });
-      return response.json();
-    },
-    onSuccess: async (data: any) => {
-      if (data.code == 200) {
-        customerRefetch();
-        showToast({
-          status: "success",
-          message: data.message,
-        });
-      } else {
-        showToast({
-          status: "error",
-          message: data.message,
-        });
-      }
-    },
-    onError: async (error: any) => {
-      showToast({
-        status: "error",
-        message: error.message,
-      });
-    },
-  });
-
   return (
-    <div className="w-full h-full px-2">
+    <div className="w-full h-full pl-10 ">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
-
       <dialog id="my_modal_1" ref={notifModal} className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">New {userType} Account </h3>
@@ -1197,7 +1017,6 @@ export default function Page() {
           </div>
         </div>
       </dialog>
-
       {/* Dialog for removal of car on the list */}
       <dialog
         id="my_modal_1"
@@ -1238,963 +1057,382 @@ export default function Page() {
             </button>
           </div>
         </div>
-      </dialog>
-
-      {/* The button to open modal */}
-      <label htmlFor="add_user" className="btn btn-accent">
-        Add User
-      </label>
-
-      {/* Put this part before </body> tag */}
-      <input
-        type="checkbox"
-        id="add_user"
-        onChange={() => {
-          setUserType("");
-          CustomerAccountDetail.current?.resetForm();
-          VehicleDetail.current?.resetForm();
-          setVehicleList([]);
-        }}
-        ref={modalAddUser}
-        className="modal-toggle"
-      />
-      <div id="add_user_modal" className="modal" role="dialog">
-        <div className="modal-box w-11/12 h-11/12 max-w-7xl z-50">
-          <label
-            htmlFor="add_user"
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      </dialog>{" "}
+      <h3 className="font-bold text-lg">Add User</h3>
+      <div className="w-full h-full md:h-[300px] lg:h-[480px] xl:h-[800px] overflow-y-auto  flex flex-col">
+          <div className="divider uppercase">Customer Information</div>
+          <Formik
+            innerRef={CustomerAccountDetail}
+            initialValues={{
+              first_name: "",
+              middle_name: "",
+              last_name: "",
+              email: "",
+              phone_number: "",
+              points: "",
+              package: "",
+              address_line: "",
+              address_line2: "",
+              city: "",
+              state_province_region: "",
+              zip_code: "",
+              country: "",
+              suffix: "",
+            }}
+            validationSchema={customerValidation}
+            onSubmit={(values: any) => {}}
           >
-            ✕
-          </label>
-
-          <h3 className="font-bold text-lg">Add User</h3>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Type</span>
-            </label>
-            <select
-              className="select select-bordered  select-sm w-full max-w-xs"
-              value={userType}
-              onChange={handleUserTypeChange}
-            >
-              <option value="">Select an option</option>
-              <option value="Customer">Customer</option>
-              <option value="employee">Employee</option>
-            </select>
-            {userType === "Customer" && (
-              <>
-                <div className="divider uppercase">Customer Information</div>
-                <Formik
-                  innerRef={CustomerAccountDetail}
-                  initialValues={{
-                    first_name: "",
-                    middle_name: "",
-                    last_name: "",
-                    email: "",
-                    phone_number: "",
-                    points: "",
-                    package: "",
-                    address_line: "",
-                    address_line2: "",
-                    city: "",
-                    state_province_region: "",
-                    zip_code: "",
-                    country: "",
-                    suffix: "",
-                  }}
-                  validationSchema={customerValidation}
-                  onSubmit={(values: any) => {}}
-                >
-                  {({ errors, touched, setFieldValue, values }) => (
-                    <Form>
-                      <div className="customer grid grid-cols-3 gap-x-2">
-                        <LabeledInput
-                          field_name="first_name"
-                          type="text"
-                          placeholder="Enter First Name"
-                          className="input input-bordered   input-sm w-full max-w-xs"
-                          errors={errors.first_name}
-                          touched={touched.first_name}
-                          classes="text-base"
-                          label="First Name"
-                          datatip="Input the first name for the account."
-                        />
-                        <LabeledInput
-                          field_name="middle_name"
-                          type="text"
-                          placeholder="Enter Middle Name"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.middle_name}
-                          touched={touched.middle_name}
-                          classes="text-base"
-                          label="Middle Name"
-                          datatip="Input the middle name for the account."
-                        />
-                        <LabeledInput
-                          field_name="last_name"
-                          type="text"
-                          placeholder="Enter Last Name"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.last_name}
-                          touched={touched.last_name}
-                          classes="text-base"
-                          label="Last Name"
-                          datatip="Input the last name for the account."
-                        />
-                        <LabeledInput
-                          field_name="suffix"
-                          type="text"
-                          placeholder="Suffix"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.suffix}
-                          touched={touched.suffix}
-                          classes="text-base"
-                          label="Suffix"
-                          datatip="Input the suffix for the account."
-                        />
-                        <LabeledInput
-                          field_name="email"
-                          type="email"
-                          placeholder="Enter Email"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.email}
-                          touched={touched.email}
-                          classes="text-base"
-                          label="Email"
-                          datatip="Input the email for the account."
-                        />
-                        <LabeledInputPhone
-                          field_name="phone_number"
-                          placeholder="Enter Phone Number"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.phone_number}
-                          touched={touched.phone_number}
-                          classes="text-base"
-                          label="Phone Number"
-                          datatip="Input the phone number for the account."
-                          value={values.phone_number}
-                          setFieldValue={setFieldValue}
-                          setPhoneInfo={setPhoneInfo}
-                          costumerValidation={customerValidation}
-                        />
-                        <LabeledInput
-                          field_name="points"
-                          type="number"
-                          placeholder="Enter Points"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.points}
-                          touched={touched.points}
-                          classes="text-base"
-                          label="Points"
-                          datatip="Input the points for the account."
-                        />
-                        <LabeledSelectInput
-                          field_name="package"
-                          type="text"
-                          placeholder="Enter Package"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.package}
-                          touched={touched.package}
-                          classes="text-base"
-                          label="Package"
-                          datatip="Select a package for the account."
-                          SelectOptions={
-                            isFetching || isLoading ? [] : data.data
-                          }
-                          setFieldValue={setFieldValue}
-                          values={values.package}
-                        />{" "}
-                        <LabeledSelectInput
-                          field_name="country"
-                          type="text"
-                          placeholder="Select Country"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.country}
-                          touched={touched.country}
-                          classes="text-base"
-                          label="Country"
-                          datatip="Select the country for the account."
-                          SelectOptions={countries}
-                          setFieldValue={setFieldValue}
-                          values={values.country}
-                        />
-                        <LabeledInput
-                          field_name="address_line"
-                          type="text"
-                          placeholder="Enter Address Line"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.address_line}
-                          touched={touched.address_line}
-                          classes="text-base"
-                          label="Address Line"
-                          datatip="Input the address line for the account."
-                        />
-                        <LabeledInput
-                          field_name="address_line2"
-                          type="text"
-                          placeholder="Enter Address Line 2"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.address_line2}
-                          touched={touched.address_line2}
-                          classes="text-base"
-                          label="Address Line 2"
-                          datatip="Input the address line 2 for the account."
-                        />
-                        <LabeledInput
-                          field_name="city"
-                          type="text"
-                          placeholder="Enter City"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.city}
-                          touched={touched.city}
-                          classes="text-base"
-                          label="City"
-                          datatip="Input the city for the account."
-                        />
-                        <LabeledInput
-                          field_name="state_province_region"
-                          type="text"
-                          placeholder="Enter State/Province/Region"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.state_province_region}
-                          touched={touched.state_province_region}
-                          classes="text-base"
-                          label="State/Province/Region"
-                          datatip="Input the state/province/region for the account."
-                        />
-                        <LabeledInput
-                          field_name="zip_code"
-                          type="text"
-                          placeholder="Enter Zip Code"
-                          className="input input-bordered  input-sm w-full max-w-xs"
-                          errors={errors.zip_code}
-                          touched={touched.zip_code}
-                          classes="text-base"
-                          label="Zip/Postal Code"
-                          datatip="Input the zip/postal code for the account."
-                        />
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
-                <div className="divider uppercase">Vehicle Information</div>
-                <Formik
-                  innerRef={VehicleDetail}
-                  initialValues={{
-                    year: "",
-                    model: "",
-                    trim: "",
-                    color: "",
-                    vin_no: "",
-                  }}
-                  validationSchema={vehicleSchema}
-                  onSubmit={async (values: any) => {
-                    if (
-                      vehiclelist.find((item) => item.vin_no === values.vin_no)
-                    ) {
-                      toast.error("Vehicle ID already exists in the list");
-                    } else {
-                      const formatted_values = {
-                        table_uuid: Math.random().toString(36).substring(7),
-                        year: values.year,
-                        model: values.model,
-                        trim: values.trim,
-                        color: values.color,
-                        vin_no: values.vin_no,
-                      };
-                      setVehicleList((oldList) => [
-                        ...oldList,
-                        formatted_values,
-                      ]);
-                      VehicleDetail.current?.resetForm();
-                    }
-                  }}
-                >
-                  {({ errors, touched }) => (
-                    <Form>
-                      <div className="grid grid-cols-3 gap-x-2">
-                        <LabeledInput
-                          field_name="vin_no"
-                          type="text"
-                          placeholder="Enter Vehicle VIN No"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.vin_no}
-                          touched={touched.vin_no}
-                          classes="text-base"
-                          label="Vehicle VIN No"
-                          datatip="Input the vehicle VIN number for the vehicle of the account."
-                        />
-
-                        <LabeledInput
-                          field_name="year"
-                          type="number"
-                          placeholder="Enter Vehicle Year"
-                          className="input input-bordered appearance-none input-sm w-full max-w-xs"
-                          errors={errors.year}
-                          touched={touched.year}
-                          classes="text-base"
-                          label="Vehicle Year"
-                          datatip="Input the vehicle year for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="model"
-                          type="text"
-                          placeholder="Enter Vehicle Model"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.model}
-                          touched={touched.model}
-                          classes="text-base"
-                          label="Vehicle Model"
-                          datatip="Input the vehicle model for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="trim"
-                          type="text"
-                          placeholder="Enter Vehicle Trim"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.trim}
-                          touched={touched.trim}
-                          classes="text-base"
-                          label="Vehicle Trim"
-                          datatip="Input the vehicle trim for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="color"
-                          type="text"
-                          placeholder="Enter Vehicle Color"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.color}
-                          touched={touched.color}
-                          classes="text-base"
-                          label="Vehicle Color"
-                          datatip="Input the vehicle color for the vehicle of the account."
-                        />
-                      </div>
-                      <div id="notif" ref={notificationContainer}></div>
-                      <button className="btn btn-primary mt-4">
-                        Add Vehicle
-                      </button>
-
-                      <table className="table mt-4">
-                        <thead>
-                          <tr>
-                            <th>VIN No</th>
-                            <th>Year</th>
-                            <th>Model</th>
-                            <th>Trim</th>
-                            <th>Color</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {vehiclelist.map((vehicle) => (
-                            <tr key={vehicle.table_uuid}>
-                              <td>{vehicle.vin_no}</td>
-                              <td>{vehicle.year}</td>
-                              <td>{vehicle.model}</td>
-                              <td>{vehicle.trim}</td>
-                              <td>{vehicle.color}</td>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-error"
-                                  onClick={() => {
-                                    setDataToRemove({
-                                      id: vehicle.vin_no,
-                                      table_uuid: vehicle.table_uuid,
-                                    });
-                                    confirmModal.current?.showModal();
-                                  }}
-                                >
-                                  Remove
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </Form>
-                  )}
-                </Formik>
-                <div className="modal-action">
-                  <button
-                    onClick={async () => {
-                      if (
-                        CustomerAccountDetail.current?.isValid &&
-                        vehiclelist.length != 0
-                      ) {
-                        let bodyContent = {
-                          firstName:
-                            CustomerAccountDetail.current?.values.first_name,
-                          middleName:
-                            CustomerAccountDetail.current?.values.middle_name,
-                          lastName:
-                            CustomerAccountDetail.current?.values.last_name,
-                          phoneNumber:
-                            CustomerAccountDetail.current?.values.phone_number,
-                          email: CustomerAccountDetail.current?.values.email,
-                          packageId:
-                            CustomerAccountDetail.current?.values.package,
-                          vehicles: vehiclelist,
-                          country:
-                            CustomerAccountDetail.current?.values.country,
-                          city: CustomerAccountDetail.current?.values.city,
-                          zipCode:
-                            CustomerAccountDetail.current?.values.zip_code,
-                          address:
-                            CustomerAccountDetail.current?.values.address_line,
-                          address2:
-                            CustomerAccountDetail.current?.values.address_line2,
-                          state_province:
-                            CustomerAccountDetail.current?.values
-                              .state_province_region,
-                          points: CustomerAccountDetail.current?.values.points,
-                          suffix: CustomerAccountDetail.current?.values.suffix,
-                        };
-
-                        CreateCustomerMutation.mutate(bodyContent);
-                      } else {
-                        toast.error("Please fill up all the required fields");
-                      }
-                    }}
-                    className="btn btn-info btn-md"
-                  >
-                    Create Customer
-                  </button>{" "}
-                  <button
-                    onClick={() => {
-                      modalAddUser.current?.click();
-                    }}
-                    className="btn btn-md"
-                  >
-                    Cancel
-                  </button>
+            {({ errors, touched, setFieldValue, values }) => (
+              <Form>
+                <div className="customer grid grid-cols-3 gap-x-2">
+                  <LabeledInput
+                    field_name="first_name"
+                    type="text"
+                    placeholder="Enter First Name"
+                    className="input input-bordered   input-sm w-full max-w-xs"
+                    errors={errors.first_name}
+                    touched={touched.first_name}
+                    classes="text-base"
+                    label="First Name"
+                    datatip="Input the first name for the account"
+                  />
+                  <LabeledInput
+                    field_name="middle_name"
+                    type="text"
+                    placeholder="Enter Middle Name"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.middle_name}
+                    touched={touched.middle_name}
+                    classes="text-base"
+                    label="Middle Name"
+                    datatip="Input the middle name for the account"
+                  />
+                  <LabeledInput
+                    field_name="last_name"
+                    type="text"
+                    placeholder="Enter Last Name"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.last_name}
+                    touched={touched.last_name}
+                    classes="text-base"
+                    label="Last Name"
+                    datatip="Input the last name for the account"
+                  />
+                  <LabeledInput
+                    field_name="suffix"
+                    type="text"
+                    placeholder="Suffix"
+                    className="input input-bordered input-sm w-full max-w-xs"
+                    errors={errors.suffix}
+                    touched={touched.suffix}
+                    classes="text-base"
+                    label="Suffix"
+                    datatip="Input the suffix for the account"
+                  />
+                  <LabeledInput
+                    field_name="email"
+                    type="email"
+                    placeholder="Enter Email"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.email}
+                    touched={touched.email}
+                    classes="text-base"
+                    label="Email"
+                    datattip="Input the email for the account"
+                  />
+                  <LabeledInputPhone
+                    field_name="phone_number"
+                    placeholder="Enter Phone Number"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.phone_number}
+                    touched={touched.phone_number}
+                    classes="text-base"
+                    label="Phone Number"
+                    datatip="Input the phone number for the account"
+                    value={values.phone_number}
+                    setFieldValue={setFieldValue}
+                    setPhoneInfo={setPhoneInfo}
+                    costumerValidation={customerValidation}
+                  />
+                  <LabeledInput
+                    field_name="points"
+                    type="number"
+                    placeholder="Enter Points"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.points}
+                    touched={touched.points}
+                    classes="text-base"
+                    label="Points"
+                    datatip="Input the points for the account"
+                  />
+                  <LabeledSelectInput
+                    field_name="package"
+                    type="text"
+                    placeholder="Enter Package"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.package}
+                    touched={touched.package}
+                    classes="text-base"
+                    label="Package"
+                    datatip="Select the package for the account"
+                    SelectOptions={isFetching || isLoading ? [] : data.data}
+                    setFieldValue={setFieldValue}
+                    values={values.package}
+                  />{" "}
+                  <LabeledSelectInput
+                    field_name="country"
+                    type="text"
+                    placeholder="Select Country"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.country}
+                    touched={touched.country}
+                    classes="text-base"
+                    label="Country"
+                    datatip="Select the country for the account"
+                    SelectOptions={countries}
+                    setFieldValue={setFieldValue}
+                    values={values.country}
+                  />
+                  <LabeledInput
+                    field_name="address_line"
+                    type="text"
+                    placeholder="Enter Address Line"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.address_line}
+                    touched={touched.address_line}
+                    classes="text-base"
+                    label="Address Line"
+                    datatip="Input the address line for the account"
+                  />
+                  <LabeledInput
+                    field_name="address_line2"
+                    type="text"
+                    placeholder="Enter Address Line 2"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.address_line2}
+                    touched={touched.address_line2}
+                    classes="text-base"
+                    label="Address Line 2"
+                    datatip="Input the address line 2 for the account"
+                  />
+                  <LabeledInput
+                    field_name="city"
+                    type="text"
+                    placeholder="Enter City"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.city}
+                    touched={touched.city}
+                    classes="text-base"
+                    label="City"
+                    datatip="Input the city for the account"
+                  />
+                  <LabeledInput
+                    field_name="state_province_region"
+                    type="text"
+                    placeholder="Enter State/Province/Region"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.state_province_region}
+                    touched={touched.state_province_region}
+                    classes="text-base"
+                    label="State/Province/Region"
+                    datatip="Input the state/province/region for the account"
+                  />
+                  <LabeledInput
+                    field_name="zip_code"
+                    type="text"
+                    placeholder="Enter Zip Code"
+                    className="input input-bordered  input-sm w-full max-w-xs"
+                    errors={errors.zip_code}
+                    touched={touched.zip_code}
+                    classes="text-base"
+                    label="Zip/Postal Code"
+                    datatip="Input the zip/postal code for the account"
+                  />
                 </div>
-              </>
+              </Form>
             )}
+          </Formik>
+          <div className="divider uppercase">Vehicle Information</div>
+          <Formik
+            innerRef={VehicleDetail}
+            initialValues={{
+              year: "",
+              model: "",
+              trim: "",
+              color: "",
+              vin_no: "",
+            }}
+            validationSchema={vehicleSchema}
+            onSubmit={async (values: any) => {
+              if (vehiclelist.find((item) => item.vin_no === values.vin_no)) {
+                toast.error("Vehicle ID already exists in the list");
+              } else {
+                const formatted_values = {
+                  table_uuid: Math.random().toString(36).substring(7),
+                  year: values.year,
+                  model: values.model,
+                  trim: values.trim,
+                  color: values.color,
+                  vin_no: values.vin_no,
+                };
+                setVehicleList((oldList) => [...oldList, formatted_values]);
+                VehicleDetail.current?.resetForm();
+              }
+            }}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div className="grid grid-cols-3 gap-x-2">
+                  <LabeledInput
+                    field_name="vin_no"
+                    type="text"
+                    placeholder="Enter Vehicle VIN No"
+                    className="input input-bordered input-sm w-full max-w-xs"
+                    errors={errors.vin_no}
+                    touched={touched.vin_no}
+                    classes="text-base"
+                    label="Vehicle VIN No"
+                    datatip="Input the vehicle VIN number for vehicle of the account"
+                  />
 
-            {userType === "employee" && (
-              <div className="admin">
-                <Formik
-                  innerRef={EmployeeForm}
-                  initialValues={{
-                    firstName: "",
-                    middleName: "",
-                    lastName: "",
-                    email: "",
-                    phone_number: "",
-                    employee_type: "",
-                    suffix: "",
-                  }}
-                  validationSchema={adminSchema}
-                  onSubmit={(values: any) => {}}
-                >
-                  {({ errors, touched, setFieldValue, values }) => (
-                    <Form>
-                      <div className=" grid grid-cols-3 gap-2">
-                        <LabeledSelectInput
-                          field_name="employee_type"
-                          type="text"
-                          placeholder="Select Employee Type"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.employee_type}
-                          touched={touched.employee_type}
-                          classes="text-base"
-                          label="Employee Type"
-                          datatip="Select the employee type for the account."
-                          SelectOptions={[
-                            {
-                              value: "3",
-                              text: "Sales",
-                            },
-                            {
-                              value: "2",
-                              text: "Admin",
-                            },
-                          ]}
-                          setFieldValue={setFieldValue}
-                          values={values.employee_type}
-                        />
-                        <LabeledInput
-                          field_name="firstName"
-                          type="text"
-                          placeholder="Enter First Name"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.firstName}
-                          touched={touched.firstName}
-                          classes="text-base"
-                          label="First Name"
-                          datatip="Input the first name for the account."
-                        />
-                        <LabeledInput
-                          field_name="middleName"
-                          type="text"
-                          placeholder="Enter Middle Name"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.middleName}
-                          touched={touched.middleName}
-                          classes="text-base"
-                          label="Middle Name"
-                          datatip="Input the middle name for the account."
-                        />
-                        <LabeledInput
-                          field_name="lastName"
-                          type="text"
-                          placeholder="Enter Last Name"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.lastName}
-                          touched={touched.lastName}
-                          classes="text-base"
-                          label="Last Name"
-                          datatip="Input the last name for the account."
-                        />
-                        <LabeledInput
-                          field_name="suffix"
-                          type="text"
-                          placeholder="Suffix"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.suffix}
-                          touched={touched.suffix}
-                          classes="text-base"
-                          label="Suffix"
-                          datatip="Input the suffix for the account."
-                        />
-                        <LabeledInput
-                          field_name="email"
-                          type="email"
-                          placeholder="Enter Email"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.email}
-                          touched={touched.email}
-                          classes="text-base"
-                          label="Email"
-                          datatip="Input the email for the account."
-                        />
-                        <LabeledInputPhone
-                          field_name="phone_number"
-                          placeholder="Enter Phone Number"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.phone_number}
-                          touched={touched.phone_number}
-                          classes="text-base"
-                          label="Phone Number"
-                          datatip="Input the phone number for the account."
-                          value={values.phone_number}
-                          setFieldValue={setFieldValue}
-                          setPhoneInfo={setAdminPhone}
-                          costumerValidation={customerValidation}
-                          
-                        />
-                      </div>
-                      <div className="modal-action">
-                        <button
-                          onClick={() => {
-                            console.log(values);
-                            const bodyContent = {
-                              first_name: values.firstName,
-                              middle_name: values.middleName,
-                              last_name: values.lastName,
-                              email: values.email,
-                              phone_number: values.phone_number,
-                              employee_type: values.employee_type,
-                              suffix: values.suffix,
-                            };
-                            console.log(EmployeeForm.current);
-                            if (EmployeeForm.current?.isValid) {
-                              CreateEmployeeMutation.mutate(bodyContent);
-                            } else {
-                              toast.error(
-                                "Please fill up all the required fields"
-                              );
-                            }
-                          }}
-                          type="submit"
-                          className="btn btn-primary"
-                        >
-                          Create Admin
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            modalAddUser.current?.click();
-                          }}
-                          className="btn btn-md"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* filters */}
-      <Formik
-        innerRef={searchForm}
-        initialValues={{
-          keyword: "",
-          selected: "",
-        }}
-        onSubmit={(values: any) => {
-          if (values.selected == "Customer") {
-            customerRefetch();
-          }
-        }}
-      >
-        {({ errors, touched, setFieldValue, values }) => (
-          <Form>
-            <div className="form-control mt-4">
-              <div className="flex">
-                <div className="relative w-full">
-                  <div className="join">
-                    <div>
-                      <div>
-                        <NormalInput
-                          field_name="keyword"
-                          type="text"
-                          placeholder="Search"
-                          className="input input-bordered join-item"
-                          errors={errors.keyword}
-                          touched={touched.keyword}
-                          onChange={(e: any) => {
-                            setKeyword(e.target.value);
-                          }}
-                          classes="text-base"
-                          label="Search"
-                        />
-                      </div>
-                    </div>
-                    <SelectInput
-                      field_name="selected"
-                      className="select select-bordered join-item"
-                      placeholder="User Type"
-                      SelectOptions={[
-                        {
-                          value: "Customer",
-                          text: "Customer",
-                        },
-                        {
-                          value: "Employee",
-                          text: "Employee",
-                        },
-                      ]}
-                      errors={errors.selected}
-                      touched={touched.selected}
-                      setFieldValue={setFieldValue}
-                      values={values.selected}
-                    />
-
-                    <div className="indicator">
-                      <button className="btn join-item">Search</button>
-                    </div>
-                  </div>
+                  <LabeledInput
+                    field_name="year"
+                    type="number"
+                    placeholder="Enter Vehicle Year"
+                    className="input input-bordered appearance-none input-sm w-full max-w-xs"
+                    errors={errors.year}
+                    touched={touched.year}
+                    classes="text-base"
+                    label="Vehicle Year"
+                    datatip="Input the vehicle year for vehicle of the account"
+                  />
+                  <LabeledInput
+                    field_name="model"
+                    type="text"
+                    placeholder="Enter Vehicle Model"
+                    className="input input-bordered input-sm w-full max-w-xs"
+                    errors={errors.model}
+                    touched={touched.model}
+                    classes="text-base"
+                    label="Vehicle Model"
+                    datatip="Input the vehicle model for vehicle of the account"
+                  />
+                  <LabeledInput
+                    field_name="trim"
+                    type="text"
+                    placeholder="Enter Vehicle Trim"
+                    className="input input-bordered input-sm w-full max-w-xs"
+                    errors={errors.trim}
+                    touched={touched.trim}
+                    classes="text-base"
+                    label="Vehicle Trim"
+                    datatip="Input the vehicle trim for vehicle of the account"
+                  />
+                  <LabeledInput
+                    field_name="color"
+                    type="text"
+                    placeholder="Enter Vehicle Color"
+                    className="input input-bordered input-sm w-full max-w-xs"
+                    errors={errors.color}
+                    touched={touched.color}
+                    classes="text-base"
+                    label="Vehicle Color"
+                    datatip="Input the vehicle color for vehicle of the account"
+                  />
                 </div>
-              </div>
-            </div>
+                <div id="notif" ref={notificationContainer}></div>
+                <button className="btn btn-primary mt-4">Add Vehicle</button>
 
-            <div className="overflow-x-auto w-full h-full mt-5 text-black">
-              {values.selected == "" ? (
-                <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
-                  {/* head */}
-                  <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-                    <tr className="rounded-lg">
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Email</th>
-                      <th>Phone</th>
+                <table className="table mt-4">
+                  <thead>
+                    <tr>
+                      <th>VIN No</th>
+                      <th>Year</th>
+                      <th>Model</th>
+                      <th>Trim</th>
+                      <th>Color</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {/* row 3 */}
-                    <tr className="row">
-                      <th className="text-center" colSpan={6}>
-                        Please select user type filter above .
-                      </th>
-                    </tr>
+                    {vehiclelist.map((vehicle) => (
+                      <tr key={vehicle.table_uuid}>
+                        <td>{vehicle.vin_no}</td>
+                        <td>{vehicle.year}</td>
+                        <td>{vehicle.model}</td>
+                        <td>{vehicle.trim}</td>
+                        <td>{vehicle.color}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-error"
+                            onClick={() => {
+                              setDataToRemove({
+                                id: vehicle.vin_no,
+                                table_uuid: vehicle.table_uuid,
+                              });
+                              confirmModal.current?.showModal();
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-              ) : values.selected == "Customer" ? (
-                <>
-                  <table className="table text-base font-semibold">
-                    {/* head */}
-                    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-                      <tr className="rounded-lg">
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Package</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {customerIsFetching || customerIsLoading ? (
-                        <tr className="row">
-                          <th className="text-center" colSpan={6}>
-                            <span className="loading loading-lg"></span>
-                          </th>
-                        </tr>
-                      ) : customerData.data.length == 0 ? (
-                        <tr className="row">
-                          <th className="text-center" colSpan={6}>
-                            No data found.
-                          </th>
-                        </tr>
-                      ) : (
-                        customerData.data.map(
-                          (customer: any, index: number) => (
-                            <tr key={customer.propsId} className="row">
-                              <td>{index + 1}</td>
-                              <td>
-                                {customer.first_name}{" "}
-                                {customer.middle_name == null ||
-                                customer.middle_name == ""
-                                  ? ""
-                                  : customer.middle_name}{" "}
-                                {customer.last_name}{" "}
-                                {customer.suffix == null ||
-                                customer.suffix == ""
-                                  ? ""
-                                  : customer.suffix}
-                              </td>
-                              <td>{customer.email}</td>
-                              <td>{customer.phone_number}</td>
-                              <td>{customer.package_name}</td>
-                              <td>
-                                <button
-                                  onClick={() => {
-                                    nav.push(
-                                      `/superadmin/users/updatecustomercar/?user_id=${customer.customer_id}`
-                                    );
-                                  }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-car.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Vehicle</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    nav.push(
-                                      `/superadmin/users/updatecustomeraccount/?user_id=${customer.customer_id}`
-                                    );
-                                  }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-user.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Account</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn  btn-error"
-                                  onClick={() => {
-                                    removeCustomerMutation.mutate({
-                                      Customer_Id: customer.customer_id,
-                                      User_Id: customer.user_id,
-                                    });
-                                  }}
-                                >
-                                  <Image
-                                    src="/icons/deleteicon.svg"
-                                    width={20}
-                                    height={20}
-                                    alt="Delete Icon"
-                                  />
-                                  Remove Customer
-                                </button>
-                              </td>
-                            </tr>
-                          )
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                  <div className="w-11/12 flex mx-auto">
-                    <div className="join mx-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (page !== 0) {
-                            const newPage = page - 1;
-                            setPage(newPage);
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        «
-                      </button>
-                      <button className="join-item btn">
-                        {isFetching ? (
-                          <span className="loading loading-dots loading-md"></span>
-                        ) : (
-                          `Page ${page + 1}`
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (customerData.data.length >= 10) {
-                            const newPage = page + 1;
-                            setPage(newPage);
-                          } else {
-                            return;
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        »
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : values.selected == "Employee" ? (
-                <>
-                  <table className="table text-base font-semibold">
-                    {/* head */}
-                    <thead className="bg-gray-900 rounded-lg text-white font-semibold">
-                      <tr className="rounded-lg">
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {EmployeeIsFetching || EmployeeIsLoading ? (
-                        <tr className="text-center">
-                          <td colSpan={6}>Getting employee list.</td>
-                        </tr>
-                      ) : EmployeeData.data.length == 0 ? (
-                        <tr className="text-center">
-                          <td colSpan={6}>No employee found.</td>
-                        </tr>
-                      ) : (
-                        EmployeeData.data.map(
-                          (employee: any, index: number) => (
-                            <tr key={index} className="row">
-                              <th>{index + 1}</th>
-                              <td>
-                                {employee.first_name} {employee.middle_name}{" "}
-                                {employee.last_name}{" "}
-                                {employee.suffix == "" ||
-                                employee.suffix == "N/A" ||
-                                employee == null
-                                  ? ""
-                                  : employee.suffix}
-                              </td>
-                              <td>{employee.name}</td>
-                              <td>{employee.email}</td>
-                              <td>{employee.phone_number}</td>
-                              <td>
-                                <button
-                                  onClick={() => {
-                                    nav.push(
-                                      `/superadmin/users/updateemployee/?user_id=${employee.CoreId}`
-                                    );
-                                  }}
-                                  type="button"
-                                  className="btn btn-info mr-5"
-                                >
-                                  <Image
-                                    src="/images/update-user.png"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Edit Account</span>
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    removeEmployeeMutation.mutate({
-                                      employee_id: employee.CoreId,
-                                      user_id: employee.user_id,
-                                    });
-                                    console.log({
-                                      employee_id: employee.CoreId,
-                                      user_id: employee.user_id,
-                                    });
-                                  }}
-                                  className="btn btn-error"
-                                >
-                                  <Image
-                                    src="/icons/deleteicon.svg"
-                                    alt="edit"
-                                    width={20}
-                                    height={20}
-                                  />
-                                  <span> Remove Account</span>
-                                </button>
-                              </td>
-                            </tr>
-                          )
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                  <div className="w-11/12 flex mx-auto">
-                    <div className="join mx-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (employeePage !== 0) {
-                            const newPage = employeePage - 1;
-                            setEmployeePage(newPage);
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        «
-                      </button>
-                      <button className="join-item btn">
-                        {EmployeeIsFetching || EmployeeIsLoading ? (
-                          <span className="loading loading-dots loading-md"></span>
-                        ) : (
-                          `Page ${employeePage + 1}`
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (EmployeeData.data.length >= 10) {
-                            const newPage = employeePage + 1;
-                            setEmployeePage(newPage);
-                          } else {
-                            return;
-                          }
-                        }}
-                        className="join-item btn"
-                      >
-                        »
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <></>
-              )}
-            </div>
-          </Form>
-        )}
-      </Formik>
+              </Form>
+            )}
+          </Formik>
+          <div className="modal-action">
+            <button
+              onClick={async () => {
+                if (
+                  CustomerAccountDetail.current?.isValid &&
+                  vehiclelist.length != 0
+                ) {
+                  let bodyContent = {
+                    firstName: CustomerAccountDetail.current?.values.first_name,
+                    middleName:
+                      CustomerAccountDetail.current?.values.middle_name,
+                    lastName: CustomerAccountDetail.current?.values.last_name,
+                    phoneNumber:
+                      CustomerAccountDetail.current?.values.phone_number,
+                    email: CustomerAccountDetail.current?.values.email,
+                    packageId: CustomerAccountDetail.current?.values.package,
+                    vehicles: vehiclelist,
+                    country: CustomerAccountDetail.current?.values.country,
+                    city: CustomerAccountDetail.current?.values.city,
+                    zipCode: CustomerAccountDetail.current?.values.zip_code,
+                    address: CustomerAccountDetail.current?.values.address_line,
+                    address2:
+                      CustomerAccountDetail.current?.values.address_line2,
+                    state_province:
+                      CustomerAccountDetail.current?.values
+                        .state_province_region,
+                    points: CustomerAccountDetail.current?.values.points,
+                    suffix: CustomerAccountDetail.current?.values.suffix,
+                  };
+
+                  CreateCustomerMutation.mutate(bodyContent);
+                } else {
+                  toast.error("Please fill up all the required fields");
+                }
+              }}
+              className="btn btn-info btn-md"
+            >
+              Create Customer
+            </button>{" "}
+            <button
+              onClick={() => {
+                modalAddUser.current?.click();
+              }}
+              className="btn btn-md"
+            >
+              Cancel
+            </button>
+          </div>
+      </div>
     </div>
   );
 }

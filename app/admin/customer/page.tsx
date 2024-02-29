@@ -1241,7 +1241,10 @@ export default function Page() {
       </dialog>
 
       {/* The button to open modal */}
-    
+      {/* <label htmlFor="add_user" className="btn btn-accent">
+        Add User
+      </label> */}
+
       {/* Put this part before </body> tag */}
       <input
         type="checkbox"
@@ -1833,12 +1836,12 @@ export default function Page() {
                           onChange={(e: any) => {
                             setKeyword(e.target.value);
                           }}
-                          classes="text-lg font-semibold"
+                          classes="text-base text-lg font-semibold"
                           label="Search"
                         />
                       </div>
                     </div>
-                    <div className="indicator">   
+                    <div className="indicator">
                       <button className="btn join-item btn-primary text-lg font-semibold">Search</button>
                     </div>
                   </div>
@@ -1894,7 +1897,7 @@ export default function Page() {
                           <button
                             onClick={() => {
                               nav.push(
-                                `/superadmin/customer/view/?user_id=${customer.customer_id}`
+                                `/salesperson/customer/view/?user_id=${customer.customer_id}`
                               );
                             }}
                             type="button"

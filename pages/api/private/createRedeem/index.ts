@@ -39,8 +39,7 @@ export default async function handler(
     }
     const { user_email, user_phonenumber } = req.body;
 
-    const [usersData]=<RowDataPacket[]>(await connection.query("SELECT * FROM users WHERE is_exist=? && user_type=?", [1,4]));
-
+    const [usersData] = <RowDataPacket[]>(await connection.query("SELECT * FROM users WHERE is_exist=? && user_type=? && email_verified_at IS NOT NULL && code IS NOT NULL", [1, 4]));
     if (usersData.length === 0) {
       console.log("No users found with is_exist = 1");
     } else {
@@ -67,7 +66,8 @@ export default async function handler(
           process.env.TWILIO_AUTH_TOKEN
         );
       
-        const body = 'Ice creams are coming! Bulk 99 is here!';
+        const body ='Dear Customers,\n\nWe\'re delighted to inform you that a new redeem has been created for your benefit. 🌟 Kindly explore and redeem exclusive offers on our app.'
+        +'\n\nBest regards,\nPointsAndPerks Team';
         const numbers = [phone_number]; // Convert to array even if there's only one number
       
         const service = twilio.notify.services(process.env.TWILIO_NOTIFY_SERVICE_SID);

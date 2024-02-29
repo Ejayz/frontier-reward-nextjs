@@ -40,7 +40,7 @@ export default function Page() {
     isLoading,
     refetch: RefetchActionPagination,
   } = useQuery({
-    queryKey: ["getActionsPagination", page, searchTerm],
+    queryKey: ["getActionsPagination", page,searchTerm],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -65,40 +65,11 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
-
   const filteredData = (DataActionPagination?.data || []).filter(
     (element: Element) =>
       element.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       element.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
-// Fetch campaign data using useQuery
-const {
-  data: DataCampaign,
-  isLoading: isCampaignLoading,
-  isError: isCampaignError,
-} = useQuery({
-  queryKey: ["getCampaigns"],
-  queryFn: async () => {
-    let headersList = {
-      Accept: "*/*",
-      "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-    };
-    // Fetch campaign data from the API
-    // Adjust the API endpoint and request logic as needed
-    const response = await fetch(`/api/private/getCampaignRewardAction`);
-    const data = await response.json();
-
-    if (!response.ok) {
-      // Handle error if the API request fails
-      // Adjust the error handling logic as needed
-      throw new Error(data.message || "Failed to fetch campaigns");
-    }
-
-    return data;
-  },
-  // Other options for your use case
-});
-
   const createActionMutation = useMutation({
     mutationFn: async (values: any) => {
       let headersList = {
@@ -197,24 +168,7 @@ const {
         setProcessing(false);
         return;
       }
-      const isDataExisting = DataActionPagination.data.some(
-        (element: Element) =>
-          element.id !== rowDataToEdit?.id &&
-          element.name === values.name &&
-          element.description === values.description &&
-          element.is_exist === 1
-      );
   
-      if (isDataExisting) {
-        showToast({
-          status: 'error',
-          message: 'Action with these updated values already exists',
-        });
-  
-        setProcessing(false);
-        return;
-      }
-
       const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
@@ -256,11 +210,13 @@ const {
     },
     [setProcessing, showToast, setEditModalOpen, RefetchActionPagination, editActionRef, rowDataToEdit]
   );
+  
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateAction(values);
     setEditModalOpen(false);  
+    
   };  
 
   const RemoveinitialValues = {
@@ -270,13 +226,11 @@ const {
     removed_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
   };
-
   const handleRemoveClick = (rowData: Element) => {
     console.log("Edit clicked for row:", rowData);
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
-
   const handleRemoveAction = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -288,40 +242,24 @@ const {
       };
   
       try {
-        // Check if the action is used in a campaign
-        console.log("the values are: ", values);  
-  
-        const isActionUsedInCampaign = DataCampaign.data.some(
-          (campaign: any) => campaign.action_id === values.id && campaign.is_exist === 1
-        );
-  
-        if (isActionUsedInCampaign) {
-          showToast({
-            status: 'error',
-            message: 'This action is currently used and cannot be removed.',
-          });
-  
-          setProcessing(false);
-          return;
-        }
-  
+        console.log("the values are: ",values);
         const response = await fetch(`/api/private/removeActions/`, {
           method: 'POST',
-          body: JSON.stringify(values),
+          body: JSON.stringify(values), 
           headers: headersList,
         });
   
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-  
+
         const data = await response.json();
   
         showToast({
           status: 'success',
           message: 'Action Deleted Successfully',
+        
         });
-  
         RefetchActionPagination();
         setProcessing(false);
         editActionRef.current?.resetForm();
@@ -331,15 +269,14 @@ const {
           status: 'error',
           message: 'Something went wrong',
         });
-  
         setProcessing(false);
         setRemoveModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast, setRemoveModalOpen, RefetchActionPagination, editActionRef, DataCampaign]
+    [setProcessing, showToast,setRemoveModalOpen, RefetchActionPagination, editActionRef]
   );
-  
+
   
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
@@ -347,41 +284,16 @@ const {
     setModalOpen(false);  
     
   };  
- 
-  return (
-    <div className="w-full h-full px-2"> 
 
-<div className="flex w-full">
-      <label htmlFor="my_modal_6" className="btn btn-primary">
-    Add Action
-  </label>  
-  <div className="ml-auto">
-  {/* add modal */}
-  <label className="input input-bordered flex items-center gap-2">
-      <input
-        type="text"
-        className="text-lg font-semibold"
-        style={{ width: 300 }}
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        className="w-8 h-8 opacity-70"
-      >
-        <path
-          fillRule="evenodd"
-          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </label>
-      </div>
-</div>
-      <input
+
+  return (
+    <div className="w-full h-full px-2">
+      {/* add modal */}
+      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
+        Add Action
+      </label> */}
+
+      {/* <input
         type="checkbox"
         id="my_modal_6"
         className="modal-toggle"
@@ -389,7 +301,7 @@ const {
         onChange={() => setModalOpen(!isModalOpen)}
       />
       <div className="modal" role="dialog">
-        <div className="modal-box z-20">
+        <div className="modal-box">
           <form method="dialog">
             <label
               htmlFor="my_modal_6"
@@ -403,6 +315,7 @@ const {
             initialValues={{
               name: "",
               description: "",
+              created_at: new Date(),
             }}
             ref={createActionRef}
             validationSchema={actionValidation}
@@ -413,6 +326,7 @@ const {
   const isDataExisting = DataActionPagination.data.some(
     (element: Element) =>
       element.name === values.name && element.description === values.description &&
+  
       element.is_exist === 1
   );
 
@@ -429,6 +343,7 @@ const {
               let bodyContent = JSON.stringify({
                 name: values.name,
                 description: values.description,
+                created_at: values.created_at,
               });
               createActionMutation.mutate(bodyContent);
             }}
@@ -436,20 +351,17 @@ const {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold ">
+                  <label className="label">
+                    <span className="label-text text-base font-semibold">
                       Name
                     </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
                     placeholder="Enter Action Name"
-                    className="w-full input input-bordered"
+                    className="input input-bordered"
                     name="name"
                   />
-                  
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
                       <div className="text-red-600 flex">
@@ -465,14 +377,11 @@ const {
                     )}
                   </ErrorMessage>
 
-                  <label className="label flex place-content-start gap-2">
+                  <label className="label">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
-                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
                   </label>
-                 
                   <Field
                     type="text"
                     placeholder="Enter Action Description"
@@ -493,7 +402,6 @@ const {
                       </div>
                     )}
                   </ErrorMessage>
-                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
                 </div>
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
@@ -512,8 +420,31 @@ const {
             )}
           </Formik>
         </div>
-      </div>
-  
+      </div> */}
+   <div className="w-80">
+    <label className="input input-bordered flex items-center gap-2">
+      <input
+        type="text"
+        style={{ width: 300 }}
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="text-lg font-semibold"
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-4 h-4 opacity-70"
+      >
+        <path
+          fillRule="evenodd"
+          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </label>
+  </div>
         {/* edit modal */}
       <input type="checkbox" id="my_modal_7" checked={isEditModalOpen}
         onChange={() => setEditModalOpen(!isEditModalOpen)}
@@ -528,7 +459,7 @@ const {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">Edit Action</h3>
+          <h3 className="font-bold text-lg">View Action</h3>
           <Formik
             initialValues={UpdateinitialValues}
             enableReinitialize={true}
@@ -536,35 +467,30 @@ const {
           >
             <Form>
               <div className="form-control bg-white">
-                <label className="label flex place-content-start gap-2">
+                <label className="label">
                   <span className="label-text text-base font-semibold">
                     Name
-                  </span>   
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  </span>
                 </label>
-             
                 <Field
                   type="text"
                   placeholder="Enter Action Name"
                   className="input input-bordered"
                   name="name"
+                  readOnly
                 />
-                {/* ... add other form fields as needed ... */}
-                <label className="label flex place-content-start gap-2">
+                <label className="label">
                   <span className="label-text text-base font-semibold">
                     Description
-                  </span><div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  </span>
                 </label>
-                
                 <Field
                   type="text"
                   placeholder="Enter Action Description"
                   className="input input-bordered"
                   name="description"
+                  readOnly
                 />
-                {/* ... add other form fields as needed ... */}
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
                 <div className="absolute bottom-6 right-6">
@@ -572,11 +498,8 @@ const {
                       htmlFor="my_modal_7"
                       className="btn btn-neutral mr-2"
                     >
-                      Cancel
+                      Back
                     </label>
-                  <button type="submit" className="btn btn-primary">
-                    Submit
-                  </button>
                 </div>
               </div>
             </Form>
@@ -585,7 +508,7 @@ const {
       </div>
 
 {/* delete modal */}
-<input type="checkbox" id="my_modal_8"
+{/* <input type="checkbox" id="my_modal_8"
  checked={isRemoveModalOpen}
         onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
         className="modal-toggle" />
@@ -617,7 +540,7 @@ const {
                   placeholder="Enter Action Name"
                   className="input border-none"
                   name="name"
-                  readOnly />
+                  disabled />
                 </div>
                 <div className="flex">
                 <label className="label">
@@ -630,7 +553,7 @@ const {
                   placeholder="Enter Action Name"
                   className="input border-none text-black"
                   name="description"
-                  readOnly />
+                  disabled />
                 </div>
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
@@ -649,11 +572,10 @@ const {
             </Form>
           </Formik>
         </div>
-      </div>
+      </div> */}
 
-      <div className="overflow-x-auto w-full h-full mt-5 text-black">
-
-        <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
+      <div className="overflow-x-auto mt-5 text-black">
+        <table className="table  text-base font-semibold text-center">
           {/* head */}
           <thead className="bg-gray-900 rounded-lg text-white font-semibold">
             <tr className="rounded-lg">
@@ -670,10 +592,12 @@ const {
             ) : (
               filteredData.map((element: any) => {
                 return (
-                  <tr className="hover" key={element.id}>
+                  <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
-                    <td className="flex place-content-center">
+
+                    <td className="flex">
+                      <div className="flex mx-auto">
                         <label
                           htmlFor="my_modal_7"
                           className="btn btn-sm btn-info mr-2"
@@ -686,21 +610,10 @@ const {
                             alt="Edit Icon"
                             className="hide-icon"
                           />
-                          Edit
+                          View
                         </label>
-                        <label htmlFor="my_modal_8" className="btn btn-sm btn-error"
-                        onClick={() => handleRemoveClick(element)}
-                        >
-                          <Image
-                            src="/icons/deleteicon.svg"
-                            width={20}
-                            height={20}
-                            alt="Delete Icon"
-                            className="hide-icon"
-                          />
-                          Delete
-                        </label>
-                   
+                       
+                      </div>
                     </td>
                   </tr>
                 );

@@ -75,6 +75,7 @@ export default function Page() {
                   touched={touched.password}
                   classes="mb-2"
                   label="New Password"
+                  datatip="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number and one special character."
                 />
                 <LabeledInputShowPassword
                   field_name="repeat_password"
@@ -85,6 +86,7 @@ export default function Page() {
                   touched={touched.repeat_password}
                   classes="mb-2"
                   label="Repeat Password"
+                  datatip="Repeat Password"
                 />
                 <div className="card-actions justify-end">
                   <button className="btn btn-primary">Change Password</button>

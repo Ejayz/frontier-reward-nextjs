@@ -1121,7 +1121,7 @@ export default function Page() {
                 >
                   Update Employee
                 </button>
-                <Link href={"/admin/users"} className="btn  mx-2">
+                <Link href={"/salesperson/users"} className="btn  mx-2">
                   Cancel
                 </Link>
               </div>

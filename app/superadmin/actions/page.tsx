@@ -441,7 +441,7 @@ const {
                       Name
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -470,7 +470,7 @@ const {
                       Description
                     </span>
                      <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                     <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                  
                   <Field
@@ -541,7 +541,7 @@ const {
                     Name
                   </span>   
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
              
                 <Field
@@ -555,7 +555,7 @@ const {
                   <span className="label-text text-base font-semibold">
                     Description
                   </span><div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 
                 <Field

@@ -4,10 +4,13 @@ import * as dotenv from "dotenv";
 import * as jwt from "jsonwebtoken";
 import Cookies from "cookies";
 import instance from "../../db";
+import { Resend } from "resend";
 import { RowDataPacket } from "mysql2";
+import NewCampaign from "@/react-email-starter/emails/new-campaign-created";
+const RESEND_API = process.env.RESEND_SECRET || "";
 dotenv.config();
+const resend = new Resend(RESEND_API);
 const JWT_SECRET = process.env.JWT_SECRET || "";
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -27,6 +30,56 @@ export default async function handler(
     
     } else {
       res.status(401).json({ code:401,message: "Invalid token format" })
+    }
+    const [usersData] = <RowDataPacket[]>(await connection.query("SELECT * FROM users WHERE is_exist=? && user_type=? && email_verified_at IS NOT NULL && code IS NOT NULL", [1, 4]));
+    if (usersData.length === 0) {
+      console.log("No users found with is_exist = 1");
+    } else {
+      console.log("Users data:");
+      usersData.forEach((user:any) => {
+        const { email, phone_number } = user;
+        console.log("User email:", email);
+        console.log("User phonenumber:", phone_number);
+        console.log("--------"); // Separate each user for better readability
+        const base_url = `https://${req.headers.host}/`;
+        const data = resend.emails.send({
+          from: "New Campaig @PointsAndPerks <register.noreply@pointsandperks.ca>",
+          to: [email], // Use the user's email
+          subject: "Welcome to Perks and Points",
+          react: NewCampaign({
+            email,
+            base_url,
+          }),
+          text: `Welcome to Perks and Points!`,
+        });
+      
+        const twilio = require('twilio')(
+          process.env.TWILIO_ACCOUNT_SID,
+          process.env.TWILIO_AUTH_TOKEN
+        );
+      
+        const body ='Dear Customers,\n\nWe\'re delighted to inform you that a new campaign has been created for your benefit. 🌟 Kindly explore and redeem exclusive offers on our app.'
+        +'\n\nBest regards,\nPointsAndPerks Team';
+        const numbers = [phone_number]; // Convert to array even if there's only one number
+      
+        const service = twilio.notify.services(process.env.TWILIO_NOTIFY_SERVICE_SID);
+      
+        const bindings = numbers.map((number: string) => {
+          return JSON.stringify({ binding_type: 'sms', address: number });
+        });
+      
+        service.notifications
+          .create({
+            toBinding: bindings,
+            body: body
+          })
+          .then((notification: any) => {
+            console.log(notification);
+          })
+          .catch((err: any) => {
+            console.error(err);
+          });
+      });
     }
 
     const { name, description,start_date,end_date,status, package_id,employee_id, is_exist } = req.body;
