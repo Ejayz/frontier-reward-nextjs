@@ -16,7 +16,7 @@ import {
   }
   const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
   const baseUrl = "https://pointsandperks.ca";
-  const NewRedeem = ({
+  const NewCampaign = ({
     email = "",
     base_url = "",
   }) => (
@@ -43,12 +43,12 @@ import {
         }}
       >
         <Head />
-        <Preview>noreply@pointsandperks-New Redeem Created.</Preview>
+        <Preview>noreply@pointsandperks-New Campaign Created.</Preview>
         <Body className="bg-white text-black">
           <Container className="border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
             <Section className="mt-4 text-center">
               <Img
-                src={`https://pointsandperks.ca/static/logo-nav.png`}
+                src={`${baseUrl}/static/logo-nav.png`}
                 alt="Points and Perks Logo"
                 width={215}
                 height={48}
@@ -62,7 +62,7 @@ import {
                 Dear Customer,
               </Text>
             <Text className={"text-xl font-sans"}>
-            We are delighted to inform you that a new redeem is now available for you. Take advantage of this opportunity by visiting our platform and exploring the latest offers.
+            We are delighted to inform you that a new campaign is now available for you. Take advantage of this opportunity by visiting our platform and exploring the latest offers.
             </Text>
             
             <Text className={"text-xl font-sans"}>
@@ -82,26 +82,13 @@ import {
                 href={`mailto:ask@pointsandperks.com`}
                 style={{ color: "#0000ff" }}
                 className="mt-4"
-              ><Img
-            src={`${baseUrl}/static/mail.svg`}
+              ><Img              
+            src="https://pointsandperks.ca/static/mail.svg"
             alt="Points and Perks Logo"
             width={60}
             height={60}
             className="place-content-start "
           />
-              </a>
-            </Text>
-  
-            <Text className={"text-lg font-sans flex gap-2"}>
-            
-              <a href="tel:1-800-123-4567" style={{ color: "#0000ff" }} className="mt-4">
-             <Img
-                src="https://pointsandperks.ca/static/phone.svg"
-                alt="Points and Perks Logo"
-                width={60}
-                height={60}
-                className="place-content-start "
-              />
               </a>
             </Text>
             <Text className={"text-lg font-sans flex gap-2"}>
@@ -150,7 +137,7 @@ import {
     </Html>
   );
   
-  export default NewRedeem;
+  export default NewCampaign;
   
   const main = {
     backgroundColor: "#ffffff",
