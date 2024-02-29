@@ -85,66 +85,71 @@ const AccountCreation = ({
           <Text className={"text-xl font-sans"}>
             <strong>Perks and Points Team</strong>
           </Text>
-                   
+
           <Text className={"text-xl font-sans"}>
-              If you have any questions, You may reach us here:
-            </Text>
-    <br />
-            <div className="flex justify-center gap-4">
-            <Text className={"text-lg font-sans flex gap-2"}>
-            <a
-                href={`mailto:ask@pointsandperks.com`}
-                style={{ color: "#0000ff" }}
-                className="mt-4"
-              ><Img
-            src="https://pointsandperks.ca/images/notification.png"
-            alt="Points and Perks Logo"
-            width={60}
-            height={60}
-            className="place-content-start "
-          />
-              </a>
-            </Text>
-            <Text className={"text-lg font-sans flex gap-2"}>
-           
-              <a
-                href="https://pap.pointsandperks.ca/"
-                style={{ color: "#0000ff" }}
-                className="mt-4"
-              > <Img
-                src="https://pointsandperks.ca/static/browser.svg"
-                alt="Points and Perks Logo"
-                width={60}
-                height={60}
-                className="place-content-start"
-              />
-              </a>
-            </Text>
-            <Text className={"text-lg font-sans flex gap-2"}>  
-         
-              <a href="https://maps.app.goo.gl/FohkqgaFKQto7LKd7"
-                style={{ color: "#0000ff" }}
-                className="mt-4">   
-              <Img
-                src="https://pointsandperks.ca/static/location.svg"
-                alt="Points and Perks Logo"
-                width={60}
-                height={60}
-                className="place-content-start"
-              />
-              </a>
-            </Text>
+            If you have any questions, You may reach us here:
+          </Text>
+          <br />
+          <div className="flex w-full justify-center gap-4">
+            <div className="flex flex-row mx-auto">
+              <Text className={"text-lg font-sans flex gap-2"}>
+                <a
+                  href={`mailto:ask@pointsandperks.com`}
+                  style={{ color: "#0000ff" }}
+                  className="mt-4"
+                >
+                  <Img
+                    src="https://pointsandperks.ca/images/notification.png"
+                    alt="Points and Perks Logo"
+                    width={60}
+                    height={60}
+                    className="place-content-start "
+                  />
+                </a>
+              </Text>
+              <Text className={"text-lg font-sans flex gap-2"}>
+                <a
+                  href="https://pap.pointsandperks.ca/"
+                  style={{ color: "#0000ff" }}
+                  className="mt-4"
+                >
+                  {" "}
+                  <Img
+                    src="https://pointsandperks.ca/static/browser.png"
+                    alt="Points and Perks Logo"
+                    width={60}
+                    height={60}
+                    className="place-content-start"
+                  />
+                </a>
+              </Text>
+              <Text className={"text-lg font-sans flex gap-2"}>
+                <a
+                  href="https://maps.app.goo.gl/FohkqgaFKQto7LKd7"
+                  style={{ color: "#0000ff" }}
+                  className="mt-4"
+                >
+                  <Img
+                    src="https://pointsandperks.ca/static/location.png"
+                    alt="Points and Perks Logo"
+                    width={60}
+                    height={60}
+                    className="place-content-start"
+                  />
+                </a>
+              </Text>
             </div>
-            <br />
-            <Text className={"text-lg font-sans"}>
-              If you did not register for an account, please disregard or delete
-              this email.
-            </Text>
-            <Text className={"text-lg font-sans"}>
-              Do not reply to this email. This mailbox is not monitored and you
-              will not receive a response. For assistance , use the above contact
-              information.
-            </Text>
+          </div>
+          <br />
+          <Text className={"text-lg font-sans"}>
+            If you did not register for an account, please disregard or delete
+            this email.
+          </Text>
+          <Text className={"text-lg font-sans"}>
+            Do not reply to this email. This mailbox is not monitored and you
+            will not receive a response. For assistance , use the above contact
+            information.
+          </Text>
         </Container>{" "}
       </Body>
     </Tailwind>
