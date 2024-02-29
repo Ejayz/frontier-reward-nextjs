@@ -46,13 +46,13 @@ export default async function handler(
     } else {
       console.log("Users data:");
       usersData.forEach((user:any) => {
-        const { email, phone_number} = user;
+        const { email, phone_number } = user;
         console.log("User email:", email);
         console.log("User phonenumber:", phone_number);
         console.log("--------"); // Separate each user for better readability
         const base_url = `https://${req.headers.host}/`;
         const data = resend.emails.send({
-          from: "Register@PointsAndPerks <register.noreply@pointsandperks.ca>",
+          from: "New Redeem @PointsAndPerks <register.noreply@pointsandperks.ca>",
           to: [email], // Use the user's email
           subject: "Welcome to Perks and Points",
           react: NewRedeem({
@@ -61,16 +61,32 @@ export default async function handler(
           }),
           text: `Welcome to Perks and Points!`,
         });
-       // Send SMS using Twilio
-       const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-       const message = 'Dear Customer,\n\nWe\'re delighted to inform you that a new redeem has been created for your benefit. 🌟 Kindly explore and redeem exclusive offers on our app.\n\nBest regards,\nPoints & Perks';
-
-       // Replace the following line with your actual Twilio SMS sending logic
-       twilio.messages.create({
-         body: message,
-         from: process.env.TWILIO_PHONE_NUMBER,
-         to: "+639654508419",
-       });
+      
+        const twilio = require('twilio')(
+          process.env.TWILIO_ACCOUNT_SID,
+          process.env.TWILIO_AUTH_TOKEN
+        );
+      
+        const body = 'Ice creams are coming! Bulk 99 is here!';
+        const numbers = [phone_number]; // Convert to array even if there's only one number
+      
+        const service = twilio.notify.services(process.env.TWILIO_NOTIFY_SERVICE_SID);
+      
+        const bindings = numbers.map((number: string) => {
+          return JSON.stringify({ binding_type: 'sms', address: number });
+        });
+      
+        service.notifications
+          .create({
+            toBinding: bindings,
+            body: body
+          })
+          .then((notification: any) => {
+            console.log(notification);
+          })
+          .catch((err: any) => {
+            console.error(err);
+          });
       });
     }
 

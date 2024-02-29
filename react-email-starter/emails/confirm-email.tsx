@@ -26,7 +26,7 @@ const ConfirmEmail = ({
   last_name = "Provido",
   password = "12345678",
   verification_link = "jude.thedreamteam@gmail.com",
-  base_url = "https://pointsandperks.com",
+  base_url = "https://pointsandperks.ca",
 }) => (
   <Html>
     {" "}
@@ -56,30 +56,30 @@ const ConfirmEmail = ({
               Confirm email address
             </Text>
           </Section>
-          <Text className="text-lg font-sans">
+          <Text className="text-xl font-sans">
             Click the button bellow to confirm your email address.
           </Text>
           <Section className=" text-center">
             <Button
               href={verification_link}
-              className="text-lg font-bold p-4 bg-yellow-500 text-black font-sans rounded-full "
+              className="text-xl font-bold p-4 bg-yellow-500 text-black font-sans rounded-full "
             >
               Verify Email
             </Button>
           </Section>
-          <Text key="ins1" className="text-lg font-sans">
+          <Text key="ins1" className="text-xl font-sans">
             If the button above doesn't work, copy and paste the following URL
             into your browser:
           </Text>{" "}
           <Section className="text-center">
-            <Text className="text-base font-sans ">{verification_link}</Text>
+            <Text className="text-xl font-sans ">{verification_link}</Text>
           </Section>
-          <Text className="text-lg font-sans ">
+          <Text className="text-xl font-sans ">
             Please note that this verification link is valid for the next 15
             minutes.{" "}
           </Text>
           <hr />
-          <Text className="text-sm font-sans">
+          <Text className="text-lg font-sans">
             If you didn't sign up for Point and Perks, please disregard this
             email. Thank you, The Perks and Points Team{" "}
           </Text>
