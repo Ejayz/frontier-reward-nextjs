@@ -97,7 +97,7 @@ const AccountCreation = ({
                 style={{ color: "#0000ff" }}
                 className="mt-4"
               ><Img
-            src="https://pointsandperks.ca/static/mail.svg"
+            src="https://pointsandperks.ca/images/notification.png"
             alt="Points and Perks Logo"
             width={60}
             height={60}
