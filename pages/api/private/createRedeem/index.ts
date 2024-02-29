@@ -61,24 +61,16 @@ export default async function handler(
           }),
           text: `Welcome to Perks and Points!`,
         });
-        const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-        const body = "Ice creams are coming!";
-        const numbers = [phone_number];
-        const service = twilio.notify.services(process.env.TWILIO_NOTIFY_SERVICE_SID);
-        const bindings = numbers.map(number => {
-          return JSON.stringify({ binding_type: 'sms', address: number });
-        });
-        service.notifications
-          .create({
-                toBinding: bindings,
-                body: body
-          })
-          .then((notification:any) => {
-                console.log("notification sent successfully");
-          })
-          .catch((err:any) => {
-                console.error("notification failed to send");
-          });
+       // Send SMS using Twilio
+       const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+       const message = 'Dear Customer,\n\nWe\'re delighted to inform you that a new redeem has been created for your benefit. 🌟 Kindly explore and redeem exclusive offers on our app.\n\nBest regards,\nPoints & Perks';
+
+       // Replace the following line with your actual Twilio SMS sending logic
+       twilio.messages.create({
+         body: message,
+         from: process.env.TWILIO_PHONE_NUMBER,
+         to: "+639654508419",
+       });
       });
     }
 
