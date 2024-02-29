@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 import Cookies from "cookies";
 import { RowDataPacket } from "mysql2";
 import { Resend } from "resend";
-import NewRedeem from "@/react-email-starter/emails/new-redeem-created";
+import NewRedeems from "@/react-email-starter/emails/new-redeem-created";
 
 import twilio from "twilio";
 const RESEND_API = process.env.RESEND_SECRET || "";
@@ -55,7 +55,7 @@ export default async function handler(
           from: "New Redeem @PointsAndPerks <register.noreply@pointsandperks.ca>",
           to: [email], // Use the user's email
           subject: "Welcome to Perks and Points",
-          react: NewRedeem({
+          react: NewRedeems({
             email,
             base_url,
           }),
