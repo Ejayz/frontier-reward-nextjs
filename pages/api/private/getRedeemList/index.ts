@@ -26,7 +26,7 @@ export default async function handler(
   try {
     const [campaignResult] = <RowDataPacket[]>(
       await connection.query(
-        `SELECT *,redeem.id as RedeemID,reward.name as RewardName, reward.description as RewardDescription, redeem.name as RedeemName,redeem.description as RedeemDescription  FROM redeem LEFT join reward ON reward.id = redeem.reward_id WHERE redeem.is_exist=1 and package_id=?  ORDER BY redeem.id DESC LIMIT ?,?`,
+        `SELECT *,redeem.id as RedeemID,reward.name as RewardName, reward.description as RewardDescription, redeem.name as RedeemName,redeem.description as RedeemDescription ,redeem.status as status  FROM redeem LEFT join reward ON reward.id = redeem.reward_id WHERE redeem.is_exist=1 and package_id=?  ORDER BY redeem.id DESC LIMIT ?,?`,
         [decode.package_id, skip, take]
       )
     );

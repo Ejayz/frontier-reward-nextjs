@@ -199,7 +199,7 @@ export default function Page() {
                         : "badge-error"
                     }`}
                   >
-                    {campaigns.status.toUpperCase()}
+                    {campaigns.status}
                   </div>
                 </div>
                 <span className=" text-gray-500 text-base">

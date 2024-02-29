@@ -18,7 +18,7 @@ interface EmailTemplateProps {
   email: string;
 }
 const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
-const baseUrl = "https://sledgehammerdevelopmentteam.uk";
+const baseUrl = "https://pointsandperks.ca";
 const AccountCreation = ({
   first_name = "",
   last_name = "",
@@ -61,75 +61,90 @@ const AccountCreation = ({
               className="mx-auto "
             />
             <Text className="text-2xl mx-auto font-sans w-full font-bold">
-              Welcome {last_name} , {first_name}!
+              Welcome {last_name}, {first_name}!
             </Text>
           </Section>
-          <Text className={"text-base font-sans"}>
+          <Text className={"text-xl font-sans"}>
             Your account has been created. Please use the following credentials
             to login:
           </Text>
-          <Text className={"text-base font-sans"}>
+          <Text className={"text-xl font-sans"}>
             <strong>Email:</strong> {email}
           </Text>
-          <Text className={"text-base font-sans"}>
+          <Text className={"text-xl font-sans"}>
             <strong>Password:</strong> {password}
           </Text>
           <br />
-          <Text className={"text-base font-sans"}>
+          <Text className={"text-xl font-sans"}>
             To login click <a href={`${base_url}`}>here</a>{" "}
           </Text>
           <br />
-          <Text className={"text-base font-sans"}>
+          <Text className={"text-xl font-sans"}>
             <strong>Best Regards,</strong>
           </Text>
-          <Text className={"text-base font-sans"}>
+          <Text className={"text-xl font-sans"}>
             <strong>Perks and Points Team</strong>
           </Text>
-          <Text className={"text-base font-sans"}>
-            If you have any questions, You may reach us here:
-          </Text>
-
-          <Text className={"text-base font-sans"}>
-            <strong>Email us at: </strong>
+                   
+          <Text className={"text-xl font-sans"}>
+              If you have any questions, You may reach us here:
+            </Text>
+    <br />
+            <div className="flex justify-center gap-4">
+            <Text className={"text-lg font-sans flex gap-2"}>
             <a
-              href={`mailto:ask@pointsandperks.com`}
-              style={{ color: "#0000ff" }}
-            >
-              indiancarguy@gmail.com
-            </a>
-          </Text>
-
-          <Text className={"text-base font-sans"}>
-            <strong>Call us at: </strong>
-            <a href="tel:1-800-123-4567" style={{ color: "#0000ff" }}>
-              6133158020
-            </a>
-          </Text>
-          <Text className={"text-base font-sans"}>
-            <strong>Visit our website: </strong>
-            <a
-              href="http://www.pointsandperks.com"
-              style={{ color: "#0000ff" }}
-            >
-              www.pointsandperks.com
-            </a>
-          </Text>
-          <Text className={"text-base font-sans"}>
-            <strong>Visit our dealership: </strong>
-            <span style={{ color: "#0000ff" }}>
-              10060 Jasper Ave NW Suite 2020 Edmonton, AB, T5J 3R8 Canada
-            </span>
-          </Text>
-          <br />
-          <Text className={"text-sm font-sans"}>
-            If you did not register for an account, please disregard or delete
-            this email.
-          </Text>
-          <Text className={"text-sm font-sans"}>
-            Do not reply to this email. This mailbox is not monitored and you
-            will not receive a response. For assistance , use the above contact
-            information.
-          </Text>
+                href={`mailto:ask@pointsandperks.com`}
+                style={{ color: "#0000ff" }}
+                className="mt-4"
+              ><Img
+            src="https://pointsandperks.ca/images/notification.png"
+            alt="Points and Perks Logo"
+            width={60}
+            height={60}
+            className="place-content-start "
+          />
+              </a>
+            </Text>
+            <Text className={"text-lg font-sans flex gap-2"}>
+           
+              <a
+                href="https://pap.pointsandperks.ca/"
+                style={{ color: "#0000ff" }}
+                className="mt-4"
+              > <Img
+                src="https://pointsandperks.ca/static/browser.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start"
+              />
+              </a>
+            </Text>
+            <Text className={"text-lg font-sans flex gap-2"}>  
+         
+              <a href="https://maps.app.goo.gl/FohkqgaFKQto7LKd7"
+                style={{ color: "#0000ff" }}
+                className="mt-4">   
+              <Img
+                src="https://pointsandperks.ca/static/location.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start"
+              />
+              </a>
+            </Text>
+            </div>
+            <br />
+            <Text className={"text-lg font-sans"}>
+              If you did not register for an account, please disregard or delete
+              this email.
+            </Text>
+            <Text className={"text-lg font-sans"}>
+              Do not reply to this email. This mailbox is not monitored and you
+              will not receive a response. For assistance , use the above contact
+              information.
+            </Text>
         </Container>{" "}
       </Body>
     </Tailwind>
