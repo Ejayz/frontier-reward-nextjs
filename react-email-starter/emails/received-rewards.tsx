@@ -18,7 +18,7 @@ interface EmailTemplateProps {
   email: string;
 }
 const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
-const baseUrl = "https://sledgehammerdevelopmentteam.uk";
+const baseUrl = "https://pointsandperks.ca";
 const receivedRewards = ({
   first_name = "",
   last_name = "",
@@ -67,26 +67,77 @@ const receivedRewards = ({
           <Text className={"text-2xl font-sans font-bold"}>
             Congratulations!
           </Text>
-          <Text className={"text-2xl font-sans font-semibold text-gray-700"}>
+          <Text className={"text-xl font-sans font-semibold text-gray-700"}>
             You have received a total point/s of 100.00 and item/s. Your total points balance is now 100.00. Collect more points to win awesome prizes! 
           </Text>
-          <Text className={"text-2xl font-sans font-semibold text-gray-700"}>
+          <Text className={"text-xl font-sans font-semibold text-gray-700"}>
            Item/s:
           </Text>
-          <Text className={"text-2xl font-sans font-semibold text-gray-700"}>
+          <Text className={"text-xl font-sans font-semibold text-gray-700"}>
            1. 1x 1.5L Coca-Cola
            2. 1x 1.5L Sprite
            3. 1x 1.5L Royal
           </Text>
-          <Text className={"text-2xl font-sans font-semibold text-gray-700"}>
-           Visit <a href={`${base_url}`}>http://fr-api.thedreamteamdigitalmarketing.com</a>{" "} for more info.
-          </Text>
-          <Text className={"text-2xl font-sans font-semibold text-gray-700"}>
-            Thanks,
-          </Text>
-          <Text className={"text-2xl font-sans font-semibold text-gray-700"}>
-            Frontier Rewards  
-          </Text>
+                    
+          <Text className={"text-xl font-sans"}>
+              If you have any questions, You may reach us here:
+            </Text>
+    <br />
+            <div className="flex justify-center gap-4">
+            <Text className={"text-lg font-sans flex gap-2"}>
+            <a
+                href={`mailto:ask@pointsandperks.com`}
+                style={{ color: "#0000ff" }}
+                className="mt-4"
+              ><Img
+            src="https://pointsandperks.ca/static/mail.svg"
+            alt="Points and Perks Logo"
+            width={60}
+            height={60}
+            className="place-content-start "
+          />
+              </a>
+            </Text>
+            <Text className={"text-lg font-sans flex gap-2"}>
+           
+              <a
+                href="https://pap.pointsandperks.ca/"
+                style={{ color: "#0000ff" }}
+                className="mt-4"
+              > <Img
+                src="https://pointsandperks.ca/static/browser.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start"
+              />
+              </a>
+            </Text>
+            <Text className={"text-lg font-sans flex gap-2"}>  
+         
+              <a href="https://maps.app.goo.gl/FohkqgaFKQto7LKd7"
+                style={{ color: "#0000ff" }}
+                className="mt-4">   
+              <Img
+                src="https://pointsandperks.ca/static/location.svg"
+                alt="Points and Perks Logo"
+                width={60}
+                height={60}
+                className="place-content-start"
+              />
+              </a>
+            </Text>
+            </div>
+            <br />
+            <Text className={"text-lg font-sans"}>
+              If you did not register for an account, please disregard or delete
+              this email.
+            </Text>
+            <Text className={"text-lg font-sans"}>
+              Do not reply to this email. This mailbox is not monitored and you
+              will not receive a response. For assistance , use the above contact
+              information.
+            </Text>
         </Container>{" "}
       </Body>
     </Tailwind>

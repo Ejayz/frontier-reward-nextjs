@@ -12,17 +12,11 @@ import {
   import * as dotenv from "dotenv";
   dotenv.config();
   interface EmailTemplateProps {
-    firstName: string;
-    last_name: string;
-    password: string;
     email: string;
   }
   const VERCEL_URL = "https://sledgehammerdevelopmentteam.uk";
   const baseUrl = "https://pointsandperks.ca";
-  const receivedRewards = ({
-    first_name = "",
-    last_name = "",
-    password = "",
+  const NewCampaign = ({
     email = "",
     base_url = "",
   }) => (
@@ -49,31 +43,35 @@ import {
         }}
       >
         <Head />
-        <Preview>noreply@pointsandperks-Received Rewards.</Preview>
+        <Preview>noreply@pointsandperks-New Campaign Created.</Preview>
         <Body className="bg-white text-black">
           <Container className="border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
             <Section className="mt-4 text-center">
-            <Img
+              <Img
                 src={`${baseUrl}/static/logo-nav.png`}
                 alt="Points and Perks Logo"
                 width={215}
                 height={48}
                 className="mx-auto "
               />
-              <Text className="text-2xl mx-auto font-sans w-full font-bold">
-                Welcome {last_name} , {first_name}!
+            </Section>  
+            <br/>
+            <br/>
+
+            <Text className="text-2xl mx-auto font-sans w-full font-bold">
+                Dear Customer,
               </Text>
-            </Section>
-            <Text className={"text-xl font-sans font-bold"}>
-              Welcome!
+            <Text className={"text-xl font-sans"}>
+            We are delighted to inform you that a new campaign is now available for you. Take advantage of this opportunity by visiting our platform and exploring the latest offers.
             </Text>
-            <Text className={"text-xl font-sans font-semibold text-gray-700"}>
-              Your password is {password}.
+            
+            <Text className={"text-xl font-sans"}>
+              <strong>Best Regards,</strong>
             </Text>
-            <Text className={"text-xl font-sans font-semibold text-gray-700"}>
-             You can now ean and collect points from your purchase and get a chance to win awesome rewards! Be updated with our new deals and win these awesome prizes!
+            <Text className={"text-xl font-sans"}>
+              <strong>Perks and Points Team</strong>
             </Text>
-                     
+          
             <Text className={"text-xl font-sans"}>
               If you have any questions, You may reach us here:
             </Text>
@@ -84,7 +82,7 @@ import {
                 href={`mailto:ask@pointsandperks.com`}
                 style={{ color: "#0000ff" }}
                 className="mt-4"
-              ><Img
+              ><Img              
             src="https://pointsandperks.ca/static/mail.svg"
             alt="Points and Perks Logo"
             width={60}
@@ -139,7 +137,7 @@ import {
     </Html>
   );
   
-  export default receivedRewards;
+  export default NewCampaign;
   
   const main = {
     backgroundColor: "#ffffff",
