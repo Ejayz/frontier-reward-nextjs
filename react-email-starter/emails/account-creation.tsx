@@ -51,7 +51,7 @@ const AccountCreation = ({
       <Head />
       <Preview>noreply@pointsandperks-Account created.</Preview>
       <Body className="bg-white text-black">
-        <Container className="border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
+        <Container className="flex border border-solid border-[#eaeaea] bg-white rounded my-[40px] mx-auto p-[20px] w-[750px] max-w-5xl	 ">
           <Section className="mt-4 text-center">
             <Img
               src={`${baseUrl}/static/logo-nav.png`}
@@ -90,33 +90,31 @@ const AccountCreation = ({
               If you have any questions, You may reach us here:
             </Text>
     <br />
-            <div className="flex justify-center gap-4">
+    <center>
+            <div className="flex place-content-center w-full mx-auto gap-4">
             <Text className={"text-lg font-sans flex gap-2"}>
             <a
                 href={`mailto:ask@pointsandperks.com`}
                 style={{ color: "#0000ff" }}
                 className="mt-4"
               ><Img
-            src="https://pointsandperks.ca/images/notification.png"
+            src="https://pointsandperks.ca/static/mail.png"
             alt="Points and Perks Logo"
             width={60}
             height={60}
-            className="place-content-start "
           />
               </a>
             </Text>
             <Text className={"text-lg font-sans flex gap-2"}>
-           
               <a
                 href="https://pap.pointsandperks.ca/"
                 style={{ color: "#0000ff" }}
                 className="mt-4"
               > <Img
-                src="https://pointsandperks.ca/static/browser.svg"
+                src="https://pointsandperks.ca/static/browser.png"
                 alt="Points and Perks Logo"
                 width={60}
                 height={60}
-                className="place-content-start"
               />
               </a>
             </Text>
@@ -126,15 +124,15 @@ const AccountCreation = ({
                 style={{ color: "#0000ff" }}
                 className="mt-4">   
               <Img
-                src="https://pointsandperks.ca/static/location.svg"
+                src="https://pointsandperks.ca/static/location.png"
                 alt="Points and Perks Logo"
                 width={60}
                 height={60}
-                className="place-content-start"
               />
               </a>
             </Text>
             </div>
+            </center>
             <br />
             <Text className={"text-lg font-sans"}>
               If you did not register for an account, please disregard or delete
