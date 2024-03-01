@@ -1076,6 +1076,7 @@ export default function Page() {
                   touched={touched.first_name}
                   classes="text-base"
                   label="First Name"
+                  datatip="Input for the first name of the customer."
                 />
                 <LabeledInput
                   field_name="middle_name"
@@ -1086,6 +1087,7 @@ export default function Page() {
                   touched={touched.middle_name}
                   classes="text-base"
                   label="Middle Name"
+                  datatip="Input for the middle name of the customer."
                 />
                 <LabeledInput
                   field_name="last_name"
@@ -1096,6 +1098,7 @@ export default function Page() {
                   touched={touched.last_name}
                   classes="text-base"
                   label="Last Name"
+                  datatip="Input for the last name of the customer."
                 />
                 <LabeledInput
                   field_name="suffix"
@@ -1106,6 +1109,7 @@ export default function Page() {
                   touched={touched.suffix}
                   classes="text-base"
                   label="Suffix"
+                  datatip="Input for the suffix of the customer."
                 />
                 <LabeledInput
                   field_name="email"
@@ -1116,6 +1120,7 @@ export default function Page() {
                   touched={touched.email}
                   classes="text-base"
                   label="Email"
+                  datatip="Input for the email of the customer."
                 />
                 <LabeledInputPhone
                   field_name="phone_number"
@@ -1125,6 +1130,7 @@ export default function Page() {
                   touched={touched.phone_number}
                   classes="text-base"
                   label="Phone Number"
+                  datatip="Input for the phone number of the customer."
                   value={values.phone_number}
                   setFieldValue={setFieldValue}
                   setPhoneInfo={setPhoneInfo}
@@ -1139,6 +1145,7 @@ export default function Page() {
                   touched={touched.points}
                   classes="text-base"
                   label="Points"
+                  datatip="Input for the points of the customer."
                 />
                 <LabeledSelectInput
                   field_name="package"
@@ -1149,6 +1156,7 @@ export default function Page() {
                   touched={touched.package}
                   classes="text-base"
                   label="Package"
+                  datatip="Select for the package of the customer."
                   SelectOptions={isFetching || isLoading ? [] : data.data}
                   setFieldValue={setFieldValue}
                   values={values.package}
@@ -1162,6 +1170,7 @@ export default function Page() {
                   touched={touched.country}
                   classes="text-base"
                   label="Country"
+                  datatip="Select for the country of the customer."
                   SelectOptions={countries}
                   setFieldValue={setFieldValue}
                   values={values.country}
@@ -1175,6 +1184,7 @@ export default function Page() {
                   touched={touched.address_line}
                   classes="text-base"
                   label="Address Line"
+                  datatip="Input for the address line of the customer."
                 />
                 <LabeledInput
                   field_name="address_line2"
@@ -1185,6 +1195,7 @@ export default function Page() {
                   touched={touched.address_line2}
                   classes="text-base"
                   label="Address Line 2"
+                  datatip="Input for the address line 2 of the customer."
                 />
                 <LabeledInput
                   field_name="city"
@@ -1195,6 +1206,7 @@ export default function Page() {
                   touched={touched.city}
                   classes="text-base"
                   label="City"
+                  datatip="Input for the city of the customer."
                 />
                 <LabeledInput
                   field_name="state_province_region"
@@ -1205,6 +1217,7 @@ export default function Page() {
                   touched={touched.state_province_region}
                   classes="text-base"
                   label="State/Province/Region"
+                  datatip="Input for the state/province/region of the customer."
                 />
                 <LabeledInput
                   field_name="zip_code"
@@ -1215,6 +1228,7 @@ export default function Page() {
                   touched={touched.zip_code}
                   classes="text-base"
                   label="Zip/Postal Code"
+                  datatip="Input for the zip/postal code of the customer."
                 />
               </div>
             </Form>

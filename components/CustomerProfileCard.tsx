@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import QRCode from "react-qr-code";
 
 export default function ProfileCard() {
   const getUserId = useSearchParams();
@@ -23,6 +24,11 @@ export default function ProfileCard() {
   return (
     <>
       <div className="bg-white p-3 border-t-4 border-green-400">
+        <QRCode
+          value={`{"user_id": ${data?.data[0].CustomerID.toString()}}`}
+          viewBox={`0 0 100 100`}
+          className="mx-auto w-24 h-24"
+        />
         <h1 className="text-gray-900 font-bold text-xl leading-8 my-1">
           {isLoading || isFetching
             ? "Loading..."
@@ -70,13 +76,15 @@ export default function ProfileCard() {
           <li className="flex items-center py-3">
             <span>Package</span>
             <span className="ml-auto">
-                {isLoading || isFetching ? "Loading..." : data?.data[0]?.name}
+              {isLoading || isFetching ? "Loading..." : data?.data[0]?.name}
             </span>
           </li>
           <li className="flex items-center py-3">
             <span>Points</span>
             <span className="ml-auto">
-            {isLoading || isFetching ? "Loading..." : data?.data[0]?.points} Frontiers</span>
+              {isLoading || isFetching ? "Loading..." : data?.data[0]?.points}{" "}
+              Frontiers
+            </span>
           </li>
         </ul>
       </div>

@@ -247,7 +247,8 @@ export default function Page() {
                     errors={errors.vin_no}
                     touched={touched.vin_no}
                     classes="text-base"
-                    label="Vehicle VIN No"
+                    label="Vehicle ID No. (VIN)"
+                    datatip="Vehicle Identification Number"
                   />
 
                   <LabeledInput
@@ -259,6 +260,7 @@ export default function Page() {
                     touched={touched.year}
                     classes="text-base"
                     label="Vehicle Year"
+                    datatip="Year of the vehicle production"
                   />
                   <LabeledInput
                     field_name="model"
@@ -269,6 +271,7 @@ export default function Page() {
                     touched={touched.model}
                     classes="text-base"
                     label="Vehicle Model"
+                    datatip="Model of the vehicle"
                   />
                   <LabeledInput
                     field_name="trim"
@@ -279,6 +282,7 @@ export default function Page() {
                     touched={touched.trim}
                     classes="text-base"
                     label="Vehicle Trim"
+                    datatip="Trim of the vehicle"
                   />
                   <LabeledInput
                     field_name="color"
@@ -289,6 +293,7 @@ export default function Page() {
                     touched={touched.color}
                     classes="text-base"
                     label="Vehicle Color"
+                    datatip="Color of the vehicle"
                   />
                 </div>
                 <div id="notif" ref={notificationContainer}></div>
@@ -330,6 +335,7 @@ export default function Page() {
                     touched={touched.vin_no}
                     classes="text-base"
                     label="Vehicle VIN No"
+                    datatip="Input for the vehicle identification number"
                   />
 
                   <LabeledInput
@@ -341,6 +347,7 @@ export default function Page() {
                     touched={touched.year}
                     classes="text-base"
                     label="Vehicle Year"
+                    datatip="Input for the year of the vehicle production"
                   />
                   <LabeledInput
                     field_name="model"
@@ -351,6 +358,7 @@ export default function Page() {
                     touched={touched.model}
                     classes="text-base"
                     label="Vehicle Model"
+                    datatip="Input for the model of the vehicle"
                   />
                   <LabeledInput
                     field_name="trim"
@@ -361,6 +369,7 @@ export default function Page() {
                     touched={touched.trim}
                     classes="text-base"
                     label="Vehicle Trim"
+                    datatip="Input for the trim of the vehicle"
                   />
                   <LabeledInput
                     field_name="color"
@@ -371,6 +380,7 @@ export default function Page() {
                     touched={touched.color}
                     classes="text-base"
                     label="Vehicle Color"
+                    datatip="Input for the color of the vehicle"
                   />
                 </div>
                 <div id="notif" ref={notificationContainer}></div>

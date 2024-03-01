@@ -7,12 +7,12 @@ import LabeledSelectInput from "@/components/LabeledSelectInput";
 import { useToast } from "@/hooks/useToast";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Form, Formik, FormikProps } from "formik";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import "yup-phone-lite";
+import Link from "next/link";
 type phoneType = {
   areaCodes: number[] | undefined;
   dialCode: string;
@@ -1024,6 +1024,7 @@ export default function Page() {
                   touched={touched.employee_type}
                   classes="text-base"
                   label="Employee Type"
+                  datatip="Select an employee type for the account"
                   SelectOptions={[
                     {
                       value: 3,
@@ -1046,6 +1047,7 @@ export default function Page() {
                   touched={touched.firstName}
                   classes="text-base"
                   label="First Name"
+                  datatip="Input for the first name of the employee"
                 />
                 <LabeledInput
                   field_name="middleName"
@@ -1056,6 +1058,7 @@ export default function Page() {
                   touched={touched.middleName}
                   classes="text-base"
                   label="Middle Name"
+                  datatip="Input for the middle name of the employee"
                 />
                 <LabeledInput
                   field_name="lastName"
@@ -1066,6 +1069,7 @@ export default function Page() {
                   touched={touched.lastName}
                   classes="text-base"
                   label="Last Name"
+                  datatip="Input for the last name of the employee"
                 />
                 <LabeledInput
                   field_name="suffix"
@@ -1076,6 +1080,7 @@ export default function Page() {
                   touched={touched.suffix}
                   classes="text-base"
                   label="Suffix"
+                  datatip="Input for the suffix of the employee"
                 />
                 <LabeledInput
                   field_name="email"
@@ -1086,6 +1091,7 @@ export default function Page() {
                   touched={touched.email}
                   classes="text-base"
                   label="Email"
+                  datatip="Input for the email of the employee"
                 />
                 <LabeledInputPhone
                   field_name="phone_number"
@@ -1095,6 +1101,7 @@ export default function Page() {
                   touched={touched.phone_number}
                   classes="text-base"
                   label="Phone Number"
+                  datatip="Input for the phone number of the employee"
                   value={values.phone_number}
                   setFieldValue={setFieldValue}
                   setPhoneInfo={setAdminPhone}
@@ -1121,7 +1128,7 @@ export default function Page() {
                 >
                   Update Employee
                 </button>
-                <Link href={"/admin/users"} className="btn  mx-2">
+                <Link href={"/superadmin/users"} className="btn  mx-2">
                   Cancel
                 </Link>
               </div>

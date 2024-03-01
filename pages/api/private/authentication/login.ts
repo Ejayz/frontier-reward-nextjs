@@ -39,6 +39,9 @@ export default async function handler(
         .json({ code: 404, message: "Invalid credentials used." });
     }
     console.log("user details",results);
+    const fName = results[0].first_name;
+    const lName = results[0].last_name;
+console.log("User Name:", lName+" "+fName);
     const passwordValid = await bcrypt.compare(password, results[0].password);
     if (!passwordValid) {
       res.status(401).json({ code: 401, message: "Invalid credentials used." });
@@ -138,6 +141,7 @@ export default async function handler(
           password_change_at:
             results[0].password_change_at == null ? false : true,
 
+            
         },
       
       });

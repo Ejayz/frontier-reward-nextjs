@@ -91,7 +91,8 @@ const AccountCreation = ({
           </Text>
           <br />
           <div className="flex w-full justify-center gap-4">
-            <div className="flex flex-row mx-auto">
+            <div className="flex flex-row mx-auto gap-4">
+
               <Text className={"text-lg font-sans flex gap-2"}>
                 <a
                   href={`mailto:ask@pointsandperks.com`}
@@ -99,7 +100,8 @@ const AccountCreation = ({
                   className="mt-4"
                 >
                   <Img
-                    src="https://pointsandperks.ca/images/notification.png"
+                    src="https://pointsandperks.ca/static/mail.png"
+
                     alt="Points and Perks Logo"
                     width={60}
                     height={60}

@@ -35,7 +35,7 @@ export default function Page() {
             Campaign Transaction List
           </a>
           <a
-            role="tab"  
+            role="tab"
             onClick={() => {
               setActiveTab("redeem_list");
             }}

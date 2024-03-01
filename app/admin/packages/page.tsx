@@ -779,7 +779,7 @@ export default function Page() {
                       Name
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -807,7 +807,7 @@ export default function Page() {
                       Description
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -834,8 +834,8 @@ export default function Page() {
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -909,7 +909,7 @@ export default function Page() {
                     Reward Name
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select reward name for the package">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
                   name="reward_id"
@@ -1041,7 +1041,7 @@ export default function Page() {
                       Name
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1069,7 +1069,7 @@ export default function Page() {
                       Description
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -1096,8 +1096,8 @@ export default function Page() {
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points ">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"

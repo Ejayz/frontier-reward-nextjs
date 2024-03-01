@@ -542,7 +542,7 @@ export default function Page() {
         >
           {({ errors, touched, setFieldValue, values }) => (
             <Form>
-              <div className="form-control w-11/12 mx-auto mt-4">
+              <div className="form-control w-11/12 mt-4">
                 <div className="flex">
                   <div className="relative w-full">
                     <div className="join">

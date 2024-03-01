@@ -1241,7 +1241,8 @@ export default function Page() {
       </dialog>
 
       {/* The button to open modal */}
-    
+     
+
       {/* Put this part before </body> tag */}
       <input
         type="checkbox"
@@ -1838,7 +1839,7 @@ export default function Page() {
                         />
                       </div>
                     </div>
-                    <div className="indicator">   
+                    <div className="indicator">
                       <button className="btn join-item btn-primary text-lg font-semibold">Search</button>
                     </div>
                   </div>

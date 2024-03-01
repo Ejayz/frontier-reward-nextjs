@@ -561,7 +561,7 @@ const {
                     Reward Type
                   </span>   
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward name for the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
                   name="reward_type_id"
@@ -589,7 +589,7 @@ const {
                     Quantity
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the quantity of the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -617,7 +617,7 @@ const {
                     Name
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the name of the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div> 
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -645,7 +645,7 @@ const {
                     Description
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the description of the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -720,7 +720,7 @@ onSubmit={onSubmit}>
                     Reward Type
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward type for the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 
                
@@ -750,7 +750,7 @@ onSubmit={onSubmit}>
                     Quantity
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the quantity of the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -778,7 +778,7 @@ onSubmit={onSubmit}>
                     Name
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the name of the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -806,7 +806,7 @@ onSubmit={onSubmit}>
                     Description
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the description of the reward">
-                  <div  className="opacity-50 badge badge-primary badge-lg w-5 h-5">?</div></div>
+                 <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
