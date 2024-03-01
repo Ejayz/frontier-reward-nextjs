@@ -154,7 +154,7 @@ export default function AdminDashboardNavBar({
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
-                <li className="text-center font-bold "> </li>
+                <li className="text-center font-bold ">Logged in as {} </li>
                 <li>
                   <button
                     onClick={() => {

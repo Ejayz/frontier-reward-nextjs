@@ -24,7 +24,7 @@ export default function ProfileCard() {
     <>
       <div className="bg-white p-3 border-t-4 border-green-400">
         <QRCode
-          value={`{"user_id": ${data?.data[0].user_id.toString()}}`}
+          value={`{"user_id": ${data?.data[0].CustomerID.toString()}}`}
           viewBox={`0 0 100 100`}
           className="mx-auto w-24 h-24"
         />
