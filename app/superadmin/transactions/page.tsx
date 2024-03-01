@@ -68,11 +68,7 @@ export default function Page() {
     isFetching: RedeemTransactionIsFetching,
     refetch: RedeemTransactionRefetch,
   } = useQuery({
-    queryKey: [
-      "redeemtransaction",
-      searchForm.current?.values.keyword,
-      redeemPage,
-    ],
+    queryKey: ["redeemtransaction", redeemPage],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -98,12 +94,13 @@ export default function Page() {
     isFetching: campaignIsFetching,
     refetch: campaignRefetch,
   } = useQuery({
-    queryKey: ["campaigns", campaignPage, searchForm.current?.values.keyword],
+    queryKey: ["campaigns", campaignPage],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
+      console.log(campaignPage)
 
       let response = await fetch(
         `/api/private/getCampaignTransactions?page=${campaignPage}&keyword=${searchForm.current?.values.keyword}`,
@@ -726,7 +723,7 @@ export default function Page() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (CampaignData.data.length >= 10) {
+                              if (CampaignData.data.length >= 5) {
                                 const newPage = campaignPage + 1;
                                 setCampaignPage(newPage);
                               } else {
@@ -829,7 +826,7 @@ export default function Page() {
                         </button>
                         <button
                           onClick={() => {
-                            if (RedeemTransaction?.data?.length >= 10) {
+                            if (RedeemTransaction?.data?.length >= 5) {
                               const newPage = redeemPage + 1;
                               setRedeemPage(newPage);
                             } else {

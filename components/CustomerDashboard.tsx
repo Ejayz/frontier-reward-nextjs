@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function SalesPersonDashboardNav({
@@ -28,6 +29,32 @@ export default function SalesPersonDashboardNav({
       }
     },
   });
+  const [data, setData] = useState<any>();
+  // Function to make the ThunderClient request
+  const makeThunderClientRequest = async () => {
+    try {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch("/api/private/loginrole", {
+        method: "get",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error("Error making ThunderClient request:", error);
+    }
+  };
+
+  // Use the useEffect hook to trigger the ThunderClient request when the page loads
+  useEffect(() => {
+    makeThunderClientRequest();
+  }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
   return (
     <div className="drawer">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -204,10 +231,7 @@ export default function SalesPersonDashboardNav({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/customer/redeem"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/customer/redeem"} className="text-2xl font-bold">
                   <Image
                     src="/icons/redeem-points.png"
                     className="mr-2"
@@ -225,10 +249,7 @@ export default function SalesPersonDashboardNav({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/customer/profile"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/customer/profile"} className="text-2xl font-bold">
                   <Image
                     src="/images/user-profile.png"
                     className="mr-2"
@@ -278,10 +299,7 @@ export default function SalesPersonDashboardNav({
                 : ""
             }`}
           >
-            <Link
-              href={"/customer/dashboard"}
-              className="text-2xl font-bold"
-            >
+            <Link href={"/customer/dashboard"} className="text-2xl font-bold">
               <Image
                 src="/icons/dashboard.svg"
                 className="mr-2"
@@ -300,10 +318,7 @@ export default function SalesPersonDashboardNav({
                 : ""
             }`}
           >
-            <Link
-              href={"/customer/campaigns"}
-              className="text-2xl font-bold"
-            >
+            <Link href={"/customer/campaigns"} className="text-2xl font-bold">
               <Image
                 src="/icons/campaigns.svg"
                 className="mr-2"
