@@ -27,6 +27,7 @@ export default async function handler(
     [rows] = <RowDataPacket[]>(
       await connection.query(
         `SELECT  first_name,last_name,suffix,middle_name,email,phone_number,points,address_1,address_2,country,city,zip_code,state_province,name,customer_info.created_at,customer_info.id as CustomerID from customer_info LEFT JOIN users ON customer_info.user_id = users.id LEFT JOIN customer_address ON customer_address.id=customer_info.id LEFT JOIN  packages  ON packages.id = customer_info.package_id where customer_info.id = ? and customer_info.is_exist =1  `,
+
         [decoded.main_id]
       )
     );
