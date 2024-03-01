@@ -1241,9 +1241,7 @@ export default function Page() {
       </dialog>
 
       {/* The button to open modal */}
-      {/* <label htmlFor="add_user" className="btn btn-accent">
-        Add User
-      </label> */}
+     
 
       {/* Put this part before </body> tag */}
       <input
@@ -1836,7 +1834,7 @@ export default function Page() {
                           onChange={(e: any) => {
                             setKeyword(e.target.value);
                           }}
-                          classes="text-base text-lg font-semibold"
+                          classes="text-lg font-semibold"
                           label="Search"
                         />
                       </div>
@@ -1897,7 +1895,7 @@ export default function Page() {
                           <button
                             onClick={() => {
                               nav.push(
-                                `/salesperson/customer/view/?user_id=${customer.customer_id}`
+                                `/superadmin/customer/view/?user_id=${customer.customer_id}`
                               );
                             }}
                             type="button"

@@ -834,7 +834,7 @@ export default function Page() {
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points">
                     <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
@@ -1096,7 +1096,7 @@ export default function Page() {
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points of the package ">
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points ">
                     <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field

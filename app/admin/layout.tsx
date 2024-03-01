@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { pages } from "next/dist/build/templates/app-page";
-import SalesPersonDashboardNav from "@/components/SalesPersonDashboardNav";
+import AdminDashboardNavBar from "@/components/AdminDashboardNavBar";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +70,7 @@ export default function RootLayout({
         {pageState && inits ? (
           <QueryClientProvider client={queryClient}>
             <main className="min-h-screen">
-              <SalesPersonDashboardNav child={children}></SalesPersonDashboardNav>
+              <AdminDashboardNavBar child={children}></AdminDashboardNavBar>
             </main>
           </QueryClientProvider>
         ) : (

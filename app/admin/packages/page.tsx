@@ -40,11 +40,12 @@ type PackageElement = {
   is_exist: number;
 };
 export default function Page() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const createPackageRef = useRef<FormikProps<any>>(null);
   const editPackageRef = useRef<FormikProps<any>>(null);
   const createPackageRewardRef = useRef<FormikProps<any>>(null);
+  const removePacakgeRewardRef = useRef<FormikProps<any>>(null);
   const [page, setPage] = useState(1);
 
   const { showToast } = useToast();
@@ -151,7 +152,37 @@ export default function Page() {
     gcTime: 0,
     placeholderData: keepPreviousData,
   });
+  const {
+    data: DataRedeemPagination,
+    isFetching: isFetchingRedeemPagination,
+    isLoading: isLoadingRedeemPagination,
+    refetch: RefetchRedeemPagination,
+  } = useQuery({
+    queryKey: ["getRedeem", page],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getRedeem`, {
+        method: "GET",
+        headers: headersList,
+      });
 
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   const [selectedValue, setSelectedValue] = useState("");
   const handleSelectChange = (event: any) => {
     const newValue = event.target.value;
@@ -227,12 +258,6 @@ export default function Page() {
   );
   const [rowDataToEditPR, setRowDataToEditPR] = useState<Element | null>(null);
 
-  const handleAddRewardClick = (rowData: Element) => {
-    console.log("PackeReward Edit clicked for row:", rowData);
-    setRowDataToEditPR(rowData);
-    setEditModalOpen(false);
-  };
-
   const CreatePacakgeRewardhandle = useCallback(
     async (values: any) => {
       setProcessing(true);
@@ -245,7 +270,7 @@ export default function Page() {
 
       try {
         console.log("the values are: ", values);
-        const response = await fetch(`/api/private/createCampaignRewardAction/`, {
+        const response = await fetch(`/api/private/createPackageReward/`, {
           method: "POST",
 
           body: JSON.stringify(values),
@@ -264,7 +289,8 @@ export default function Page() {
         });
         RefetchPackageRewardPagination();
         setProcessing(false);
-        createPackageRewardRef.current?.resetForm();
+        createPackageRewardRef.current?.setFieldValue('reward_id', '');
+        //createPackageRewardRef.current?.resetForm();
         setAddRewardModalOpen(true);
       } catch (error) {
         showToast({
@@ -306,18 +332,38 @@ export default function Page() {
       setEditModalOpen(false);
        // Check if the name and description remain the same
        if (
-        values.name === rowDataToEdit?.name &&
-        values.description === rowDataToEdit?.description
+        rowDataToEdit &&
+        values.name === rowDataToEdit.name &&
+        values.description === rowDataToEdit.description &&
+        values.multiplier === rowDataToEdit.multiplier
+        // Add other fields as needed
       ) {
         showToast({
           status: 'error',
-          message: 'Package data is the same, no changes made',
+          message: 'No changes detected. Data remains the same.',
+        });
+        setProcessing(false);
+        setEditModalOpen(false);
+        return; // Do not proceed with the update
+      }
+      const isDataExisting = DataPackagesPagination.data.some(
+        (element: PackageElement) =>
+          element.id !== rowDataToEdit?.id &&
+          element.name === values.name &&
+          element.description === values.description &&
+          element.multiplier === Number(values.multiplier) &&
+          element.is_exist === 1
+      );
+  
+      if (isDataExisting) {
+        showToast({
+          status: 'error',
+          message: 'Package with these updated values already exists',
         });
   
         setProcessing(false);
         return;
       }
-  
       const headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
@@ -363,6 +409,7 @@ export default function Page() {
       setEditModalOpen,
       RefetchPackagesPagination,
       editPackageRef,
+      rowDataToEdit,
     ]
   );
 
@@ -371,6 +418,55 @@ export default function Page() {
     await handleUpdatePackage(values);
     setEditModalOpen(false);
   };
+
+  
+  const PackageRewardinitialValues = {
+    package_id: rowDataToEditPR ? rowDataToEditPR.package_id : 0,
+    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
+    // ... add other fields as needed ...
+  };
+  const [packageIdToAddReward, setPackageIdToAddReward] = useState(0);
+  const handlegetProduct_idClick = (rowData: Element) => {
+    console.log("Add reward clicked for row:", rowData);
+    setRowDataToEditPR(rowData);
+     // Set the separate variable with the package_id
+     setPackageIdToAddReward(rowData.id);
+    setAddRewardModalOpen(false);
+  };
+  const onSubmit = async (values: any) => {
+    console.log("Edit Form submitted with values:", values);
+    
+  // Check for existing data
+  const isDataExisting = DataPackageRewardPagination.data.some(
+    (element: Element) =>
+      element.reward_id === values.reward_id &&
+      element.package_id === values.package_id &&
+      element.is_exist === 1
+  );
+
+  if (isDataExisting) {
+    showToast({
+      status: "error",
+      message: "Reward with this Reward and Package already exists",
+    });
+
+    setEditModalOpen(false);
+    return;
+  }
+
+    await CreatePacakgeRewardhandle(values);
+    setEditModalOpen(false);
+  };
+  
+  useEffect(() => {
+    console.log("Row data updated:", rowDataToEdit);
+    if (rowDataToEditPR) {
+      createPackageRewardRef.current?.setValues({
+        package_id: packageIdToAddReward,  // Use the new variable
+        reward_id: rowDataToEditPR.reward_id,
+      });
+    }
+  }, [rowDataToEditPR, packageIdToAddReward]);
 
   const RemoveinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
@@ -385,7 +481,7 @@ export default function Page() {
     setRowDataToEdit(rowData);
     setRemoveModalOpen(false);
   };
-  const handleRemoveAction = useCallback(
+  const handleRemovePackage = useCallback(
     async (values: any) => {
       setProcessing(true);
       setRemoveModalOpen(false);
@@ -394,28 +490,78 @@ export default function Page() {
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
         "Content-Type": "application/json",
       };
-
+  
       try {
+        // Check if DataPackageRewardPagination is defined and has a 'data' property
+        if (!DataPackageRewardPagination || !DataPackageRewardPagination.data) {
+          showToast({
+            status: "error",
+            message: "Package data is not available.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
+        console.log("the values are: ", values);
+  
+        const isActionUsedInCampaign = DataPackageRewardPagination.data.some(
+          (element: any) => element.package_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInCampaign) {
+          showToast({
+            status: "error",
+            message: "This package is currently used and cannot be removed.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
+        try{
+        if (!DataRedeemPagination || !DataRedeemPagination.data) {
+          showToast({
+            status: "error",
+            message: "Package data is not available.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
+        const isActionUsedInRedeem = DataRedeemPagination.data.some(
+          (element: any) => element.package_id === values.id && element.is_exist === 1
+        );
+  
+        if (isActionUsedInRedeem) {
+          showToast({
+            status: "error",
+            message: "This package is currently used and cannot be removed.",
+          });
+  
+          setProcessing(false);
+          return;
+        }
         console.log("the values are: ", values);
         const response = await fetch(`/api/private/removePackage/`, {
           method: "POST",
           body: JSON.stringify(values),
           headers: headersList,
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
-
+  
         showToast({
           status: "success",
           message: "Package Deleted Successfully",
         });
         RefetchPackagesPagination();
+        RefetchPackageRewardPagination();
         setProcessing(false);
-        editPackageRef.current?.resetForm();
+        removePacakgeRewardRef.current?.resetForm();
+        createPackageRewardRef.current?.setFieldValue("reward_id", "");
         setRemoveModalOpen(false);
       } catch (error) {
         showToast({
@@ -426,50 +572,34 @@ export default function Page() {
         setRemoveModalOpen(false);
         console.error(error);
       }
+    } catch (error) {
+      showToast({
+        status: "error",
+        message: "Something went wrong",
+      });
+      setProcessing(false);
+      setRemoveModalOpen(false);
+      console.error(error);
+    }
     },
     [
       setProcessing,
       showToast,
       setRemoveModalOpen,
       RefetchPackagesPagination,
-      editPackageRef,
+      removePacakgeRewardRef,
+      createPackageRewardRef,
+      removePacakgeRewardRef,
+      DataPackageRewardPagination,
     ]
   );
-
+  
+    
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
-    await handleRemoveAction(values);
+    await handleRemovePackage(values);
     setModalOpen(false);
   };
-
-  const PackageRewardinitialValues = {
-    package_id: rowDataToEditPR ? rowDataToEditPR.package_id : 0,
-    reward_id: rowDataToEditPR ? rowDataToEditPR.reward_id : 0,
-    created_at: new Date().toLocaleTimeString(),
-
-    // ... add other fields as needed ...
-  };
-
-  const handlegetProduct_idClick = (rowData: Element) => {
-    console.log("Add reward clicked for row:", rowData);
-    setRowDataToEditPR(rowData);
-    setAddRewardModalOpen(false);
-  };
-  const onSubmit = async (values: any) => {
-    console.log("Edit Form submitted with values:", values);
-    await CreatePacakgeRewardhandle(values);
-    setEditModalOpen(false);
-  };
-  useEffect(() => {
-    console.log("Row data updated:", rowDataToEdit);
-    if (rowDataToEditPR) {
-      createPackageRewardRef.current?.setValues({
-        package_id: rowDataToEditPR.id,
-        reward_id: rowDataToEditPR.reward_id,
-        created_at: rowDataToEditPR.created_at,
-      });
-    }
-  }, [rowDataToEditPR]);
 
   const RemovePackageRewardinitialValues = {
     id: rowDataToEditPR ? rowDataToEditPR.id : 0,
@@ -479,7 +609,10 @@ export default function Page() {
     is_exist: rowDataToEditPR ? rowDataToEditPR.is_exist : 0,
   };
   const handleRemoveClickPackageReward = (rowData: Element) => {
-    console.log("Edit clicked for row:", rowData);
+    console.log("remove clicked for row:", rowData);
+    // Set the package_id value in RemovePackageRewardinitialValues
+    PackageRewardinitialValues.package_id = rowData.package_id;
+  
     setRowDataToEditPR(rowData);
     setRemoveModalOpenPackageReward(false);
   };
@@ -492,7 +625,7 @@ export default function Page() {
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
         "Content-Type": "application/json",
       };
-
+  
       try {
         console.log("the values are: ", values);
         const response = await fetch(`/api/private/removePackageReward/`, {
@@ -500,20 +633,24 @@ export default function Page() {
           body: JSON.stringify(values),
           headers: headersList,
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
+  
         const data = await response.json();
-
+  
         showToast({
           status: "success",
           message: "Package Reward Deleted Successfully",
         });
         RefetchPackageRewardPagination();
         setProcessing(false);
-        editPackageRef.current?.resetForm();
+  
+        // Reset only the reward_id field using the correct reference
+        createPackageRewardRef.current?.setFieldValue('reward_id', '');
+        removePacakgeRewardRef.current?.resetForm();
+  
         setRemoveModalOpenPackageReward(false);
       } catch (error) {
         showToast({
@@ -530,22 +667,52 @@ export default function Page() {
       showToast,
       setRemoveModalOpenPackageReward,
       RefetchPackageRewardPagination,
-      editPackageRef,
+      createPackageRewardRef,
     ]
   );
+  
 
   const onSubmitRemovePackageReward = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleRemovePackageReward(values);
     setRemoveModalOpenPackageReward(false);
   };
+ 
 
   return (
     <div className="w-full h-full px-2">
       {/* add modal */}
-      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
-        Add Package
-      </label>
+      <div className="flex w-full">
+  {/* add modal */}
+  <label htmlFor="my_modal_6" className="btn btn-primary">
+    Add Package
+  </label>
+  <div className="ml-auto">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
+      <input
+        type="text"
+        className="text-lg font-semibold"
+        style={{ width: 300 }}
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        className="w-8 h-8 opacity-70"
+      >
+        <path
+          fillRule="evenodd"
+          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </label>
+      </div>
+</div>
       <input
         type="checkbox"
         id="my_modal_6"
@@ -587,7 +754,7 @@ export default function Page() {
               if (isDataExisting) {
                 showToast({
                   status: "error",
-                  message: "Action with this name and description already exists",
+                  message: "Package with this name and description already exists",
                 });
             
                 setProcessing(false);
@@ -607,10 +774,12 @@ export default function Page() {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -633,10 +802,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -659,10 +830,12 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
@@ -702,10 +875,10 @@ export default function Page() {
             )}
           </Formik>
         </div>
-      </div> */}
+      </div>
 
       {/* add package_reward */}
-      {/* <input
+      <input
         type="checkbox"
         id="my_modal_7"
         className="modal-toggle"
@@ -727,13 +900,16 @@ export default function Page() {
             initialValues={PackageRewardinitialValues}
             innerRef={createPackageRewardRef}
             onSubmit={onSubmit}
+            
           >
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
-                <label className="label">
+                <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Reward Name
                   </span>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select reward name for the package">
+                  <div  className="badge badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
                   name="reward_id"
@@ -772,8 +948,8 @@ export default function Page() {
                   <table className="table table-xs table-pin-rows text-base text-black table-pin-cols">
                     <thead>
                       <tr>
-                        <th>Reward_id</th>
-                        <td>Package_id</td>
+                        <th>Reward Name</th>
+                        <td>Package Name</td>
                         <td>Action</td>
                       </tr>
                     </thead>
@@ -784,11 +960,18 @@ export default function Page() {
                         </tr>
                       ) : (
                         DataPackageRewardPagination.data.map((element: any) => {
-                          // console.log(element);
+                          if (element.package_id !== values.package_id) {
+                            return null; // Skip rendering for rows with different package_id
+                          }
+                          const rewardId = DataRewardPagination?.data.find((item: any) => item.id === parseInt(element.reward_id));
+                          const rewardName = rewardId ? rewardId.name : "Unknown"; // Use a default value if not found
+
+                          const packageID = DataPackagesPagination?.data.find((item: any) => item.id === parseInt(element.package_id));
+                          const packageName = packageID ? packageID.name : "Unknown"; // Use a default value if not found
                           return (
                             <tr key={element.id}>
-                              <td>{element.reward_id}</td>
-                              <td>{element.package_id}</td>
+                              <td>{rewardName}</td>
+                              <td>{packageName}</td>
                               <td className="flex">
                                 <div className="flex mx-auto">
                                   <label
@@ -801,8 +984,9 @@ export default function Page() {
                                     <Image
                                       src="/icons/deleteicon.svg"
                                       width={20}
-                                      height={20}
+                                      height={20} 
                                       alt="Delete Icon"
+                                      className="hide-icon"
                                     />
                                     Delete
                                   </label>
@@ -815,35 +999,14 @@ export default function Page() {
                     </tbody>
                   </table>
                 </div>
+
+
               </Form>
             )}
           </Formik>
         </div>
-      </div> */}
-<div className="w-80">
-    <label className="input input-bordered flex items-center gap-2">
-      <input
-        type="text"
-        style={{ width: 300 }}
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="text-lg font-semibold"
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        className="w-4 h-4 opacity-70"
-      >
-        <path
-          fillRule="evenodd"
-          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </label>
-  </div>
+      </div>
+
       {/* edit modal */}
       <input
         type="checkbox"
@@ -863,26 +1026,28 @@ export default function Page() {
               ✕
             </label>
           </form>
-          <h3 className="font-bold text-lg">View Package</h3>
+          <h3 className="font-bold text-lg">Edit Package</h3>
           <Formik
             initialValues={UpdateinitialValues}
+            validationSchema={PackageValidation}
             enableReinitialize={true}
             onSubmit={onSubmitEditPackage}
           >
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the package name">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
                     placeholder="Enter Package Name"
                     className="input input-bordered"
                     name="name"
-                    readOnly
                   />
                   <ErrorMessage name="name" className="flex">
                     {(msg) => (
@@ -899,17 +1064,18 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Description
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the package">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
                     placeholder="Enter Package Description"
                     className="input input-bordered"
                     name="description"
-                    readOnly
                   />
                   <ErrorMessage name="description" className="flex">
                     {(msg) => (
@@ -926,17 +1092,18 @@ export default function Page() {
                     )}
                   </ErrorMessage>
 
-                  <label className="label">
+                  <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Multiplier
                     </span>
+                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input multiplier for the points ">
+                    <div  className="badge badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
                     type="text"
                     placeholder="Enter Package Multiplier"
                     className="input input-bordered"
                     name="multiplier"
-                    readOnly
                   />
                   <ErrorMessage name="multiplier" className="flex">
                     {(msg) => (
@@ -959,9 +1126,11 @@ export default function Page() {
                       htmlFor="my_modal_8"
                       className="btn btn-neutral mr-2"
                     >
-                      Back
+                      Cancel
                     </label>
-                   
+                    <button type="submit" className="btn btn-primary">
+                      Submit
+                    </button>
                   </div>
                 </div>
               </Form>
@@ -971,7 +1140,7 @@ export default function Page() {
       </div>
 
       {/* remove modal */}
-      {/* <input
+      <input
         type="checkbox"
         id="my_modal_9"
         className="modal-toggle"
@@ -1009,10 +1178,10 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none"
                     name="name"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex mb-5">
@@ -1023,10 +1192,10 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="description"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex">
@@ -1037,10 +1206,10 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="multiplier"
-                    disabled
+                    readOnly
                   />
                 </div>
               </div>
@@ -1057,10 +1226,10 @@ export default function Page() {
             </Form>
           </Formik>
         </div>
-      </div> */}
+      </div>
 
       {/* removePackageReward */}
-      {/* <input
+      <input
         type="checkbox"
         id="my_modal_10"
         className="modal-toggle"
@@ -1072,9 +1241,10 @@ export default function Page() {
       <div className="modal" role="dialog">
         <div className="modal-box" style={{ width: 400 }}>
           <Formik
-            initialValues={RemovePackageRewardinitialValues}
-            enableReinitialize={true}
-            onSubmit={onSubmitRemovePackageReward}
+              initialValues={RemovePackageRewardinitialValues}
+              enableReinitialize={true}
+              innerRef={removePacakgeRewardRef}
+              onSubmit={onSubmitRemovePackageReward}
           >
             <Form>
               <div className="form-control bg-white">
@@ -1091,10 +1261,10 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none"
                     name="package_id"
-                    disabled
+                    readOnly
                   />
                 </div>
                 <div className="flex mb-5">
@@ -1105,10 +1275,10 @@ export default function Page() {
                   </label>
                   <Field
                     type="text"
-                    placeholder="Enter Action Name"
+                    placeholder="Enter Package Name"
                     className="input border-none text-black"
                     name="reward_id"
-                    disabled
+                    readOnly
                   />
                 </div>
               </div>
@@ -1125,7 +1295,7 @@ export default function Page() {
             </Form>
           </Formik>
         </div>
-      </div> */}
+      </div>
 
       <div className="overflow-x-auto w-full h-full mt-5 text-black">
         <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
@@ -1151,10 +1321,22 @@ export default function Page() {
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{element.multiplier}</td>
+                    <td className="inline place-content-center lg:flex">
+                        <label
+                          htmlFor="my_modal_7"
+                          className="btn btn-sm btn-accent mr-2"
+                          onClick={() => handlegetProduct_idClick(element)}
+                        >
+                          <Image
+                            src="/icons/addrewards.svg"
+                            width={20}
+                            height={20}
+                            alt="reward Icon"
+                            className="hide-icon"
+                          />
+                          Add Reward
+                        </label>
 
-                    <td className="flex">
-                      <div className="flex mx-auto">
-                  
                         <label
                           htmlFor="my_modal_8"
                           className="btn btn-sm btn-info mr-2"
@@ -1167,10 +1349,22 @@ export default function Page() {
                             alt="Edit Icon"
                             className="hide-icon"
                           />
-                          View
+                          Edit
                         </label>
-                    
-                      </div>
+                        <label
+                          className="btn btn-sm btn-error"
+                          htmlFor="my_modal_9"
+                          onClick={() => handleRemoveClick(element)}
+                        >
+                          <Image
+                            src="/icons/deleteicon.svg"
+                            width={20}
+                            height={20}
+                            alt="Delete Icon"
+                            className="hide-icon"
+                          />
+                          Delete
+                        </label>
                     </td>
                   </tr>
                 );

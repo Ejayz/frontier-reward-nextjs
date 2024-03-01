@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 export default function AdminDashboardNavBar({
@@ -28,6 +29,31 @@ export default function AdminDashboardNavBar({
       }
     },
   });
+    // Function to make the ThunderClient request
+    const makeThunderClientRequest = async () => {
+      try {
+        let headersList = {
+          "Accept": "*/*",
+          "User-Agent": "Thunder Client (https://www.thunderclient.com)"
+        }
+  
+        let response = await fetch("/api/private/loginrole", { 
+          method: "get",
+          headers: headersList
+        });
+  
+        let data = await response.text();
+        console.log("data log",data);
+      } catch (error) {
+        console.error("Error making ThunderClient request:", error);
+      }
+    }
+  
+    // Use the useEffect hook to trigger the ThunderClient request when the page loads
+    useEffect(() => {
+      makeThunderClientRequest();
+    }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+  
   return (
     <div className="drawer">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -128,7 +154,7 @@ export default function AdminDashboardNavBar({
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
-                <li className="text-center font-bold "></li>
+                <li className="text-center font-bold "> </li>
                 <li>
                   <button
                     onClick={() => {

@@ -27,7 +27,6 @@ import { parse } from "path";
 import { toast } from "react-toastify";
 import Loading from "../loading";
 import { get } from "http";
-import { text } from "stream/consumers";
 
 type Element = {
   id: number;
@@ -264,8 +263,7 @@ export default function Page() {
       }
     },
   });
-  const [selectedRewardName, setSelectedRewardName] = useState<string>('');
-  const [selectedPackageName, setSelectedPackageName] = useState<string>('');
+
   return (
     <div className="w-full h-full px-2">
       {/* Update Modal*/}
@@ -341,27 +339,87 @@ export default function Page() {
             >
               {({ errors, touched, setFieldValue, values }) => (
                 <Form>
-                  <label className="label">Redeemable Name</label>
-                  <input type="text" className="input input-bordered" name="name" value={values.name} readOnly/>
-                   <label className="label">Redeemable Description</label>
-                  <input type="text" className="input input-bordered" name="description" value={values.description} readOnly/>
-                   <label className="label">Cost</label>
-                  <input type="text" className="input input-bordered" name="cost" value={values.cost} readOnly/>
-                   <label className="label">Package</label>
-                  <input type="text" className="input input-bordered" value={selectedPackageName} readOnly/>
-                  <label className="label">Reward</label>
-                  <input type="text" className="input input-bordered" value={selectedRewardName} readOnly/>
+                  <LabeledInput
+                    field_name="name"
+                    type="text"
+                    placeholder="Redeemable Name"
+                    className="input input-bordered"
+                    errors={errors.name}
+                    touched={touched.name}
+                    classes="mb-2"
+                    label="Name"
+                    datatip="Input the name of the redeemable."
+                  />
+                  <LabeledInput
+                    field_name="description"
+                    type="text"
+                    placeholder="Redeemable Description"
+                    className="input input-bordered"
+                    errors={errors.description}
+                    touched={touched.description}
+                    classes="mb-2"
+                    label="Description"
+                    datatip="Input the description of the redeemable."
+                  />
+                  <LabeledInput
+                    field_name="cost"
+                    type="number"
+                    placeholder="Redeemable Cost"
+                    className="input input-bordered"
+                    errors={errors.cost}
+                    touched={touched.cost}
+                    classes="mb-2"
+                    label="Cost"
+                    datatip="Input the cost of the redeemable."
+                  />
+                  <LabeledSelectInput
+                    field_name="package_id"
+                    placeholder="Packages"
+                    className="input input-bordered"
+                    errors={errors.package_id}
+                    touched={touched.package_id}
+                    classes="mb-2"
+                    label="Package"
+                    datatip="Select a package name for the redeemable."
+                    SelectOptions={
+                      isPackagesFetching || isPackagesLoading
+                        ? []
+                        : getPackages.data
+                    }
+                    setFieldValue={setFieldValue}
+                    values={values.package_id}
+                  />
+                  <LabeledSelectInput
+                    field_name="reward_id"
+                    placeholder="Reward Redeemable"
+                    className="input input-bordered"
+                    errors={errors.reward_id}
+                    touched={touched.reward_id}
+                    classes="mb-2"
+                    label="Reward"
+                    datatip="Select a reward name for the redeemable."
+                    SelectOptions={
+                      isRewardsFetching || isRewardsLoading
+                        ? []
+                        : getRewards.data
+                    }
+                    setFieldValue={setFieldValue}
+                    values={values.reward_id}
+                  />
+
                   <div className="modal-action">
-                  
+                    <button type="submit" className="btn btn-primary">
+                      Update
+                    </button>
                     <button
                       type="button"
-                      className="btn btn-primary"
+                      className="btn"
                       onClick={() => {
                         updateRedeemForm.current?.resetForm();
                         updateRedeemModal.current?.close();
                       }}
                     >
-                      Back
+                      Close
                     </button>
                   </div>
                 </Form>
@@ -370,26 +428,27 @@ export default function Page() {
           )}
         </div>
       </dialog>
-      <div className="w-full px-2">
+      <div className="flex w-full">
   {/* add modal */}
-  {/* <label htmlFor="addRedeemModal" className="btn btn-primary ">
+  <label htmlFor="addRedeemModal" className="btn btn-primary ">
         Add Redeem
-      </label> */}
-<div className="w-80">
-    <label className="input input-bordered flex items-center gap-2">
+      </label>
+      <div className="ml-auto">
+  {/* add modal */}
+  <label className="input input-bordered flex items-center gap-2">
       <input
         type="text"
+        className="text-lg font-semibold"
         style={{ width: 300 }}
         placeholder="Search..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="text-lg font-semibold"
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
         fill="currentColor"
-        className="w-4 h-4 opacity-70"
+        className="w-8 h-8 opacity-70"
       >
         <path
           fillRule="evenodd"
@@ -398,7 +457,7 @@ export default function Page() {
         />
       </svg>
     </label>
-  </div>
+      </div>
 </div>
       <input
         ref={addRedeemModal}
@@ -441,6 +500,7 @@ export default function Page() {
                   touched={touched.name}
                   classes="mb-2"
                   label="Name"
+                  datatip="Input the name of the redeemable."
                 />
                 <LabeledInput
                   field_name="description"
@@ -451,6 +511,7 @@ export default function Page() {
                   touched={touched.description}
                   classes="mb-2"
                   label="Description"
+                  datatip="Input the description of the redeemable."
                 />
                 <LabeledInput
                   field_name="cost"
@@ -461,6 +522,7 @@ export default function Page() {
                   touched={touched.cost}
                   classes="mb-2"
                   label="Cost"
+                  datatip="Input the cost of the redeemable."
                 />
                 <LabeledSelectInput
                   field_name="package_id"
@@ -470,6 +532,7 @@ export default function Page() {
                   touched={touched.package_id}
                   classes="mb-2"
                   label="Package"
+                  datatip="Select a package name for the redeemable."
                   SelectOptions={
                     isPackagesFetching || isPackagesLoading
                       ? []
@@ -478,16 +541,21 @@ export default function Page() {
                   setFieldValue={setFieldValue}
                   values={values.package_id}
                 />
-                <LabeledInput
-  field_name="reward_id"
-  placeholder="Redeemable Reward"
-  className="input input-bordered"
-  errors={errors.reward_id}
-  touched={touched.reward_id}
-  classes="mb-2"
-  label="Reward"
-  values={values.reward_id}
-/>
+                <LabeledSelectInput
+                  field_name="reward_id"
+                  placeholder="Redeemable Reward"
+                  className="input input-bordered"
+                  errors={errors.reward_id}
+                  touched={touched.reward_id}
+                  classes="mb-2"
+                  label="Reward"
+                  datatip="Select a reward name for the redeemable."
+                  SelectOptions={
+                    isRewardsFetching || isRewardsLoading ? [] : getRewards.data
+                  }
+                  setFieldValue={setFieldValue}
+                  values={values.reward_id}
+                />
 
                 <div className="modal-action">
                   <button type="submit" className="btn btn-primary">
@@ -537,28 +605,49 @@ export default function Page() {
             ) : (
               filteredData.map((item: any) => {
                 return (
-                  <tr key={item.redeem_id}>
+                  <tr key={item.reward_id}>
                     <td>{item.redeem_name}</td>
                     <td>{item.redeem_description}</td>
                     <td>{`${item.point_cost} Frontier Points`}</td>
                     <td>{item.reward_name}</td>
                     <td>{item.package_name}</td>
                     <td>
-                    <button
-  onClick={() => {
-    setUpdatableId(item.redeem_id);
-    updateRedeemModal.current?.showModal();
-    // Pass item.reward_name to the modal (you can set it in the state or props)
-    // For simplicity, let's assume there's a state variable 'selectedRewardName'
-    setSelectedRewardName(item.reward_name);
-    setSelectedPackageName(item.package_name);
-  }}
-  className="btn btn-sm mx-5 btn-info"
->
-  <Image src="/icons/editicon.svg" alt="edit" width={20} height={20} />
-  <span>View</span>
-</button>
-                      
+                      <button
+                        onClick={async () => {
+                          await setUpdatableId(item.redeem_id);
+                          await updateRedeemModal.current?.showModal();
+                        }}
+                        className="btn btn-sm mx-5 btn-info"
+                      >
+                        <Image
+                          src="/icons/editicon.svg"
+                          alt="edit"
+                          width={20}
+                          height={20}
+                        />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const confirm = window.confirm(
+                            "Are you sure you want to delete this?"
+                          );
+                          if (confirm) {
+                            removeRedeemMutation.mutate({
+                              id: item.redeem_id,
+                            });
+                          }
+                        }}
+                        className="btn btn-sm btn-error"
+                      >
+                        <Image
+                          src="/icons/deleteicon.svg"
+                          alt="edit"
+                          width={20}
+                          height={20}
+                        />
+                        <span>Remove</span>
+                      </button>
                     </td>
                   </tr>
                 );
