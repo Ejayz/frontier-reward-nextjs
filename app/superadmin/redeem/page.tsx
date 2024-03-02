@@ -348,7 +348,7 @@ export default function Page() {
                     touched={touched.name}
                     classes="mb-2"
                     label="Name"
-                    datatip="Input the name of the redeemable."
+                    datatip="Input name for the redeemable."
                   />
                   <LabeledInput
                     field_name="description"
@@ -359,7 +359,7 @@ export default function Page() {
                     touched={touched.description}
                     classes="mb-2"
                     label="Description"
-                    datatip="Input the description of the redeemable."
+                    datatip="Input description for the redeemable."
                   />
                   <LabeledInput
                     field_name="cost"
@@ -370,7 +370,7 @@ export default function Page() {
                     touched={touched.cost}
                     classes="mb-2"
                     label="Cost"
-                    datatip="Input the cost of the redeemable."
+                    datatip="Input cost for the redeemable."
                   />
                   <LabeledSelectInput
                     field_name="package_id"
@@ -500,7 +500,7 @@ export default function Page() {
                   touched={touched.name}
                   classes="mb-2"
                   label="Name"
-                  datatip="Input the name of the redeemable."
+                  datatip="Input name for the redeemable."
                 />
                 <LabeledInput
                   field_name="description"
@@ -511,7 +511,7 @@ export default function Page() {
                   touched={touched.description}
                   classes="mb-2"
                   label="Description"
-                  datatip="Input the description of the redeemable."
+                  datatip="Input description for the redeemable."
                 />
                 <LabeledInput
                   field_name="cost"
@@ -522,7 +522,7 @@ export default function Page() {
                   touched={touched.cost}
                   classes="mb-2"
                   label="Cost"
-                  datatip="Input the cost of the redeemable."
+                  datatip="Input cost for the redeemable."
                 />
                 <LabeledSelectInput
                   field_name="package_id"

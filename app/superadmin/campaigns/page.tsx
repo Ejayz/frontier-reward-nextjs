@@ -958,68 +958,25 @@ if (isDataExisting) {
                     datatip="Input name for the campaign"
                   />
 
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold">
-                      Name
-                    </span>
-                    <div className="tooltip text-base tooltip-right tooltip-info " data-tip="Input name for the campaign">
-                    <div  className="badge badge-lg w-5 h-5">?</div></div>
-                  </label>
-                
-                  <Field
-                    type="text"
-                    placeholder="Enter Campaign Name"
-                    className="input input-bordered"
-                    name="name"
-                  />
-                  <ErrorMessage name="name" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icfons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold">
-                      Description
-                    </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the campaign description">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
-                  </label>
-                  <Field
+                  <LabeledInput
+                    field_name="description"
                     type="text"
                     placeholder="Enter Campaign Description"
                     className="input input-bordered"
-                    name="description"
+                    label="Description"
+                    errors={errors.description}
+                    touched={touched.description}
+                    classes="text-red-600"
+                    readOnly={false}
+                    datatip="Input description for the campaign"
                   />
-                  <ErrorMessage name="description" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
+                  
                   <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Package Name
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a package name for the campaign">
-                <div  className="badge badge-lg w-5 h-5">?</div></div>
+                <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="package_id"
@@ -1050,12 +1007,13 @@ if (isDataExisting) {
                     )}
                   </ErrorMessage>
                   {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
+                  
                   <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Start Date
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a date when the campaign start">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
   type="date"
@@ -1085,7 +1043,7 @@ if (isDataExisting) {
                       End Date
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a date when the campaign end">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1160,67 +1118,38 @@ if (isDataExisting) {
             {({ errors, touched, values, setFieldValue }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold">
-                      Name
-                    </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the campaign name">
-                    <div  className="badge badge-lg w-5 h-5">?</div></div>
-                  </label> 
-                  <Field
-                    type="text"
+                  <LabeledInput
+                    field_name="name"
+                    type="text" 
                     placeholder="Enter Campaign Name"
                     className="input input-bordered"
-                    name="name"
+                    label="Name"
+                    errors={errors.name}
+                    touched={touched.name}
+                    classes="text-red-600"
+                    readOnly={false}
+                    datatip="Input name for the campaign"
                   />
-                  <ErrorMessage name="name" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold">
-                      Description
-                    </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the campaign description">
-                    <div  className="badge badge-lg w-5 h-5">?</div></div>
-                  </label> 
-                  <Field
+                 
+                  <LabeledInput
+                    field_name="description"
                     type="text"
                     placeholder="Enter Campaign Description"
                     className="input input-bordered"
-                    name="description"
+                    label="Description"
+                    errors={errors.description}
+                    touched={touched.description}
+                    classes="text-red-600"
+                    readOnly={false}
+                    datatip="Input description for the campaign"
                   />
-                  <ErrorMessage name="description" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
+
                   <label className="label flex place-content-start gap-2">
                   <span className="label-text text-base font-semibold">
                     Package Name
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a package for the campaign">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                   <select
   name="package_id"
@@ -1247,7 +1176,7 @@ if (isDataExisting) {
                       Start Date
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a date when the campaign start">
-                    <div  className="badge badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1279,7 +1208,7 @@ if (isDataExisting) {
                       End Date
                     </span>
                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a date when the campaign end">
-                    <div  className="badge badge-lg w-5 h-5">?</div></div>
+                    <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                   </label>
                   <Field
           type="date"
@@ -1424,7 +1353,7 @@ if (isDataExisting) {
                   <span className="label-text text-base font-semibold">
                     Action Name
                   </span><div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a action for the campaign">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="action_id"
@@ -1444,7 +1373,7 @@ if (isDataExisting) {
                   <span className="label-text text-base font-semibold">
                     Reward Name
                   </span><div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward for the campaign">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
   name="reward_id"
@@ -1466,7 +1395,7 @@ if (isDataExisting) {
                     Quantity
                   </span>
                   <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input quantity for reward of the campaign">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="number"

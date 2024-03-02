@@ -448,7 +448,7 @@ const {
                   touched={touched.name}
                   classes="text-red-600"
                   readOnly={false}
-                  datatip="Input name for the action name"
+                  datatip="Input name for the action"
                 />
 
                 <LabeledInput
@@ -461,7 +461,7 @@ const {
                   touched={touched.description}
                   classes="text-red-600"
                   readOnly={false}
-                  datatip="Input name for the action name"
+                  datatip="Input name for the action"
                 />
                  
                 </div>
@@ -516,7 +516,7 @@ const {
                   touched={""}
                   classes="text-red-600"
                   readOnly={false}
-                  datatip="Input name for the action name"
+                  datatip="Input name for the action"
                 />
                 
                 <LabeledInput
@@ -529,7 +529,7 @@ const {
                   touched={""}
                   classes="text-red-600"
                   readOnly={false}
-                  datatip="Input name for the action name"
+                  datatip="Input name for the action"
                 />
                 
               </div>
@@ -581,7 +581,7 @@ const {
       className="input border-none"
       label="Name"
       readOnly={true}
-      datatip="Input name for the action name"
+      datatip="Input name for the action"
     />
     <LabeledInput
       field_name="description"
@@ -590,7 +590,7 @@ const {
       className="input border-none"
       label="Description"
       readOnly={true}
-      datatip="Input name for the action name"
+      datatip="Input name for the action"
     />
                 
               </div>
