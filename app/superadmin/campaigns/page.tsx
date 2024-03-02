@@ -12,6 +12,7 @@ import {
 
 import Image from "next/image";
 import { create } from "domain";
+import LabeledInput from "@/components/LabeledInput";
 type Element = {
   name: string;
   description: string;
@@ -944,6 +945,19 @@ if (isDataExisting) {
             {({ errors, touched , values }) => (
               <Form>
                 <div className="form-control bg-white">
+                  <LabeledInput
+                    field_name="name"
+                    type="text" 
+                    placeholder="Enter Campaign Name"
+                    className="input input-bordered"
+                    label="Name"
+                    errors={errors.name}
+                    touched={touched.name}
+                    classes="text-red-600"
+                    readOnly={false}
+                    datatip="Input name for the campaign"
+                  />
+
                   <label className="label flex place-content-start gap-2">
                     <span className="label-text text-base font-semibold">
                       Name

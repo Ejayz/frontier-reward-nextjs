@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-query";
 import { useToast } from "@/hooks/useToast";
 import Image from "next/image";
+import LabeledInput from "@/components/LabeledInput";
 type Element = {
   id: number;
   name: string;
@@ -436,64 +437,33 @@ const {
             {({ errors, touched }) => (
               <Form>
                 <div className="form-control bg-white">
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold ">
-                      Name
-                    </span>
-                    <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                    <div  className="badge badge-lg w-5 h-5">?</div></div>
-                  </label>
-                  <Field
-                    type="text"
-                    placeholder="Enter Action Name"
-                    className="w-full input input-bordered"
-                    name="name"
-                  />
-                  
-                  <ErrorMessage name="name" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
 
-                  <label className="label flex place-content-start gap-2">
-                    <span className="label-text text-base font-semibold">
-                      Description
-                    </span>
-                     <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                     <div  className="badge badge-lg w-5 h-5">?</div></div>
-                  </label>
+                <LabeledInput
+                  field_name="name"
+                  type="text"
+                  placeholder="Enter Action Name"
+                  className="input input-bordered"
+                  label="Name"
+                  errors={errors.name}
+                  touched={touched.name}
+                  classes="text-red-600"
+                  readOnly={false}
+                  datatip="Input name for the action name"
+                />
+
+                <LabeledInput
+                  field_name="description"
+                  type="text"
+                  placeholder="Enter Action Description"
+                  className="input input-bordered"
+                  label="Description"
+                  errors={errors.description}
+                  touched={touched.description}
+                  classes="text-red-600"
+                  readOnly={false}
+                  datatip="Input name for the action name"
+                />
                  
-                  <Field
-                    type="text"
-                    placeholder="Enter Action Description"
-                    className="input input-bordered"
-                    name="description"
-                  />
-                  <ErrorMessage name="description" className="flex">
-                    {(msg) => (
-                      <div className="text-red-600 flex">
-                        <Image
-                          src="/icons/warning.svg"
-                          width={20}
-                          height={20}
-                          alt="Error Icon"
-                          className="error-icon pr-1"
-                        />
-                        {msg}
-                      </div>
-                    )}
-                  </ErrorMessage>
-                  {/* <ErrorMessage component="span" className="text-red-600" name="description" /> */}
                 </div>
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
@@ -536,35 +506,32 @@ const {
           >
             <Form>
               <div className="form-control bg-white">
-                <label className="label flex place-content-start gap-2">
-                  <span className="label-text text-base font-semibold">
-                    Name
-                  </span>   
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
-                </label>
-             
-                <Field
+                <LabeledInput
+                  field_name="name"
                   type="text"
                   placeholder="Enter Action Name"
                   className="input input-bordered"
-                  name="name"
+                  label="Name"
+                  errors={""}
+                  touched={""}
+                  classes="text-red-600"
+                  readOnly={false}
+                  datatip="Input name for the action name"
                 />
-                {/* ... add other form fields as needed ... */}
-                <label className="label flex place-content-start gap-2">
-                  <span className="label-text text-base font-semibold">
-                    Description
-                  </span><div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the action name">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
-                </label>
                 
-                <Field
+                <LabeledInput
+                  field_name="description"
                   type="text"
                   placeholder="Enter Action Description"
                   className="input input-bordered"
-                  name="description"
+                  label="Description"
+                  errors={""}
+                  touched={""}
+                  classes="text-red-600"
+                  readOnly={false}
+                  datatip="Input name for the action name"
                 />
-                {/* ... add other form fields as needed ... */}
+                
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
                 <div className="absolute bottom-6 right-6">
@@ -606,32 +573,26 @@ const {
       Are you sure you want to delete the following data?
     </span>
   </label>
-  <div className="flex mb-5">
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Name:
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Action Name"
-                  className="input border-none"
-                  name="name"
-                  readOnly />
-                </div>
-                <div className="flex">
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Description:
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Action Name"
-                  className="input border-none text-black"
-                  name="description"
-                  readOnly />
-                </div>
+  
+    <LabeledInput
+      field_name="name"
+      type="text"
+      placeholder="Enter Action Name"
+      className="input border-none"
+      label="Name"
+      readOnly={true}
+      datatip="Input name for the action name"
+    />
+    <LabeledInput
+      field_name="description"
+      type="text"
+      placeholder="Enter Action Description"
+      className="input border-none"
+      label="Description"
+      readOnly={true}
+      datatip="Input name for the action name"
+    />
+                
               </div>
               <div className="m-8 " style={{ marginTop: 60 }}>
                 <div className="absolute bottom-6 right-6">
