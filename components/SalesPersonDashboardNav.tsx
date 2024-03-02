@@ -11,6 +11,7 @@ export default function SalesPersonDashboardNav({
 }: Readonly<{
   child: React.ReactNode;
 }>) {
+  
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
     mutationFn: async () => {

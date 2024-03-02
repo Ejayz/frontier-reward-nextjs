@@ -10,6 +10,7 @@ export default function AdminsDashboardNavBar({
 }: Readonly<{
   child: React.ReactNode;
 }>) {
+  const [data, setData] = useState<any>();
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
     mutationFn: async () => {
@@ -126,6 +127,9 @@ export default function AdminsDashboardNavBar({
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
+                  <li className="text-center font-bold ">
+                  Logged in as {data == undefined ? "" : data.data.name}{" "}
+                </li>
                 <li>
                   <button onClick={()=>{
                     logoutMutate.mutate()
