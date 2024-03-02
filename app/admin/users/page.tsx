@@ -1270,7 +1270,9 @@ export default function Page() {
           <h3 className="font-bold text-lg">Add User</h3>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Type</span>
+              <span className="label-text">Type <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a user type to create">
+                    <div  className="badge border-black badge-lg w-5 h-5">?</div></div></span>
+             
             </label>
             <select
               className="select select-bordered  select-sm w-full max-w-xs"

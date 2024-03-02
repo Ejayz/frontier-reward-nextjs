@@ -560,8 +560,8 @@ const {
                   <span className="label-text text-base font-semibold">
                     Reward Type
                   </span>   
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward name for the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select reward type name for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <select
                   name="reward_type_id"
@@ -588,8 +588,8 @@ const {
                   <span className="label-text text-base font-semibold">
                     Quantity
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the quantity of the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input quantity for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -616,8 +616,8 @@ const {
                   <span className="label-text text-base font-semibold">
                     Name
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the name of the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -644,8 +644,8 @@ const {
                   <span className="label-text text-base font-semibold">
                     Description
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the description of the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -719,8 +719,8 @@ onSubmit={onSubmit}>
                   <span className="label-text text-base font-semibold">
                     Reward Type
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward type for the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a reward type name for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 
                
@@ -749,8 +749,8 @@ onSubmit={onSubmit}>
                   <span className="label-text text-base font-semibold">
                     Quantity
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the quantity of the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="input quantity for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -777,8 +777,8 @@ onSubmit={onSubmit}>
                   <span className="label-text text-base font-semibold">
                     Name
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the name of the reward">
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input name for the reward">
+                  <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
@@ -805,8 +805,8 @@ onSubmit={onSubmit}>
                   <span className="label-text text-base font-semibold">
                     Description
                   </span>
-                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Enter the description of the reward">
-                 <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Input description for the reward">
+                 <div  className="badge border-black badge-lg w-5 h-5">?</div></div>
                 </label>
                 <Field
                   type="text"
