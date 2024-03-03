@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 export default function AdminsDashboardNavBar({
@@ -10,6 +11,7 @@ export default function AdminsDashboardNavBar({
 }: Readonly<{
   child: React.ReactNode;
 }>) {
+  const [data, setData] = useState<any>();
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
     mutationFn: async () => {
@@ -43,7 +45,6 @@ export default function AdminsDashboardNavBar({
                 className=""
                 alt=""
               />
-              
             </a>
           </div>
           <div className="flex-none ">
@@ -126,10 +127,17 @@ export default function AdminsDashboardNavBar({
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
+                <li className="text-center font-bold ">
+                  Logged in as {data == undefined ? "" : data.data.name}{" "}
+                </li>
                 <li>
-                  <button onClick={()=>{
-                    logoutMutate.mutate()
-                  }}>Logout</button>
+                  <button
+                    onClick={() => {
+                      logoutMutate.mutate();
+                    }}
+                  >
+                    Logout
+                  </button>
                 </li>
               </ul>
             </div>
@@ -177,10 +185,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/dashboard"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/dashboard"} className="text-2xl font-bold">
                   <Image
                     src="/icons/dashboard.svg"
                     className="mr-2"
@@ -198,10 +203,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/customer"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/customer"} className="text-2xl font-bold">
                   <Image
                     src="/images/customer-service.png"
                     className="mr-2"
@@ -219,10 +221,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/actions"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/actions"} className="text-2xl font-bold">
                   <Image
                     src="/icons/actions.svg"
                     className="mr-2"
@@ -240,10 +239,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/packages"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/packages"} className="text-2xl font-bold">
                   <Image
                     src="/icons/packages.svg"
                     className="mr-2"
@@ -261,10 +257,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/rewards"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/rewards"} className="text-2xl font-bold">
                   <Image
                     src="/icons/rewards.svg"
                     className="mr-2"
@@ -282,10 +275,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/campaigns"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/campaigns"} className="text-2xl font-bold">
                   <Image
                     src="/icons/campaigns.svg"
                     className="mr-2"
@@ -303,10 +293,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  href={"/admin/redeem"}
-                  className="text-2xl font-bold"
-                >
+                <Link href={"/admin/redeem"} className="text-2xl font-bold">
                   <Image
                     src="/icons/redeem-points.png"
                     className="mr-2"
@@ -363,10 +350,7 @@ export default function AdminsDashboardNavBar({
                     : ""
                 }`}
               >
-                <Link
-                  className="text-2xl font-bold"
-                  href={"/admin/settings"}
-                >
+                <Link className="text-2xl font-bold" href={"/admin/settings"}>
                   <Image
                     src="/icons/settings.png"
                     className="mr-2"
@@ -407,26 +391,23 @@ export default function AdminsDashboardNavBar({
             </Link>
           </li>
           <li
-                className={`${
-                  navbarActive?.includes("/admin/customer")
-                    ? "bg-yellow-400 rounded-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  href={"/admin/customer"}
-                  className="text-2xl font-bold"
-                >
-                  <Image
-                    src="/images/customer-service.png"
-                    className="mr-2"
-                    alt=""
-                    width={30}
-                    height={30}
-                  />
-                  Customer
-                </Link>
-              </li>
+            className={`${
+              navbarActive?.includes("/admin/customer")
+                ? "bg-yellow-400 rounded-md"
+                : ""
+            }`}
+          >
+            <Link href={"/admin/customer"} className="text-2xl font-bold">
+              <Image
+                src="/images/customer-service.png"
+                className="mr-2"
+                alt=""
+                width={30}
+                height={30}
+              />
+              Customer
+            </Link>
+          </li>
           <li
             className={`${
               navbarActive?.includes("/admin/actions")
@@ -524,10 +505,7 @@ export default function AdminsDashboardNavBar({
                 : ""
             }`}
           >
-            <Link
-              href={"/admin/transactions"}
-              className="text-2xl font-bold"
-            >
+            <Link href={"/admin/transactions"} className="text-2xl font-bold">
               <Image
                 src="/icons/transactions.svg"
                 className="mr-2"

@@ -19,13 +19,14 @@ export default function LabeledInput({
       <label className="label flex place-content-start gap-2">
         <span className="label-text">{label}</span>
         <div className="tooltip tooltip-right text-base tooltip-info " data-tip={datatip}>
-                  <div  className="badge badge-lg w-5 h-5">?</div></div>
+                  <div  className="badge border-black badge-lg w-5 h-5 text-black">?</div></div>
       </label>
       <Field
         name={field_name}
         type={type}
         placeholder={placeholder}
         className={className}
+        readOnly={readOnly}
       />
       {errors && touched ? (
         <div className="alert bg-transparent border-none text-error p-[1px] h-auto my-2 ">

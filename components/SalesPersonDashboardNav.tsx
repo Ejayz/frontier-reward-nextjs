@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 export default function SalesPersonDashboardNav({
@@ -10,6 +11,7 @@ export default function SalesPersonDashboardNav({
 }: Readonly<{
   child: React.ReactNode;
 }>) {
+  
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
     mutationFn: async () => {
@@ -28,6 +30,32 @@ export default function SalesPersonDashboardNav({
       }
     },
   });
+  const [data, setData] = useState<any>();
+  // Function to make the ThunderClient request
+  const makeThunderClientRequest = async () => {
+    try {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+
+      let response = await fetch("/api/private/loginrole", {
+        method: "get",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error("Error making ThunderClient request:", error);
+    }
+  };
+
+  // Use the useEffect hook to trigger the ThunderClient request when the page loads
+  useEffect(() => {
+    makeThunderClientRequest();
+  }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
   return (
     <div className="drawer">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -127,6 +155,9 @@ export default function SalesPersonDashboardNav({
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
+                <li className="text-center font-bold ">
+                  Logged in as {data == undefined ? "" : data.data.name}{" "}
+                </li>
                 <li>
                   <button
                     onClick={() => {
@@ -175,7 +206,6 @@ export default function SalesPersonDashboardNav({
             ></label>
             <ul className="menu p-4 w-80 min-h-full bg-white text-base-content">
               {/* Sidebar content here */}
-
               <li
                 className={`${
                   navbarActive?.includes("/salesperson/dashboard")
@@ -624,6 +654,9 @@ export default function SalesPersonDashboardNav({
               Logout
             </button>
           </li>
+          <li className="text-center mb-0 font-bold ">
+                  Logged in as {data == undefined ? "" : data.data.name}{" "}
+                </li>
         </ul>
       </div>
     </div>

@@ -2,9 +2,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 export default function CustomerSideBar() {
   const navbarActive = usePathname();
-  console.log(navbarActive);
+
+  
   return (
     <div className="w-1/4 h-screen bg-white">
       <ul className="menu w-80 h-screen [&_li>*]:rounded-none fixed bg-white text-slate-950">

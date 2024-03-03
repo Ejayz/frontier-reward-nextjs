@@ -38,10 +38,10 @@ export default async function handler(
         .status(404)
         .json({ code: 404, message: "Invalid credentials used." });
     }
-    console.log("user details",results);
+    console.log("user details", results);
     const fName = results[0].first_name;
     const lName = results[0].last_name;
-console.log("User Name:", lName+" "+fName);
+    console.log("User Name:", lName + " " + fName);
     const passwordValid = await bcrypt.compare(password, results[0].password);
     if (!passwordValid) {
       res.status(401).json({ code: 401, message: "Invalid credentials used." });
@@ -58,6 +58,7 @@ console.log("User Name:", lName+" "+fName);
           id: results[0].core_id,
           role: results[0].user_type,
           role_name: results[0].name,
+          name: results[0].first_name + " " + results[0].last_name,
           main_id:
             results[0].employee_id == undefined ||
             results[0].employee_id == null
@@ -81,6 +82,7 @@ console.log("User Name:", lName+" "+fName);
         {
           id: results[0].core_id,
           role: results[0].name,
+          name: results[0].first_name + " " + results[0].last_name,
           role_name: results[0].name,
           main_id:
             results[0].employee_id == undefined ||
@@ -103,6 +105,7 @@ console.log("User Name:", lName+" "+fName);
         {
           id: results[0].core_id,
           role: results[0].user_type,
+          name: results[0].first_name + " " + results[0].last_name,
           role_name: results[0].name,
           main_id:
             results[0].employee_id == undefined ||
@@ -128,6 +131,7 @@ console.log("User Name:", lName+" "+fName);
         token: {
           id: results[0].id,
           role: results[0].user_type,
+          name: results[0].first_name + " " + results[0].last_name,
           role_name: results[0].name,
           phone_number: results[0].phone_number,
           email: results[0].email,
@@ -140,10 +144,7 @@ console.log("User Name:", lName+" "+fName);
           is_email_verified: results[0].email_verified_at ? true : false,
           password_change_at:
             results[0].password_change_at == null ? false : true,
-
-            
         },
-      
       });
   } catch (error: any) {
     res.status(500).json({ code: 500, message: error.message });

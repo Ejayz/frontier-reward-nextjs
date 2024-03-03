@@ -27,7 +27,7 @@ export default async function handler(
     if (keyword != "") {
       [rows] = <RowDataPacket[]>(
         await connection.query(
-          `SELECT  *,redeem_transaction.id as CoreID,redeem.name as redeem_name,redeem.name as redeem_name,CONCAT(customer_info.first_name ," ",customer_info.middle_name," " , customer_info.last_name) AS customer_name , redeem_transaction.status as Status FROM redeem_transaction  LEFT JOIN redeem ON redeem.id=redeem_transaction.redeem_id LEFT JOIN reward ON reward.id=redeem.reward_id LEFT JOIN customer_info ON customer_info.id = redeem_transaction.customer_id WHERE ( MATCH(redeem_transaction.transaction_no) AGAINST (? IN BOOLEAN MODE)  OR  MATCH(redeem.name) AGAINST (? IN BOOLEAN MODE) OR  MATCH(customer_info.first_name) AGAINST (? IN BOOLEAN MODE) OR MATCH(customer_info.middle_name) AGAINST (? IN BOOLEAN MODE) OR MATCH(customer_info.last_name) AGAINST (? IN BOOLEAN MODE) )  AND  redeem_transaction.is_exist=1 LIMIT ? , ?`,
+          `SELECT  *,redeem_transaction.id as CoreID,redeem.name as redeem_name,redeem.name as redeem_name,CONCAT(customer_info.first_name ," ",customer_info.middle_name," " , customer_info.last_name) AS customer_name , redeem_transaction.status as Status FROM redeem_transaction  LEFT JOIN redeem ON redeem.id=redeem_transaction.redeem_id LEFT JOIN reward ON reward.id=redeem.reward_id LEFT JOIN customer_info ON customer_info.id = redeem_transaction.customer_id WHERE ( MATCH(redeem_transaction.transaction_no) AGAINST (? IN BOOLEAN MODE)  OR  MATCH(redeem.name) AGAINST (? IN BOOLEAN MODE) OR  MATCH(customer_info.first_name) AGAINST (? IN BOOLEAN MODE) OR MATCH(customer_info.middle_name) AGAINST (? IN BOOLEAN MODE) OR MATCH(customer_info.last_name) AGAINST (? IN BOOLEAN MODE) )  AND  redeem_transaction.is_exist=1 ORDER BY redeem_transaction.created_at LIMIT ? , ?`,
           [
             formattedKeyword,
             formattedKeyword,
@@ -42,7 +42,7 @@ export default async function handler(
     } else {
       [rows] = <RowDataPacket[]>(
         await connection.query(
-          `SELECT  *,redeem_transaction.id as CoreID,redeem.name as redeem_name,redeem.name as redeem_name,CONCAT(customer_info.first_name ," ",customer_info.middle_name," " , customer_info.last_name) AS customer_name , redeem_transaction.status as Status FROM redeem_transaction  LEFT JOIN redeem ON redeem.id=redeem_transaction.redeem_id LEFT JOIN reward ON reward.id=redeem.reward_id LEFT JOIN customer_info ON customer_info.id = redeem_transaction.customer_id  WHERE redeem_transaction.is_exist=1 LIMIT ? , ?`,
+          `SELECT  *,redeem_transaction.id as CoreID,redeem.name as redeem_name,redeem.name as redeem_name,CONCAT(customer_info.first_name ," ",customer_info.middle_name," " , customer_info.last_name) AS customer_name , redeem_transaction.status as Status FROM redeem_transaction  LEFT JOIN redeem ON redeem.id=redeem_transaction.redeem_id LEFT JOIN reward ON reward.id=redeem.reward_id LEFT JOIN customer_info ON customer_info.id = redeem_transaction.customer_id  WHERE redeem_transaction.is_exist=1 ORDER BY redeem_transaction.created_at DESC LIMIT ? , ?`,
           [offset, limit]
         )
       );

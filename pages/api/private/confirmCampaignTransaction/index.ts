@@ -26,6 +26,13 @@ export default async function handler(
         .status(401)
         .json({ code: 401, message: "User is not authenticated" });
     }
+    connection.beginTransaction();
+    
+
+
+
+
+
     const [UpdateCampaignTransaction] = <RowDataPacket[]>(
       await connection.query(
         `UPDATE campaign_transaction SET status="confirmed",employee_id=? WHERE id=? and transaction_no=?`,
