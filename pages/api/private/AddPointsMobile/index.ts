@@ -16,10 +16,11 @@ export default async function handler(
   if (req.method != "POST") {
     return res.status(405).json({ code: 405, message: "Method not allowed" });
   }
-  const { points, multiplier, total_points, customer_id } = req.body;
+  const { points, multiplier, customer_id } = req.body;
+  console.log(points, multiplier, customer_id);
   const auth = new Cookies(req, res).get("auth") || "";
   const connection = await instance.getConnection();
-
+  const total_points = points * multiplier + points;
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     const decoded_token = jwt.decode(auth);
@@ -78,9 +79,10 @@ export default async function handler(
     );
     if (updatePoints.affectedRows > 0) {
       connection.commit();
-      return res
-        .status(200)
-        .json({ code: 200, message: "Points added to customer account." });
+      return res.status(200).json({
+        code: 200,
+        message: `A total of ${total_points} Frontier was added to customer account.`,
+      });
     } else {
       connection.rollback();
       return res
