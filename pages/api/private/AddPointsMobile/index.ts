@@ -20,7 +20,8 @@ export default async function handler(
   console.log(points, multiplier, customer_id);
   const auth = new Cookies(req, res).get("auth") || "";
   const connection = await instance.getConnection();
-  const total_points = points * multiplier + points;
+  const total_points =
+    parseFloat(points) * parseFloat(multiplier) + parseFloat(points);
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     const decoded_token = jwt.decode(auth);
@@ -45,7 +46,7 @@ export default async function handler(
     );
 
     const convertedCustomerPoints = parseFloat(getCustomerPoints[0].points);
-    const convertedTotalPoints = parseFloat(total_points);
+    const convertedTotalPoints = total_points;
     const customer_updated_points =
       convertedCustomerPoints + convertedTotalPoints;
 
