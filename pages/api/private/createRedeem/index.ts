@@ -38,7 +38,6 @@ export default async function handler(
         .json({ code: 401, message: "Invalid token format" });
     }
     const { user_email, user_phonenumber } = req.body;
-
     const [usersData] = <RowDataPacket[]>(await connection.query("SELECT * FROM users WHERE is_exist=? && user_type=? && email_verified_at IS NOT NULL && code IS NOT NULL", [1, 4]));
     if (usersData.length === 0) {
       console.log("No users found with is_exist = 1");
@@ -89,8 +88,7 @@ export default async function handler(
           });
       });
     }
-
-    const { name, description, cost, package_id, reward_id } = req.body;
+    const { name, description, cost, package_id, reward_id, campaign_id} = req.body;
 
     const [rows] = <RowDataPacket[]>(
       await connection.query(
@@ -101,11 +99,38 @@ export default async function handler(
     if (rows.affectedRows === 0) {
       return res.status(400).json({ code: 400, message: "Bad Request" });
     }
+    let redeem_id = rows.insertId;
    
+    if (rows.affectedRows === 0) {
+      return res.status(400).json({ code: 400, message: "Bad Request" });
+    } 
+    const [rowsnotif] = <RowDataPacket[]>(
+      await connection.query(
+        "INSERT INTO notification (redeem_id,is_exist,created_at) VALUES (?,?,?)  ",
+        [redeem_id,1, new Date()]
+      )
+    );
+    if (rowsnotif.affectedRows === 0) {
+      return res.status(400).json({ code: 400, message: "Bad Request" });
+    }
+    let notification_id = rowsnotif.insertId;
+    usersData.forEach(async (user: any) => {
+      console.log("User id:", user.id);
+      const [rowsnotif] = <RowDataPacket[]>(
+        await connection.query(
+          "INSERT INTO notification_records (customer_id,notification_id) VALUES (?,?)",
+          [user.id,notification_id]
+        )
+      );
+      if (rowsnotif.affectedRows === 0) {
+        return res.status(400).json({ code: 400, message: "Bad Request" });
+      }
+    });
+
     return res
       .status(200)
       .json({ code: 200, message: "New redeemable added.",});
-      
+
   } catch (error: any) {
     console.log(error);
     if (error.message === "jwt expired") {

@@ -11,5 +11,7 @@ export default async function hander(
   }
   const auth = new Cookies(req, res).get("auth") || "";
   const decoded = jwt.decode(auth);
+  //return console.log("decodedds",decoded);
   return res.status(200).json({ message: "Success", data: decoded });
+  
 }

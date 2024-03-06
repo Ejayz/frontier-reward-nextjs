@@ -1,16 +1,19 @@
 "use client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
+import { useToast } from "@/hooks/useToast";
 export default function SalesPersonDashboardNav({
   child,
 }: Readonly<{
   child: React.ReactNode;
 }>) {
+  
+  const { showToast } = useToast();
+  const [data, setData] = useState<any>();
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
     mutationFn: async () => {
@@ -29,7 +32,70 @@ export default function SalesPersonDashboardNav({
       }
     },
   });
-  const [data, setData] = useState<any>();
+  
+
+  const {
+    data: DataNotifRecordPagination,
+    isFetching: isFetchingNotifRecordPagination,
+    isLoading: isLoadingNotifRecordPagination,
+    refetch: RefetchNotifRecordPagination,
+  } = useQuery({
+    queryKey: ["getNotificationRecordPagination"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getNotificationRecord`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+  const {
+    data: DataNotifPagination,
+    isFetching: isFetchingNotifPagination,
+    isLoading: isLoadingNotifPagination,
+    refetch: RefetchNotifPagination,
+  } = useQuery({
+    queryKey: ["getNotificationPagination"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getNotification`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   // Function to make the ThunderClient request
   const makeThunderClientRequest = async () => {
     try {
@@ -44,6 +110,7 @@ export default function SalesPersonDashboardNav({
       });
 
       let data = await response.json();
+      console.log("Response data:", data);
       setData(data);
     } catch (error) {
       console.error("Error making ThunderClient request:", error);
@@ -106,27 +173,58 @@ export default function SalesPersonDashboardNav({
                 className="mt-2 z-[1] card card-compact   h-64 dropdown-content w-96 bg-white text-black shadow-2xl shadow-black"
               >
                 <div className="card-body h-64 overflow-y-auto">
-                  <Link
-                    href={""}
-                    className="w-full h-auto px-2 bg-base-200 shadow-xl rounded-md"
-                  >
-                    {/* Message container */}
-                    <div className="w-full">
-                      <span className="text-base p-2 ">
-                        Sample Campaign was added . Check it out !
-                      </span>
-                    </div>
-                    {/* Time and date and mins passed by container */}
-                    <div className="py-2">
-                      <span className="text-sm font-bold font-mono">
-                        Aug 12, 2023 12:15PM
-                      </span>
-                      |
-                      <span className="text-sm font-bold font-mono">
-                        10m ago
-                      </span>
-                    </div>
-                  </Link>
+                {isFetchingNotifRecordPagination ? (
+  <div>Loading...</div>
+) : (
+  <>
+    {DataNotifRecordPagination?.data?.map((element: any) => {
+      if (element.customer_id === data.data.id) {
+        const notifID = DataNotifPagination?.data.find(
+          (item: any) => item.id === parseInt(element.notification_id)
+        );
+
+        const NotifTypeRedeem = notifID ? notifID?.redeem_id : null;
+        const NotifTypeCampaign = notifID ? notifID?.campaign_id : null;
+        const NotifCreatedAt = notifID ? notifID?.created_at : null;
+        const created_date = new Date(NotifCreatedAt);
+
+        return (
+          <Link
+            key={element.id}
+            href={""}
+            className="w-full h-auto px-2 bg-base-200 shadow-xl rounded-md"
+          >
+            <div className="w-full">
+              <span className="text-base p-2">
+                {NotifTypeRedeem !== null
+                  ? "New Redeem was added. Check it out!"
+                  : NotifTypeCampaign !== null
+                  ? "New Campaign was added. Check it out!"
+                  : null}
+              </span>
+            </div>
+            <div className="py-2">
+              <span className="text-sm font-bold font-mono">
+                {created_date.toDateString()}
+              </span>
+            </div>
+            <div className="py-2">
+              <span className="text-sm font-bold font-mono">
+                {created_date.toLocaleTimeString()}
+              </span>
+            </div>
+          </Link>
+        );
+      }
+      return null;
+    })}
+  </>
+)}
+
+
+
+
+                  {/*  */}
                 </div>
                 <div className="card-actions">
                   <button className="btn p-4 btn-primary btn-block">
@@ -153,8 +251,8 @@ export default function SalesPersonDashboardNav({
               <ul
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-              ><li className="text-center font-bold ">
-              Logged in as Customer
+              > <li className="text-center font-bold">
+              Logged in as {data ? data.data.role_name : ""}
             </li>
                 <li>
                   <button

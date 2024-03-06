@@ -41,7 +41,10 @@ export default async function handler(
     console.log("user details", results);
     const fName = results[0].first_name;
     const lName = results[0].last_name;
+    const customer_id = results[0].customer_id;
     console.log("User Name:", lName + " " + fName);
+console.log("customer_id:", results[0].customer_id);
+console.log("core_id:", results[0].core_id);
     const passwordValid = await bcrypt.compare(password, results[0].password);
     if (!passwordValid) {
       res.status(401).json({ code: 401, message: "Invalid credentials used." });
@@ -55,6 +58,7 @@ export default async function handler(
     ) {
       token = jwt.sign(
         {
+          customer_id:results[0].customer_id,
           id: results[0].core_id,
           role: results[0].user_type,
           role_name: results[0].name,
