@@ -122,6 +122,36 @@ export default function SalesPersonDashboardNav({
     makeThunderClientRequest();
   }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
 
+  let notification_id = 0;
+  const createActionMutation = useMutation({
+    mutationFn: async (values: any) => {
+      try {
+        let headersList = {
+          Accept: "*/*",
+          "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+          "Content-Type": "application/json",
+        };
+
+        let response = await fetch(`/api/private/createNotification/`, {
+          method: "POST",
+          body: values,
+          headers: headersList,
+        });
+
+        return response.json();
+      } catch (error) {
+        console.error("Error creating notification:", error);
+        throw error;
+      }
+    },
+    onSuccess: async (data: any) => {
+      // ... (other success logic)
+    },
+    onError: async (error: any) => {
+      // ... (other error handling logic)
+    },
+  });
+
   return (
     <div className="drawer">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -170,67 +200,69 @@ export default function SalesPersonDashboardNav({
               </div>
               <div
                 tabIndex={0}
-                className="mt-2 z-[1] card card-compact   h-64 dropdown-content w-96 bg-white text-black shadow-2xl shadow-black"
+                className="mt-2 z-[1] card card-compact h-auto dropdown-content w-96 bg-white text-black shadow-md shadow-black"
               >
-                <div className="card-body h-64 overflow-y-auto">
-                {isFetchingNotifRecordPagination ? (
-  <div>Loading...</div>
-) : (
-  <>
-    {DataNotifRecordPagination?.data?.map((element: any) => {
-      if (element.customer_id === data.data.id) {
-        const notifID = DataNotifPagination?.data.find(
-          (item: any) => item.id === parseInt(element.notification_id)
-        );
-
-        const NotifTypeRedeem = notifID ? notifID?.redeem_id : null;
-        const NotifTypeCampaign = notifID ? notifID?.campaign_id : null;
-        const NotifCreatedAt = notifID ? notifID?.created_at : null;
+<div className="card-body h-64 overflow-y-auto">
+  {isFetchingNotifRecordPagination ? (
+    <div>Loading...</div>
+  ) : (
+    <>
+      {DataNotifPagination?.data?.map((element: any) => {
+        const NotifCreatedAt = element.created_at;
         const created_date = new Date(NotifCreatedAt);
+        const notifrecordID = DataNotifRecordPagination.data.find(
+          (item: any) => item.notification_id === element.id
+        );
+        const handleClick = () => {
+          // Function to handle click and print element.id
+          console.log(`Clicked on element with id: ${element.id}`);
+          notification_id = element.id;
+          const values = JSON.stringify({
+            notification_id: notification_id,
+          });
+      
+          createActionMutation.mutate(values);
+        };
+
+        // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
+        const isNewNotification = notifrecordID === undefined;
 
         return (
+
           <Link
             key={element.id}
             href={""}
-            className="w-full h-auto px-2 bg-base-200 shadow-xl rounded-md"
+            className={`w-full h-auto px-2 bg-base-200 rounded-md block shadow-md shadow-black ${isNewNotification ? "relative" : ""}`} 
+            onClick={handleClick}
           >
-            <div className="w-full">
-              <span className="text-base p-2">
-                {NotifTypeRedeem !== null
-                  ? "New Redeem was added. Check it out!"
-                  : NotifTypeCampaign !== null
-                  ? "New Campaign was added. Check it out!"
-                  : null}
-              </span>
-            </div>
-            <div className="py-2">
+            {isNewNotification && (
+              <div className="badge badge-primary badge-sm absolute top-0 right-0">
+                New!
+              </div>
+            )}
+            <span className="text-base py-2">
+              {element.redeem_id !== null
+                ? "New Redeem was added. Check it out!"
+                : element.campaign_id !== null
+                ? "New Campaign was added. Check it out!"
+                : null}
+            </span>
+            <div className="py-2 flex">
               <span className="text-sm font-bold font-mono">
                 {created_date.toDateString()}
               </span>
-            </div>
-            <div className="py-2">
-              <span className="text-sm font-bold font-mono">
+              <span className="ml-4 text-sm font-bold font-mono">
                 {created_date.toLocaleTimeString()}
               </span>
             </div>
           </Link>
         );
-      }
-      return null;
-    })}
-  </>
-)}
+      })}
+    </>
+  )}
+</div>
 
-
-
-
-                  {/*  */}
-                </div>
-                <div className="card-actions">
-                  <button className="btn p-4 btn-primary btn-block">
-                    View Notifications
-                  </button>
-                </div>
+               
               </div>
             </div>
             <div className="dropdown hidden lg:block dropdown-end">

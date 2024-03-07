@@ -20,16 +20,15 @@ export default async function handler(
   }
   const connection=await instance.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
-
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     let current_user = 0;
     if (typeof verify === "string") {
       // Handle the case where verify is a string (no access to id)
       res.status(401).json({ code: 401, message: "Invalid token" });
-    } else if (verify?.main_id) {
+    } else if (verify?.id) {
       // Access the id property only if it exists in the JwtPayload
-      current_user = verify.main_id;
+      current_user = verify.id;
     } else {
       res.status(401).json({ code: 401, message: "Invalid token format" });
     }
