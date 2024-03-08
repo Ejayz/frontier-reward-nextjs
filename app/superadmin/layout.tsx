@@ -5,7 +5,6 @@ import cookie_processor from "@/hooks/useCookieProcessor";
 import { useRouter } from "next/navigation";
 import "react";
 import AdminSideBar from "@/components/AdminSideBar";
-import AdminNavBar from "@/components/AdminNavBar";
 import Loading from "./loading";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
