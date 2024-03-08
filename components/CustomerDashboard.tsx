@@ -137,13 +137,13 @@ export default function SalesPersonDashboardNav({
           body: values,
           headers: headersList,
         });
-
+        RefetchNotifPagination();
         return response.json();
       } catch (error) {
         console.error("Error creating notification:", error);
         throw error;
       }
-    },
+    },  
     onSuccess: async (data: any) => {
       // ... (other success logic)
     },
@@ -203,14 +203,14 @@ export default function SalesPersonDashboardNav({
                 className="mt-2 z-[1] card card-compact h-auto dropdown-content w-96 bg-white text-black shadow-md shadow-black"
               >
 <div className="card-body h-64 overflow-y-auto">
-  {isFetchingNotifRecordPagination ? (
+  {isFetchingNotifPagination ? (
     <div>Loading...</div>
   ) : (
     <>
       {DataNotifPagination?.data?.map((element: any) => {
         const NotifCreatedAt = element.created_at;
         const created_date = new Date(NotifCreatedAt);
-        const notifrecordID = DataNotifRecordPagination.data.find(
+        const notifrecordID = DataNotifRecordPagination?.data?.find(
           (item: any) => item.notification_id === element.id
         );
         const handleClick = () => {
@@ -220,8 +220,10 @@ export default function SalesPersonDashboardNav({
           const values = JSON.stringify({
             notification_id: notification_id,
           });
-      
           createActionMutation.mutate(values);
+          useEffect(() => {
+            RefetchNotifPagination();
+          },);
         };
 
         // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
