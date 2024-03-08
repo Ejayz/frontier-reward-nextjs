@@ -76,21 +76,6 @@ export default async function handler(
         .json({ code: 400, message: "Email already exist" });
     }
 
-    for (const vehicle of vehicles) {
-      const [getVehicle, fields] = <RowDataPacket[]>(
-        await connection.query(
-          "SELECT * FROM customer_vehicle_info WHERE vin_id = ? and is_exist=1",
-          [vehicle.vin_no]
-        )
-      );
-      if (getVehicle.length > 0) {
-        connection.rollback();
-        return res
-          .status(400)
-          .json({ code: "400", message: "Vehicle already exist" });
-      }
-    }
-
     const [results, insertUser] = <RowDataPacket[]>(
       await connection.query(
         `INSERT INTO users (email, password, phone_number, user_type, is_exist) VALUES (?,?,?,?,?)`,
@@ -148,15 +133,8 @@ export default async function handler(
       const [insertCustomerVehicleInfoResult, insertCustomerVehicleInfoFields] =
         <RowDataPacket[]>(
           await connection.query(
-            `INSERT INTO customer_vehicle_info (customer_info_id, color, trim, year, vin_id,model) VALUES (?,?,?,?,?,?)`,
-            [
-              insertCustomerInfoResult.insertId,
-              vehicle.color,
-              vehicle.trim,
-              vehicle.year,
-              vehicle.vin_no,
-              vehicle.model,
-            ]
+            `UPDATE customer_vehicle_info SET customer_info_id = ? where vin_id = ? and is_exist=1`,
+            [insertCustomerInfoResult.insertId, vehicle.vin_no]
           )
         );
       if (insertCustomerVehicleInfoResult.affectedRows == 0) {

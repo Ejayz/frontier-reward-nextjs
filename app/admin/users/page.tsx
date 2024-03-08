@@ -1270,9 +1270,15 @@ export default function Page() {
           <h3 className="font-bold text-lg">Add User</h3>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Type <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a user type to create">
-                    <div  className="badge border-black badge-lg w-5 h-5">?</div></div></span>
-             
+              <span className="label-text">
+                Type{" "}
+                <div
+                  className="tooltip tooltip-right text-base tooltip-info "
+                  data-tip="Select a user type to create"
+                >
+                  <div className="badge border-black badge-lg w-5 h-5">?</div>
+                </div>
+              </span>
             </label>
             <select
               className="select select-bordered  select-sm w-full max-w-xs"
@@ -1526,51 +1532,6 @@ export default function Page() {
                           label="Vehicle VIN No"
                           datatip="Input the vehicle VIN number for the vehicle of the account."
                         />
-
-                        <LabeledInput
-                          field_name="year"
-                          type="number"
-                          placeholder="Enter Vehicle Year"
-                          className="input input-bordered appearance-none input-sm w-full max-w-xs"
-                          errors={errors.year}
-                          touched={touched.year}
-                          classes="text-base"
-                          label="Vehicle Year"
-                          datatip="Input the vehicle year for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="model"
-                          type="text"
-                          placeholder="Enter Vehicle Model"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.model}
-                          touched={touched.model}
-                          classes="text-base"
-                          label="Vehicle Model"
-                          datatip="Input the vehicle model for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="trim"
-                          type="text"
-                          placeholder="Enter Vehicle Trim"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.trim}
-                          touched={touched.trim}
-                          classes="text-base"
-                          label="Vehicle Trim"
-                          datatip="Input the vehicle trim for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="color"
-                          type="text"
-                          placeholder="Enter Vehicle Color"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.color}
-                          touched={touched.color}
-                          classes="text-base"
-                          label="Vehicle Color"
-                          datatip="Input the vehicle color for the vehicle of the account."
-                        />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
                       <button className="btn btn-primary mt-4">
@@ -1785,7 +1746,6 @@ export default function Page() {
                           setFieldValue={setFieldValue}
                           setPhoneInfo={setAdminPhone}
                           costumerValidation={customerValidation}
-                          
                         />
                       </div>
                       <div className="modal-action">
