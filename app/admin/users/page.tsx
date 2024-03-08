@@ -109,11 +109,14 @@ export default function Page() {
       );
 
       let data = await response.json();
-      console.log("Employee", data);
       if (!response.ok) {
         toast.error(data.message);
       }
-      return data;
+      if (data.code == 200) {
+        return data;
+      } else if (data.code == 401) {
+        nav.push("/");
+      }
     },
     refetchOnWindowFocus: true,
     staleTime: 0,
@@ -151,11 +154,15 @@ export default function Page() {
       if (!response.ok) {
         toast.error(data.message);
       }
-      data.data.forEach((datas: any) => {
-        datas.propsId = Math.pow(Math.random(), 2);
-      });
+      if (data.code == 200) {
+        data.data.forEach((datas: any) => {
+          datas.propsId = Math.pow(Math.random(), 2);
+        });
 
-      return data;
+        return data;
+      } else if (data.code == 401) {
+        nav.push("/");
+      }
     },
     refetchOnWindowFocus: false,
     staleTime: 0,
@@ -938,6 +945,7 @@ export default function Page() {
       text: "Zimbabwe",
     },
   ];
+
   useEffect(() => {
     customerRefetch();
   }, [searchForm.current?.values.keyword]);
@@ -996,7 +1004,11 @@ export default function Page() {
       if (!response.ok) {
         toast.error(data.message);
       }
-      return data;
+      if (data.code == 200) {
+        return data;
+      } else if (data.code == 401) {
+        nav.push("/");
+      }
     },
     refetchOnWindowFocus: false,
     staleTime: 0,
@@ -1025,15 +1037,8 @@ export default function Page() {
     zip_code: yup.string().required("Zip/Postal Code is required"),
     country: yup.string().required("Country is required"),
   });
+
   const vehicleSchema = yup.object().shape({
-    year: yup
-      .number()
-      .min(1981, "Year must be 1981 or later")
-      .max(new Date().getFullYear(), "Year cannot be in the future")
-      .required("Year is required"),
-    model: yup.string().required("Model is required"),
-    trim: yup.string(),
-    color: yup.string().required("Color is required"),
     vin_no: yup
       .string()
       .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid VIN number")
@@ -1156,6 +1161,51 @@ export default function Page() {
           status: "success",
           message: data.message,
         });
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
+  const [VehicleInformation, setVehicleInformation] = useState<vehicleType[]>(
+    []
+  );
+  const getVehicle = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch("/api/private/getVehicleInformation", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        console.log(data.data);
+        const formatted_values = {
+          table_uuid: Math.random().toString(36).substring(7),
+          year: data.data[0].year,
+          model: data.data[0].model,
+          trim: data.data[0].trim,
+          color: data.data[0].color,
+          vin_no: data.data[0].vin_id,
+        };
+        setVehicleList((oldList) => [...oldList, formatted_values]);
+        VehicleDetail.current?.resetForm();
       } else {
         showToast({
           status: "error",
@@ -1489,36 +1539,12 @@ export default function Page() {
                 <Formik
                   innerRef={VehicleDetail}
                   initialValues={{
-                    year: "",
-                    model: "",
-                    trim: "",
-                    color: "",
                     vin_no: "",
                   }}
                   validationSchema={vehicleSchema}
-                  onSubmit={async (values: any) => {
-                    if (
-                      vehiclelist.find((item) => item.vin_no === values.vin_no)
-                    ) {
-                      toast.error("Vehicle ID already exists in the list");
-                    } else {
-                      const formatted_values = {
-                        table_uuid: Math.random().toString(36).substring(7),
-                        year: values.year,
-                        model: values.model,
-                        trim: values.trim,
-                        color: values.color,
-                        vin_no: values.vin_no,
-                      };
-                      setVehicleList((oldList) => [
-                        ...oldList,
-                        formatted_values,
-                      ]);
-                      VehicleDetail.current?.resetForm();
-                    }
-                  }}
+                  onSubmit={async (values: any) => {}}
                 >
-                  {({ errors, touched }) => (
+                  {({ errors, touched, values }) => (
                     <Form>
                       <div className="grid grid-cols-3 gap-x-2">
                         <LabeledInput
@@ -1534,51 +1560,66 @@ export default function Page() {
                         />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
-                      <button className="btn btn-primary mt-4">
+                      <button
+                        type={"button"}
+                        onClick={async (e: any) => {
+                          if (
+                            vehiclelist.find(
+                              (item) => item.vin_no === values.vin_no
+                            )
+                          ) {
+                            toast.error(
+                              "Vehicle ID already exists in the list"
+                            );
+                          } else {
+                            await getVehicle.mutate(values);
+                          }
+                        }}
+                        className="btn btn-primary mt-4"
+                      >
                         Add Vehicle
                       </button>
-
-                      <table className="table mt-4">
-                        <thead>
-                          <tr>
-                            <th>VIN No</th>
-                            <th>Year</th>
-                            <th>Model</th>
-                            <th>Trim</th>
-                            <th>Color</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {vehiclelist.map((vehicle) => (
-                            <tr key={vehicle.table_uuid}>
-                              <td>{vehicle.vin_no}</td>
-                              <td>{vehicle.year}</td>
-                              <td>{vehicle.model}</td>
-                              <td>{vehicle.trim}</td>
-                              <td>{vehicle.color}</td>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-error"
-                                  onClick={() => {
-                                    setDataToRemove({
-                                      id: vehicle.vin_no,
-                                      table_uuid: vehicle.table_uuid,
-                                    });
-                                    confirmModal.current?.showModal();
-                                  }}
-                                >
-                                  Remove
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
                     </Form>
                   )}
                 </Formik>
+                <table className="table mt-4">
+                  <thead>
+                    <tr>
+                      <th>VIN No</th>
+                      <th>Year</th>
+                      <th>Model</th>
+                      <th>Trim</th>
+                      <th>Color</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vehiclelist.map((vehicle) => (
+                      <tr key={vehicle.table_uuid}>
+                        <td>{vehicle.vin_no}</td>
+                        <td>{vehicle.year}</td>
+                        <td>{vehicle.model}</td>
+                        <td>{vehicle.trim}</td>
+                        <td>{vehicle.color == null ? "N/A" : vehicle.color}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-error"
+                            onClick={() => {
+                              setDataToRemove({
+                                id: vehicle.vin_no,
+                                table_uuid: vehicle.table_uuid,
+                              });
+                              confirmModal.current?.showModal();
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <div className="modal-action">
                   <button
                     onClick={async () => {
@@ -1669,10 +1710,6 @@ export default function Page() {
                             {
                               value: "3",
                               text: "Sales",
-                            },
-                            {
-                              value: "2",
-                              text: "Admin",
                             },
                           ]}
                           setFieldValue={setFieldValue}
@@ -1932,7 +1969,7 @@ export default function Page() {
                                 <button
                                   onClick={() => {
                                     nav.push(
-                                      `/superadmin/users/updatecustomercar/?user_id=${customer.customer_id}`
+                                      `/admin/users/updatecustomercar/?user_id=${customer.customer_id}`
                                     );
                                   }}
                                   type="button"
@@ -1949,7 +1986,7 @@ export default function Page() {
                                 <button
                                   onClick={() => {
                                     nav.push(
-                                      `/superadmin/users/updatecustomeraccount/?user_id=${customer.customer_id}`
+                                      `/admin/users/updatecustomeraccount/?user_id=${customer.customer_id}`
                                     );
                                   }}
                                   type="button"
@@ -2012,7 +2049,7 @@ export default function Page() {
                       <button
                         type="button"
                         onClick={() => {
-                          if (customerData.data.length >= 10) {
+                          if (customerData.data.length >= 5) {
                             const newPage = page + 1;
                             setPage(newPage);
                           } else {
@@ -2070,11 +2107,14 @@ export default function Page() {
                                 <button
                                   onClick={() => {
                                     nav.push(
-                                      `/superadmin/users/updateemployee/?user_id=${employee.CoreId}`
+                                      `/admin/users/updateemployee/?user_id=${employee.CoreId}`
                                     );
                                   }}
                                   type="button"
                                   className="btn btn-info mr-5"
+                                  disabled={
+                                    employee.name == "Admin" ? true : false
+                                  }
                                 >
                                   <Image
                                     src="/images/update-user.png"
