@@ -11,7 +11,6 @@ export default function SalesPersonDashboardNav({
 }: Readonly<{
   child: React.ReactNode;
 }>) {
-  
   const { showToast } = useToast();
   const [data, setData] = useState<any>();
   const navbarActive = usePathname();
@@ -32,7 +31,6 @@ export default function SalesPersonDashboardNav({
       }
     },
   });
-  
 
   const {
     data: DataNotifRecordPagination,
@@ -143,7 +141,7 @@ export default function SalesPersonDashboardNav({
         console.error("Error creating notification:", error);
         throw error;
       }
-    },  
+    },
     onSuccess: async (data: any) => {
       // ... (other success logic)
     },
@@ -202,69 +200,70 @@ export default function SalesPersonDashboardNav({
                 tabIndex={0}
                 className="mt-2 z-[1] card card-compact h-auto dropdown-content w-96 bg-white text-black shadow-md shadow-black"
               >
-<div className="card-body h-64 overflow-y-auto">
-  {isFetchingNotifPagination ? (
-    <div>Loading...</div>
-  ) : (
-    <>
-      {DataNotifPagination?.data?.map((element: any) => {
-        const NotifCreatedAt = element.created_at;
-        const created_date = new Date(NotifCreatedAt);
-        const notifrecordID = DataNotifRecordPagination?.data?.find(
-          (item: any) => item.notification_id === element.id
-        );
-        const handleClick = () => {
-          // Function to handle click and print element.id
-          console.log(`Clicked on element with id: ${element.id}`);
-          notification_id = element.id;
-          const values = JSON.stringify({
-            notification_id: notification_id,
-          });
-          createActionMutation.mutate(values);
-          useEffect(() => {
-            RefetchNotifPagination();
-          },);
-        };
+                <div className="card-body h-64 overflow-y-auto">
+                  {isFetchingNotifPagination ? (
+                    <div>Loading...</div>
+                  ) : (
+                    <>
+                      {DataNotifPagination?.data?.map((element: any) => {
+                        const NotifCreatedAt = element.created_at;
+                        const created_date = new Date(NotifCreatedAt);
+                        const notifrecordID =
+                          DataNotifRecordPagination?.data?.find(
+                            (item: any) => item.notification_id === element.id
+                          );
+                        const handleClick = () => {
+                          // Function to handle click and print element.id
+                          console.log(
+                            `Clicked on element with id: ${element.id}`
+                          );
+                          notification_id = element.id;
+                          const values = JSON.stringify({
+                            notification_id: notification_id,
+                          });
+                          createActionMutation.mutate(values);
 
-        // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
-        const isNewNotification = notifrecordID === undefined;
+                          RefetchNotifPagination();
+                        };
 
-        return (
+                        // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
+                        const isNewNotification = notifrecordID === undefined;
 
-          <Link
-            key={element.id}
-            href={""}
-            className={`w-full h-auto px-2 bg-base-200 rounded-md block shadow-md shadow-black ${isNewNotification ? "relative" : ""}`} 
-            onClick={handleClick}
-          >
-            {isNewNotification && (
-              <div className="badge badge-primary badge-sm absolute top-0 right-0">
-                New!
-              </div>
-            )}
-            <span className="text-base py-2">
-              {element.redeem_id !== null
-                ? "New Redeem was added. Check it out!"
-                : element.campaign_id !== null
-                ? "New Campaign was added. Check it out!"
-                : null}
-            </span>
-            <div className="py-2 flex">
-              <span className="text-sm font-bold font-mono">
-                {created_date.toDateString()}
-              </span>
-              <span className="ml-4 text-sm font-bold font-mono">
-                {created_date.toLocaleTimeString()}
-              </span>
-            </div>
-          </Link>
-        );
-      })}
-    </>
-  )}
-</div>
-
-               
+                        return (
+                          <Link
+                            key={element.id}
+                            href={""}
+                            className={`w-full h-auto px-2 bg-base-200 rounded-md block shadow-md shadow-black ${
+                              isNewNotification ? "relative" : ""
+                            }`}
+                            onClick={handleClick}
+                          >
+                            {isNewNotification && (
+                              <div className="badge badge-primary badge-sm absolute top-0 right-0">
+                                New!
+                              </div>
+                            )}
+                            <span className="text-base py-2">
+                              {element.redeem_id !== null
+                                ? "New Redeem was added. Check it out!"
+                                : element.campaign_id !== null
+                                ? "New Campaign was added. Check it out!"
+                                : null}
+                            </span>
+                            <div className="py-2 flex">
+                              <span className="text-sm font-bold font-mono">
+                                {created_date.toDateString()}
+                              </span>
+                              <span className="ml-4 text-sm font-bold font-mono">
+                                {created_date.toLocaleTimeString()}
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="dropdown hidden lg:block dropdown-end">
@@ -285,9 +284,11 @@ export default function SalesPersonDashboardNav({
               <ul
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-              > <li className="text-center font-bold">
-              Logged in as {data ? data.data.role_name : ""}
-            </li>
+              >
+                {" "}
+                <li className="text-center font-bold">
+                  Logged in as {data ? data.data.role_name : ""}
+                </li>
                 <li>
                   <button
                     onClick={() => {
