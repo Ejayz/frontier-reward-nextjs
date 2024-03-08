@@ -895,15 +895,8 @@ export default function Page() {
     zip_code: yup.string().required("Zip/Postal Code is required"),
     country: yup.string().required("Country is required"),
   });
+
   const vehicleSchema = yup.object().shape({
-    year: yup
-      .number()
-      .min(1981, "Year must be 1981 or later")
-      .max(new Date().getFullYear(), "Year cannot be in the future")
-      .required("Year is required"),
-    model: yup.string().required("Model is required"),
-    trim: yup.string(),
-    color: yup.string().required("Color is required"),
     vin_no: yup
       .string()
       .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid VIN number")
@@ -992,6 +985,49 @@ export default function Page() {
     },
   });
 
+  const getVehicle = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch("/api/private/getVehicleInformation", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        console.log(data.data);
+        const formatted_values = {
+          table_uuid: Math.random().toString(36).substring(7),
+          year: data.data[0].year,
+          model: data.data[0].model,
+          trim: data.data[0].trim,
+          color: data.data[0].color,
+          vin_no: data.data[0].vin_id,
+        };
+        setVehicleList((oldList) => [...oldList, formatted_values]);
+        VehicleDetail.current?.resetForm();
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
+
   return (
     <div className="w-full h-full pl-10 ">
       {/* Dialog Modal for notifying admin / sales man that customer was created succesfully */}
@@ -1060,378 +1096,324 @@ export default function Page() {
       </dialog>{" "}
       <h3 className="font-bold text-lg">Add User</h3>
       <div className="w-full h-full md:h-[300px] lg:h-[480px] xl:h-[800px] overflow-y-auto  flex flex-col">
-          <div className="divider uppercase">Customer Information</div>
-          <Formik
-            innerRef={CustomerAccountDetail}
-            initialValues={{
-              first_name: "",
-              middle_name: "",
-              last_name: "",
-              email: "",
-              phone_number: "",
-              points: "",
-              package: "",
-              address_line: "",
-              address_line2: "",
-              city: "",
-              state_province_region: "",
-              zip_code: "",
-              country: "",
-              suffix: "",
-            }}
-            validationSchema={customerValidation}
-            onSubmit={(values: any) => {}}
-          >
-            {({ errors, touched, setFieldValue, values }) => (
-              <Form>
-                <div className="customer grid grid-cols-3 gap-x-2">
-                  <LabeledInput
-                    field_name="first_name"
-                    type="text"
-                    placeholder="Enter First Name"
-                    className="input input-bordered   input-sm w-full max-w-xs"
-                    errors={errors.first_name}
-                    touched={touched.first_name}
-                    classes="text-base"
-                    label="First Name"
-                    datatip="Input the first name for the account"
-                  />
-                  <LabeledInput
-                    field_name="middle_name"
-                    type="text"
-                    placeholder="Enter Middle Name"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.middle_name}
-                    touched={touched.middle_name}
-                    classes="text-base"
-                    label="Middle Name"
-                    datatip="Input the middle name for the account"
-                  />
-                  <LabeledInput
-                    field_name="last_name"
-                    type="text"
-                    placeholder="Enter Last Name"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.last_name}
-                    touched={touched.last_name}
-                    classes="text-base"
-                    label="Last Name"
-                    datatip="Input the last name for the account"
-                  />
-                  <LabeledInput
-                    field_name="suffix"
-                    type="text"
-                    placeholder="Suffix"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.suffix}
-                    touched={touched.suffix}
-                    classes="text-base"
-                    label="Suffix"
-                    datatip="Input the suffix for the account"
-                  />
-                  <LabeledInput
-                    field_name="email"
-                    type="email"
-                    placeholder="Enter Email"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.email}
-                    touched={touched.email}
-                    classes="text-base"
-                    label="Email"
-                    datattip="Input the email for the account"
-                  />
-                  <LabeledInputPhone
-                    field_name="phone_number"
-                    placeholder="Enter Phone Number"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.phone_number}
-                    touched={touched.phone_number}
-                    classes="text-base"
-                    label="Phone Number"
-                    datatip="Input the phone number for the account"
-                    value={values.phone_number}
-                    setFieldValue={setFieldValue}
-                    setPhoneInfo={setPhoneInfo}
-                    costumerValidation={customerValidation}
-                  />
-                  <LabeledInput
-                    field_name="points"
-                    type="number"
-                    placeholder="Enter Points"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.points}
-                    touched={touched.points}
-                    classes="text-base"
-                    label="Points"
-                    datatip="Input the points for the account"
-                  />
-                  <LabeledSelectInput
-                    field_name="package"
-                    type="text"
-                    placeholder="Enter Package"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.package}
-                    touched={touched.package}
-                    classes="text-base"
-                    label="Package"
-                    datatip="Select the package for the account"
-                    SelectOptions={isFetching || isLoading ? [] : data.data}
-                    setFieldValue={setFieldValue}
-                    values={values.package}
-                  />{" "}
-                  <LabeledSelectInput
-                    field_name="country"
-                    type="text"
-                    placeholder="Select Country"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.country}
-                    touched={touched.country}
-                    classes="text-base"
-                    label="Country"
-                    datatip="Select the country for the account"
-                    SelectOptions={countries}
-                    setFieldValue={setFieldValue}
-                    values={values.country}
-                  />
-                  <LabeledInput
-                    field_name="address_line"
-                    type="text"
-                    placeholder="Enter Address Line"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.address_line}
-                    touched={touched.address_line}
-                    classes="text-base"
-                    label="Address Line"
-                    datatip="Input the address line for the account"
-                  />
-                  <LabeledInput
-                    field_name="address_line2"
-                    type="text"
-                    placeholder="Enter Address Line 2"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.address_line2}
-                    touched={touched.address_line2}
-                    classes="text-base"
-                    label="Address Line 2"
-                    datatip="Input the address line 2 for the account"
-                  />
-                  <LabeledInput
-                    field_name="city"
-                    type="text"
-                    placeholder="Enter City"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.city}
-                    touched={touched.city}
-                    classes="text-base"
-                    label="City"
-                    datatip="Input the city for the account"
-                  />
-                  <LabeledInput
-                    field_name="state_province_region"
-                    type="text"
-                    placeholder="Enter State/Province/Region"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.state_province_region}
-                    touched={touched.state_province_region}
-                    classes="text-base"
-                    label="State/Province/Region"
-                    datatip="Input the state/province/region for the account"
-                  />
-                  <LabeledInput
-                    field_name="zip_code"
-                    type="text"
-                    placeholder="Enter Zip Code"
-                    className="input input-bordered  input-sm w-full max-w-xs"
-                    errors={errors.zip_code}
-                    touched={touched.zip_code}
-                    classes="text-base"
-                    label="Zip/Postal Code"
-                    datatip="Input the zip/postal code for the account"
-                  />
-                </div>
-              </Form>
-            )}
-          </Formik>
-          <div className="divider uppercase">Vehicle Information</div>
-          <Formik
-            innerRef={VehicleDetail}
-            initialValues={{
-              year: "",
-              model: "",
-              trim: "",
-              color: "",
-              vin_no: "",
-            }}
-            validationSchema={vehicleSchema}
-            onSubmit={async (values: any) => {
-              if (vehiclelist.find((item) => item.vin_no === values.vin_no)) {
-                toast.error("Vehicle ID already exists in the list");
-              } else {
-                const formatted_values = {
-                  table_uuid: Math.random().toString(36).substring(7),
-                  year: values.year,
-                  model: values.model,
-                  trim: values.trim,
-                  color: values.color,
-                  vin_no: values.vin_no,
+        <div className="divider uppercase">Customer Information</div>
+        <Formik
+          innerRef={CustomerAccountDetail}
+          initialValues={{
+            first_name: "",
+            middle_name: "",
+            last_name: "",
+            email: "",
+            phone_number: "",
+            points: "",
+            package: "",
+            address_line: "",
+            address_line2: "",
+            city: "",
+            state_province_region: "",
+            zip_code: "",
+            country: "",
+            suffix: "",
+          }}
+          validationSchema={customerValidation}
+          onSubmit={(values: any) => {}}
+        >
+          {({ errors, touched, setFieldValue, values }) => (
+            <Form>
+              <div className="customer grid grid-cols-3 gap-x-2">
+                <LabeledInput
+                  field_name="first_name"
+                  type="text"
+                  placeholder="Enter First Name"
+                  className="input input-bordered   input-sm w-full max-w-xs"
+                  errors={errors.first_name}
+                  touched={touched.first_name}
+                  classes="text-base"
+                  label="First Name"
+                  datatip="Input the first name for the account"
+                />
+                <LabeledInput
+                  field_name="middle_name"
+                  type="text"
+                  placeholder="Enter Middle Name"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.middle_name}
+                  touched={touched.middle_name}
+                  classes="text-base"
+                  label="Middle Name"
+                  datatip="Input the middle name for the account"
+                />
+                <LabeledInput
+                  field_name="last_name"
+                  type="text"
+                  placeholder="Enter Last Name"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.last_name}
+                  touched={touched.last_name}
+                  classes="text-base"
+                  label="Last Name"
+                  datatip="Input the last name for the account"
+                />
+                <LabeledInput
+                  field_name="suffix"
+                  type="text"
+                  placeholder="Suffix"
+                  className="input input-bordered input-sm w-full max-w-xs"
+                  errors={errors.suffix}
+                  touched={touched.suffix}
+                  classes="text-base"
+                  label="Suffix"
+                  datatip="Input the suffix for the account"
+                />
+                <LabeledInput
+                  field_name="email"
+                  type="email"
+                  placeholder="Enter Email"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.email}
+                  touched={touched.email}
+                  classes="text-base"
+                  label="Email"
+                  datattip="Input the email for the account"
+                />
+                <LabeledInputPhone
+                  field_name="phone_number"
+                  placeholder="Enter Phone Number"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.phone_number}
+                  touched={touched.phone_number}
+                  classes="text-base"
+                  label="Phone Number"
+                  datatip="Input the phone number for the account"
+                  value={values.phone_number}
+                  setFieldValue={setFieldValue}
+                  setPhoneInfo={setPhoneInfo}
+                  costumerValidation={customerValidation}
+                />
+                <LabeledInput
+                  field_name="points"
+                  type="number"
+                  placeholder="Enter Points"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.points}
+                  touched={touched.points}
+                  classes="text-base"
+                  label="Points"
+                  datatip="Input the points for the account"
+                />
+                <LabeledSelectInput
+                  field_name="package"
+                  type="text"
+                  placeholder="Enter Package"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.package}
+                  touched={touched.package}
+                  classes="text-base"
+                  label="Package"
+                  datatip="Select the package for the account"
+                  SelectOptions={isFetching || isLoading ? [] : data.data}
+                  setFieldValue={setFieldValue}
+                  values={values.package}
+                />{" "}
+                <LabeledSelectInput
+                  field_name="country"
+                  type="text"
+                  placeholder="Select Country"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.country}
+                  touched={touched.country}
+                  classes="text-base"
+                  label="Country"
+                  datatip="Select the country for the account"
+                  SelectOptions={countries}
+                  setFieldValue={setFieldValue}
+                  values={values.country}
+                />
+                <LabeledInput
+                  field_name="address_line"
+                  type="text"
+                  placeholder="Enter Address Line"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.address_line}
+                  touched={touched.address_line}
+                  classes="text-base"
+                  label="Address Line"
+                  datatip="Input the address line for the account"
+                />
+                <LabeledInput
+                  field_name="address_line2"
+                  type="text"
+                  placeholder="Enter Address Line 2"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.address_line2}
+                  touched={touched.address_line2}
+                  classes="text-base"
+                  label="Address Line 2"
+                  datatip="Input the address line 2 for the account"
+                />
+                <LabeledInput
+                  field_name="city"
+                  type="text"
+                  placeholder="Enter City"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.city}
+                  touched={touched.city}
+                  classes="text-base"
+                  label="City"
+                  datatip="Input the city for the account"
+                />
+                <LabeledInput
+                  field_name="state_province_region"
+                  type="text"
+                  placeholder="Enter State/Province/Region"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.state_province_region}
+                  touched={touched.state_province_region}
+                  classes="text-base"
+                  label="State/Province/Region"
+                  datatip="Input the state/province/region for the account"
+                />
+                <LabeledInput
+                  field_name="zip_code"
+                  type="text"
+                  placeholder="Enter Zip Code"
+                  className="input input-bordered  input-sm w-full max-w-xs"
+                  errors={errors.zip_code}
+                  touched={touched.zip_code}
+                  classes="text-base"
+                  label="Zip/Postal Code"
+                  datatip="Input the zip/postal code for the account"
+                />
+              </div>
+            </Form>
+          )}
+        </Formik>
+        <div className="divider uppercase">Vehicle Information</div>
+        <Formik
+          innerRef={VehicleDetail}
+          initialValues={{
+            vin_no: "",
+          }}
+          validationSchema={vehicleSchema}
+          onSubmit={async (values: any) => {}}
+        >
+          {({ errors, touched, values }) => (
+            <Form>
+              <div className="grid grid-cols-3 gap-x-2">
+                <LabeledInput
+                  field_name="vin_no"
+                  type="text"
+                  placeholder="Enter Vehicle VIN No"
+                  className="input input-bordered input-sm w-full max-w-xs"
+                  errors={errors.vin_no}
+                  touched={touched.vin_no}
+                  classes="text-base"
+                  label="Vehicle VIN No"
+                  datatip="Input the vehicle VIN number for the vehicle of the account."
+                />
+              </div>
+              <div id="notif" ref={notificationContainer}></div>
+              <button
+                type={"button"}
+                onClick={async (e: any) => {
+                  if (
+                    vehiclelist.find((item) => item.vin_no === values.vin_no)
+                  ) {
+                    toast.error("Vehicle ID already exists in the list");
+                  } else {
+                    await getVehicle.mutate(values);
+                  }
+                }}
+                className="btn btn-primary mt-4"
+              >
+                Add Vehicle
+              </button>
+            </Form>
+          )}
+        </Formik>
+        <table className="table mt-4">
+          <thead>
+            <tr>
+              <th>VIN No</th>
+              <th>Year</th>
+              <th>Model</th>
+              <th>Trim</th>
+              <th>Color</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vehiclelist.map((vehicle) => (
+              <tr key={vehicle.table_uuid}>
+                <td>{vehicle.vin_no}</td>
+                <td>{vehicle.year}</td>
+                <td>{vehicle.model}</td>
+                <td>{vehicle.trim}</td>
+                <td>{vehicle.color == null ? "N/A" : vehicle.color}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-error"
+                    onClick={() => {
+                      setDataToRemove({
+                        id: vehicle.vin_no,
+                        table_uuid: vehicle.table_uuid,
+                      });
+                      confirmModal.current?.showModal();
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="modal-action">
+          <button
+            onClick={async () => {
+              if (
+                CustomerAccountDetail.current?.isValid &&
+                vehiclelist.length != 0
+              ) {
+                let bodyContent = {
+                  firstName: CustomerAccountDetail.current?.values.first_name,
+                  middleName: CustomerAccountDetail.current?.values.middle_name,
+                  lastName: CustomerAccountDetail.current?.values.last_name,
+                  phoneNumber:
+                    CustomerAccountDetail.current?.values.phone_number,
+                  email: CustomerAccountDetail.current?.values.email,
+                  packageId: CustomerAccountDetail.current?.values.package,
+                  vehicles: vehiclelist,
+                  country: CustomerAccountDetail.current?.values.country,
+                  city: CustomerAccountDetail.current?.values.city,
+                  zipCode: CustomerAccountDetail.current?.values.zip_code,
+                  address: CustomerAccountDetail.current?.values.address_line,
+                  address2: CustomerAccountDetail.current?.values.address_line2,
+                  state_province:
+                    CustomerAccountDetail.current?.values.state_province_region,
+                  points: CustomerAccountDetail.current?.values.points,
+                  suffix: CustomerAccountDetail.current?.values.suffix,
                 };
-                setVehicleList((oldList) => [...oldList, formatted_values]);
-                VehicleDetail.current?.resetForm();
+
+                CreateCustomerMutation.mutate(bodyContent);
+              } else {
+                toast.error("Please fill up all the required fields");
               }
             }}
+            className="btn btn-info btn-md"
           >
-            {({ errors, touched }) => (
-              <Form>
-                <div className="grid grid-cols-3 gap-x-2">
-                  <LabeledInput
-                    field_name="vin_no"
-                    type="text"
-                    placeholder="Enter Vehicle VIN No"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.vin_no}
-                    touched={touched.vin_no}
-                    classes="text-base"
-                    label="Vehicle VIN No"
-                    datatip="Input the vehicle VIN number for vehicle of the account"
-                  />
-
-                  <LabeledInput
-                    field_name="year"
-                    type="number"
-                    placeholder="Enter Vehicle Year"
-                    className="input input-bordered appearance-none input-sm w-full max-w-xs"
-                    errors={errors.year}
-                    touched={touched.year}
-                    classes="text-base"
-                    label="Vehicle Year"
-                    datatip="Input the vehicle year for vehicle of the account"
-                  />
-                  <LabeledInput
-                    field_name="model"
-                    type="text"
-                    placeholder="Enter Vehicle Model"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.model}
-                    touched={touched.model}
-                    classes="text-base"
-                    label="Vehicle Model"
-                    datatip="Input the vehicle model for vehicle of the account"
-                  />
-                  <LabeledInput
-                    field_name="trim"
-                    type="text"
-                    placeholder="Enter Vehicle Trim"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.trim}
-                    touched={touched.trim}
-                    classes="text-base"
-                    label="Vehicle Trim"
-                    datatip="Input the vehicle trim for vehicle of the account"
-                  />
-                  <LabeledInput
-                    field_name="color"
-                    type="text"
-                    placeholder="Enter Vehicle Color"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.color}
-                    touched={touched.color}
-                    classes="text-base"
-                    label="Vehicle Color"
-                    datatip="Input the vehicle color for vehicle of the account"
-                  />
-                </div>
-                <div id="notif" ref={notificationContainer}></div>
-                <button className="btn btn-primary mt-4">Add Vehicle</button>
-
-                <table className="table mt-4">
-                  <thead>
-                    <tr>
-                      <th>VIN No</th>
-                      <th>Year</th>
-                      <th>Model</th>
-                      <th>Trim</th>
-                      <th>Color</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {vehiclelist.map((vehicle) => (
-                      <tr key={vehicle.table_uuid}>
-                        <td>{vehicle.vin_no}</td>
-                        <td>{vehicle.year}</td>
-                        <td>{vehicle.model}</td>
-                        <td>{vehicle.trim}</td>
-                        <td>{vehicle.color}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-error"
-                            onClick={() => {
-                              setDataToRemove({
-                                id: vehicle.vin_no,
-                                table_uuid: vehicle.table_uuid,
-                              });
-                              confirmModal.current?.showModal();
-                            }}
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Form>
-            )}
-          </Formik>
-          <div className="modal-action">
-            <button
-              onClick={async () => {
-                if (
-                  CustomerAccountDetail.current?.isValid &&
-                  vehiclelist.length != 0
-                ) {
-                  let bodyContent = {
-                    firstName: CustomerAccountDetail.current?.values.first_name,
-                    middleName:
-                      CustomerAccountDetail.current?.values.middle_name,
-                    lastName: CustomerAccountDetail.current?.values.last_name,
-                    phoneNumber:
-                      CustomerAccountDetail.current?.values.phone_number,
-                    email: CustomerAccountDetail.current?.values.email,
-                    packageId: CustomerAccountDetail.current?.values.package,
-                    vehicles: vehiclelist,
-                    country: CustomerAccountDetail.current?.values.country,
-                    city: CustomerAccountDetail.current?.values.city,
-                    zipCode: CustomerAccountDetail.current?.values.zip_code,
-                    address: CustomerAccountDetail.current?.values.address_line,
-                    address2:
-                      CustomerAccountDetail.current?.values.address_line2,
-                    state_province:
-                      CustomerAccountDetail.current?.values
-                        .state_province_region,
-                    points: CustomerAccountDetail.current?.values.points,
-                    suffix: CustomerAccountDetail.current?.values.suffix,
-                  };
-
-                  CreateCustomerMutation.mutate(bodyContent);
-                } else {
-                  toast.error("Please fill up all the required fields");
-                }
-              }}
-              className="btn btn-info btn-md"
-            >
-              Create Customer
-            </button>{" "}
-            <button
-              onClick={() => {
-                modalAddUser.current?.click();
-              }}
-              className="btn btn-md"
-            >
-              Cancel
-            </button>
-          </div>
+            Create Customer
+          </button>{" "}
+          <button
+            onClick={() => {
+              modalAddUser.current?.click();
+            }}
+            className="btn btn-md"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -38,21 +38,13 @@ export default function Page() {
   useEffect(() => {
     if (params?.get("user_id") == undefined) {
       toast.error("User ID is required");
-      nav.push("/superadmin/users");
+      nav.push("/admin/users");
     }
   }, [params?.get("user_id")]);
   const editVehicleDetail = useRef<FormikProps<any>>(null);
   const addVehicleDetail = useRef<FormikProps<any>>(null);
 
   const vehicleSchema = yup.object().shape({
-    year: yup
-      .number()
-      .min(1981, "Year must be 1981 or later")
-      .max(new Date().getFullYear(), "Year cannot be in the future")
-      .required("Year is required"),
-    model: yup.string().required("Model is required"),
-    trim: yup.string(),
-    color: yup.string().required("Color is required"),
     vin_no: yup
       .string()
       .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid VIN number")
@@ -212,6 +204,49 @@ export default function Page() {
   const putDataToEditForm = async (data: any) => {
     editVehicleDetail.current?.setValues(data);
   };
+  const getVehicle = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+
+      let response = await fetch(`/api/private/getVehicleInformation`, {
+        method: "POST",
+        headers: headersList,
+        body: JSON.stringify(values),
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        setToShow(true);
+        toast.error(data.message);
+      }
+
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      if (data.code == 200) {
+        setToShow(true);
+        createCarMutation.mutate({
+          vin_no: data.data[0].vin_id,
+          year: data.data[0].year,
+          model: data.data[0].model,
+          trim: data.data[0].trim,
+          color: data.data[0].color,
+          customer_info_id: params?.get("user_id"),
+        });
+        addVehicleDetail.current?.resetForm();
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   if (!toShow) {
     return <Loading />;
@@ -223,11 +258,6 @@ export default function Page() {
           <Formik
             innerRef={editVehicleDetail}
             initialValues={{
-              car_id: "",
-              year: "",
-              model: "",
-              trim: "",
-              color: "",
               vin_no: "",
             }}
             validationSchema={vehicleSchema}
@@ -250,51 +280,6 @@ export default function Page() {
                     label="Vehicle ID No. (VIN)"
                     datatip="Vehicle Identification Number"
                   />
-
-                  <LabeledInput
-                    field_name="year"
-                    type="number"
-                    placeholder="Enter Vehicle Year"
-                    className="input input-bordered appearance-none input-sm w-full max-w-xs"
-                    errors={errors.year}
-                    touched={touched.year}
-                    classes="text-base"
-                    label="Vehicle Year"
-                    datatip="Year of the vehicle production"
-                  />
-                  <LabeledInput
-                    field_name="model"
-                    type="text"
-                    placeholder="Enter Vehicle Model"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.model}
-                    touched={touched.model}
-                    classes="text-base"
-                    label="Vehicle Model"
-                    datatip="Model of the vehicle"
-                  />
-                  <LabeledInput
-                    field_name="trim"
-                    type="text"
-                    placeholder="Enter Vehicle Trim"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.trim}
-                    touched={touched.trim}
-                    classes="text-base"
-                    label="Vehicle Trim"
-                    datatip="Trim of the vehicle"
-                  />
-                  <LabeledInput
-                    field_name="color"
-                    type="text"
-                    placeholder="Enter Vehicle Color"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.color}
-                    touched={touched.color}
-                    classes="text-base"
-                    label="Vehicle Color"
-                    datatip="Color of the vehicle"
-                  />
                 </div>
                 <div id="notif" ref={notificationContainer}></div>
                 <button className="btn btn-primary mt-4">Edit Vehicle</button>
@@ -305,22 +290,11 @@ export default function Page() {
           <Formik
             innerRef={addVehicleDetail}
             initialValues={{
-              year: "",
-              model: "",
-              trim: "",
-              color: "",
               vin_no: "",
             }}
             validationSchema={vehicleSchema}
             onSubmit={async (values: any) => {
-              createCarMutation.mutate({
-                user_id: params?.get("user_id"),
-                year: values.year,
-                model: values.model,
-                trim: values.trim,
-                color: values.color,
-                vin_no: values.vin_no,
-              });
+              await getVehicle.mutate(values);
             }}
           >
             {({ errors, touched }) => (
@@ -334,53 +308,8 @@ export default function Page() {
                     errors={errors.vin_no}
                     touched={touched.vin_no}
                     classes="text-base"
-                    label="Vehicle VIN No"
+                    label="Vehicle Identification Number (VIN)"
                     datatip="Input for the vehicle identification number"
-                  />
-
-                  <LabeledInput
-                    field_name="year"
-                    type="number"
-                    placeholder="Enter Vehicle Year"
-                    className="input input-bordered appearance-none input-sm w-full max-w-xs"
-                    errors={errors.year}
-                    touched={touched.year}
-                    classes="text-base"
-                    label="Vehicle Year"
-                    datatip="Input for the year of the vehicle production"
-                  />
-                  <LabeledInput
-                    field_name="model"
-                    type="text"
-                    placeholder="Enter Vehicle Model"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.model}
-                    touched={touched.model}
-                    classes="text-base"
-                    label="Vehicle Model"
-                    datatip="Input for the model of the vehicle"
-                  />
-                  <LabeledInput
-                    field_name="trim"
-                    type="text"
-                    placeholder="Enter Vehicle Trim"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.trim}
-                    touched={touched.trim}
-                    classes="text-base"
-                    label="Vehicle Trim"
-                    datatip="Input for the trim of the vehicle"
-                  />
-                  <LabeledInput
-                    field_name="color"
-                    type="text"
-                    placeholder="Enter Vehicle Color"
-                    className="input input-bordered input-sm w-full max-w-xs"
-                    errors={errors.color}
-                    touched={touched.color}
-                    classes="text-base"
-                    label="Vehicle Color"
-                    datatip="Input for the color of the vehicle"
                   />
                 </div>
                 <div id="notif" ref={notificationContainer}></div>
@@ -422,7 +351,7 @@ export default function Page() {
                   <td>{vehicle.trim}</td>
                   <td>{vehicle.color}</td>
                   <td className="flex flex-row">
-                    <button
+                    {/* <button
                       type="button"
                       className="btn flex flex-row btn-info mx-2"
                       onClick={async () => {
@@ -444,7 +373,7 @@ export default function Page() {
                         height={20}
                       />
                       <span>Edit</span>
-                    </button>
+                    </button> */}
                     <button
                       type="button"
                       className="btn  btn-error"

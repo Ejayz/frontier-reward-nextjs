@@ -109,11 +109,14 @@ export default function Page() {
       );
 
       let data = await response.json();
-      console.log("Employee", data);
       if (!response.ok) {
         toast.error(data.message);
       }
-      return data;
+      if (data.code == 200) {
+        return data;
+      } else if (data.code == 401) {
+        nav.push("/");
+      }
     },
     refetchOnWindowFocus: true,
     staleTime: 0,
@@ -151,11 +154,15 @@ export default function Page() {
       if (!response.ok) {
         toast.error(data.message);
       }
-      data.data.forEach((datas: any) => {
-        datas.propsId = Math.pow(Math.random(), 2);
-      });
+      if (data.code == 200) {
+        data.data.forEach((datas: any) => {
+          datas.propsId = Math.pow(Math.random(), 2);
+        });
 
-      return data;
+        return data;
+      } else if (data.code == 401) {
+        nav.push("/");
+      }
     },
     refetchOnWindowFocus: false,
     staleTime: 0,
@@ -938,6 +945,7 @@ export default function Page() {
       text: "Zimbabwe",
     },
   ];
+
   useEffect(() => {
     customerRefetch();
   }, [searchForm.current?.values.keyword]);
@@ -996,7 +1004,11 @@ export default function Page() {
       if (!response.ok) {
         toast.error(data.message);
       }
-      return data;
+      if (data.code == 200) {
+        return data;
+      } else if (data.code == 401) {
+        nav.push("/");
+      }
     },
     refetchOnWindowFocus: false,
     staleTime: 0,
@@ -1025,15 +1037,8 @@ export default function Page() {
     zip_code: yup.string().required("Zip/Postal Code is required"),
     country: yup.string().required("Country is required"),
   });
+
   const vehicleSchema = yup.object().shape({
-    year: yup
-      .number()
-      .min(1981, "Year must be 1981 or later")
-      .max(new Date().getFullYear(), "Year cannot be in the future")
-      .required("Year is required"),
-    model: yup.string().required("Model is required"),
-    trim: yup.string(),
-    color: yup.string().required("Color is required"),
     vin_no: yup
       .string()
       .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid VIN number")
@@ -1170,6 +1175,51 @@ export default function Page() {
       });
     },
   });
+  const [VehicleInformation, setVehicleInformation] = useState<vehicleType[]>(
+    []
+  );
+  const getVehicle = useMutation({
+    mutationFn: async (values: any) => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      };
+      let response = await fetch("/api/private/getVehicleInformation", {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: headersList,
+      });
+      return response.json();
+    },
+    onSuccess: async (data: any) => {
+      console.log(data);
+      if (data.code == 200) {
+        console.log(data.data);
+        const formatted_values = {
+          table_uuid: Math.random().toString(36).substring(7),
+          year: data.data[0].year,
+          model: data.data[0].model,
+          trim: data.data[0].trim,
+          color: data.data[0].color,
+          vin_no: data.data[0].vin_id,
+        };
+        setVehicleList((oldList) => [...oldList, formatted_values]);
+        VehicleDetail.current?.resetForm();
+      } else {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+    },
+    onError: async (error: any) => {
+      showToast({
+        status: "error",
+        message: error.message,
+      });
+    },
+  });
 
   return (
     <div className="w-full h-full px-2">
@@ -1270,9 +1320,15 @@ export default function Page() {
           <h3 className="font-bold text-lg">Add User</h3>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Type <div className="tooltip tooltip-right text-base tooltip-info " data-tip="Select a user type to create">
-                    <div  className="badge border-black badge-lg w-5 h-5">?</div></div></span>
-             
+              <span className="label-text">
+                Type{" "}
+                <div
+                  className="tooltip tooltip-right text-base tooltip-info "
+                  data-tip="Select a user type to create"
+                >
+                  <div className="badge border-black badge-lg w-5 h-5">?</div>
+                </div>
+              </span>
             </label>
             <select
               className="select select-bordered  select-sm w-full max-w-xs"
@@ -1483,36 +1539,12 @@ export default function Page() {
                 <Formik
                   innerRef={VehicleDetail}
                   initialValues={{
-                    year: "",
-                    model: "",
-                    trim: "",
-                    color: "",
                     vin_no: "",
                   }}
                   validationSchema={vehicleSchema}
-                  onSubmit={async (values: any) => {
-                    if (
-                      vehiclelist.find((item) => item.vin_no === values.vin_no)
-                    ) {
-                      toast.error("Vehicle ID already exists in the list");
-                    } else {
-                      const formatted_values = {
-                        table_uuid: Math.random().toString(36).substring(7),
-                        year: values.year,
-                        model: values.model,
-                        trim: values.trim,
-                        color: values.color,
-                        vin_no: values.vin_no,
-                      };
-                      setVehicleList((oldList) => [
-                        ...oldList,
-                        formatted_values,
-                      ]);
-                      VehicleDetail.current?.resetForm();
-                    }
-                  }}
+                  onSubmit={async (values: any) => {}}
                 >
-                  {({ errors, touched }) => (
+                  {({ errors, touched, values }) => (
                     <Form>
                       <div className="grid grid-cols-3 gap-x-2">
                         <LabeledInput
@@ -1526,98 +1558,68 @@ export default function Page() {
                           label="Vehicle VIN No"
                           datatip="Input the vehicle VIN number for the vehicle of the account."
                         />
-
-                        <LabeledInput
-                          field_name="year"
-                          type="number"
-                          placeholder="Enter Vehicle Year"
-                          className="input input-bordered appearance-none input-sm w-full max-w-xs"
-                          errors={errors.year}
-                          touched={touched.year}
-                          classes="text-base"
-                          label="Vehicle Year"
-                          datatip="Input the vehicle year for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="model"
-                          type="text"
-                          placeholder="Enter Vehicle Model"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.model}
-                          touched={touched.model}
-                          classes="text-base"
-                          label="Vehicle Model"
-                          datatip="Input the vehicle model for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="trim"
-                          type="text"
-                          placeholder="Enter Vehicle Trim"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.trim}
-                          touched={touched.trim}
-                          classes="text-base"
-                          label="Vehicle Trim"
-                          datatip="Input the vehicle trim for the vehicle of the account."
-                        />
-                        <LabeledInput
-                          field_name="color"
-                          type="text"
-                          placeholder="Enter Vehicle Color"
-                          className="input input-bordered input-sm w-full max-w-xs"
-                          errors={errors.color}
-                          touched={touched.color}
-                          classes="text-base"
-                          label="Vehicle Color"
-                          datatip="Input the vehicle color for the vehicle of the account."
-                        />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
-                      <button className="btn btn-primary mt-4">
+                      <button
+                        type={"button"}
+                        onClick={async (e: any) => {
+                          if (
+                            vehiclelist.find(
+                              (item) => item.vin_no === values.vin_no
+                            )
+                          ) {
+                            toast.error(
+                              "Vehicle ID already exists in the list"
+                            );
+                          } else {
+                            await getVehicle.mutate(values);
+                          }
+                        }}
+                        className="btn btn-primary mt-4"
+                      >
                         Add Vehicle
                       </button>
-
-                      <table className="table mt-4">
-                        <thead>
-                          <tr>
-                            <th>VIN No</th>
-                            <th>Year</th>
-                            <th>Model</th>
-                            <th>Trim</th>
-                            <th>Color</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {vehiclelist.map((vehicle) => (
-                            <tr key={vehicle.table_uuid}>
-                              <td>{vehicle.vin_no}</td>
-                              <td>{vehicle.year}</td>
-                              <td>{vehicle.model}</td>
-                              <td>{vehicle.trim}</td>
-                              <td>{vehicle.color}</td>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-error"
-                                  onClick={() => {
-                                    setDataToRemove({
-                                      id: vehicle.vin_no,
-                                      table_uuid: vehicle.table_uuid,
-                                    });
-                                    confirmModal.current?.showModal();
-                                  }}
-                                >
-                                  Remove
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
                     </Form>
                   )}
                 </Formik>
+                <table className="table mt-4">
+                  <thead>
+                    <tr>
+                      <th>VIN No</th>
+                      <th>Year</th>
+                      <th>Model</th>
+                      <th>Trim</th>
+                      <th>Color</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vehiclelist.map((vehicle) => (
+                      <tr key={vehicle.table_uuid}>
+                        <td>{vehicle.vin_no}</td>
+                        <td>{vehicle.year}</td>
+                        <td>{vehicle.model}</td>
+                        <td>{vehicle.trim}</td>
+                        <td>{vehicle.color == null ? "N/A" : vehicle.color}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-error"
+                            onClick={() => {
+                              setDataToRemove({
+                                id: vehicle.vin_no,
+                                table_uuid: vehicle.table_uuid,
+                              });
+                              confirmModal.current?.showModal();
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <div className="modal-action">
                   <button
                     onClick={async () => {
@@ -1785,7 +1787,6 @@ export default function Page() {
                           setFieldValue={setFieldValue}
                           setPhoneInfo={setAdminPhone}
                           costumerValidation={customerValidation}
-                          
                         />
                       </div>
                       <div className="modal-action">
@@ -2052,7 +2053,7 @@ export default function Page() {
                       <button
                         type="button"
                         onClick={() => {
-                          if (customerData.data.length >= 10) {
+                          if (customerData.data.length >= 5) {
                             const newPage = page + 1;
                             setPage(newPage);
                           } else {
