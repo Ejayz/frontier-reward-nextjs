@@ -81,7 +81,6 @@ export default async function handler(
           });
       });
     }
-
     const { name, description,start_date,end_date,status, package_id,employee_id, is_exist } = req.body;
     try {
       const [results,fields] =<RowDataPacket[]> await connection.query(`INSERT INTO campaign (name,description,start_date,end_date,status,package_id,employee_id,is_exist) VALUES (?,?,?,?,?,?,?,?)`
@@ -91,7 +90,18 @@ export default async function handler(
         }else{
             res.status(500).json({code:500,message:"Something went wrong.Please try again"});
         }
+        let campaign_id = results.insertId;
    
+        const [rowsnotif] = <RowDataPacket[]>(
+          await connection.query(
+            "INSERT INTO notification (campaign_id) VALUES (?)  ",
+            [campaign_id]
+          )
+        );
+        if (rowsnotif.affectedRows === 0) {
+          return res.status(400).json({ code: 400, message: "Bad Request" });
+        }
+
     } catch (error: any) {
       console.error(error);
       res.status(500).json({ error: error.message });

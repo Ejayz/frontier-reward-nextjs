@@ -1,16 +1,19 @@
 "use client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
+import { useToast } from "@/hooks/useToast";
 export default function SalesPersonDashboardNav({
   child,
 }: Readonly<{
   child: React.ReactNode;
 }>) {
+  
+  const { showToast } = useToast();
+  const [data, setData] = useState<any>();
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
     mutationFn: async () => {
@@ -29,7 +32,70 @@ export default function SalesPersonDashboardNav({
       }
     },
   });
-  const [data, setData] = useState<any>();
+  
+
+  const {
+    data: DataNotifRecordPagination,
+    isFetching: isFetchingNotifRecordPagination,
+    isLoading: isLoadingNotifRecordPagination,
+    refetch: RefetchNotifRecordPagination,
+  } = useQuery({
+    queryKey: ["getNotificationRecordPagination"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getNotificationRecord`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
+  const {
+    data: DataNotifPagination,
+    isFetching: isFetchingNotifPagination,
+    isLoading: isLoadingNotifPagination,
+    refetch: RefetchNotifPagination,
+  } = useQuery({
+    queryKey: ["getNotificationPagination"],
+    queryFn: async () => {
+      let headersList = {
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
+      let response = await fetch(`/api/private/getNotification`, {
+        method: "GET",
+        headers: headersList,
+      });
+
+      let data = await response.json();
+      if (!response.ok) {
+        showToast({
+          status: "error",
+          message: data.message,
+        });
+      }
+      return data;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    placeholderData: keepPreviousData,
+  });
   // Function to make the ThunderClient request
   const makeThunderClientRequest = async () => {
     try {
@@ -44,6 +110,7 @@ export default function SalesPersonDashboardNav({
       });
 
       let data = await response.json();
+      console.log("Response data:", data);
       setData(data);
     } catch (error) {
       console.error("Error making ThunderClient request:", error);
@@ -54,6 +121,36 @@ export default function SalesPersonDashboardNav({
   useEffect(() => {
     makeThunderClientRequest();
   }, []); // The empty dependency array ensures the effect runs only once, when the component mounts
+
+  let notification_id = 0;
+  const createActionMutation = useMutation({
+    mutationFn: async (values: any) => {
+      try {
+        let headersList = {
+          Accept: "*/*",
+          "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+          "Content-Type": "application/json",
+        };
+
+        let response = await fetch(`/api/private/createNotification/`, {
+          method: "POST",
+          body: values,
+          headers: headersList,
+        });
+        RefetchNotifPagination();
+        return response.json();
+      } catch (error) {
+        console.error("Error creating notification:", error);
+        throw error;
+      }
+    },  
+    onSuccess: async (data: any) => {
+      // ... (other success logic)
+    },
+    onError: async (error: any) => {
+      // ... (other error handling logic)
+    },
+  });
 
   return (
     <div className="drawer">
@@ -103,36 +200,71 @@ export default function SalesPersonDashboardNav({
               </div>
               <div
                 tabIndex={0}
-                className="mt-2 z-[1] card card-compact   h-64 dropdown-content w-96 bg-white text-black shadow-2xl shadow-black"
+                className="mt-2 z-[1] card card-compact h-auto dropdown-content w-96 bg-white text-black shadow-md shadow-black"
               >
-                <div className="card-body h-64 overflow-y-auto">
-                  <Link
-                    href={""}
-                    className="w-full h-auto px-2 bg-base-200 shadow-xl rounded-md"
-                  >
-                    {/* Message container */}
-                    <div className="w-full">
-                      <span className="text-base p-2 ">
-                        Sample Campaign was added . Check it out !
-                      </span>
-                    </div>
-                    {/* Time and date and mins passed by container */}
-                    <div className="py-2">
-                      <span className="text-sm font-bold font-mono">
-                        Aug 12, 2023 12:15PM
-                      </span>
-                      |
-                      <span className="text-sm font-bold font-mono">
-                        10m ago
-                      </span>
-                    </div>
-                  </Link>
-                </div>
-                <div className="card-actions">
-                  <button className="btn p-4 btn-primary btn-block">
-                    View Notifications
-                  </button>
-                </div>
+<div className="card-body h-64 overflow-y-auto">
+  {isFetchingNotifPagination ? (
+    <div>Loading...</div>
+  ) : (
+    <>
+      {DataNotifPagination?.data?.map((element: any) => {
+        const NotifCreatedAt = element.created_at;
+        const created_date = new Date(NotifCreatedAt);
+        const notifrecordID = DataNotifRecordPagination?.data?.find(
+          (item: any) => item.notification_id === element.id
+        );
+        const handleClick = () => {
+          // Function to handle click and print element.id
+          console.log(`Clicked on element with id: ${element.id}`);
+          notification_id = element.id;
+          const values = JSON.stringify({
+            notification_id: notification_id,
+          });
+          createActionMutation.mutate(values);
+          useEffect(() => {
+            RefetchNotifPagination();
+          },);
+        };
+
+        // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
+        const isNewNotification = notifrecordID === undefined;
+
+        return (
+
+          <Link
+            key={element.id}
+            href={""}
+            className={`w-full h-auto px-2 bg-base-200 rounded-md block shadow-md shadow-black ${isNewNotification ? "relative" : ""}`} 
+            onClick={handleClick}
+          >
+            {isNewNotification && (
+              <div className="badge badge-primary badge-sm absolute top-0 right-0">
+                New!
+              </div>
+            )}
+            <span className="text-base py-2">
+              {element.redeem_id !== null
+                ? "New Redeem was added. Check it out!"
+                : element.campaign_id !== null
+                ? "New Campaign was added. Check it out!"
+                : null}
+            </span>
+            <div className="py-2 flex">
+              <span className="text-sm font-bold font-mono">
+                {created_date.toDateString()}
+              </span>
+              <span className="ml-4 text-sm font-bold font-mono">
+                {created_date.toLocaleTimeString()}
+              </span>
+            </div>
+          </Link>
+        );
+      })}
+    </>
+  )}
+</div>
+
+               
               </div>
             </div>
             <div className="dropdown hidden lg:block dropdown-end">
@@ -153,8 +285,8 @@ export default function SalesPersonDashboardNav({
               <ul
                 tabIndex={0}
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-              ><li className="text-center font-bold ">
-              Logged in as Customer
+              > <li className="text-center font-bold">
+              Logged in as {data ? data.data.role_name : ""}
             </li>
                 <li>
                   <button
