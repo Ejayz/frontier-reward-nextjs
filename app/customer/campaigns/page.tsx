@@ -153,7 +153,7 @@ export default function Page() {
         className={`${
           isLoading || isFetching
             ? ""
-            : data.data.length == 0
+            : data==undefined?"" :data.data.length == 0
             ? "flex flex-col"
             : "grid grid-cols-5 gap-x-2 gap-y-4"
         } w-full h-3/4`}

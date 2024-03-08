@@ -17,9 +17,10 @@ export default async function handler(
   }
   const auth = new Cookies(req, res).get("auth") || "";
   const connection = await instance.getConnection();
-  const { year, model, trim, color, vin_no, user_id } = req.body;
-  console.log(req.body)
-  console.log(typeof req.body)
+  const { year, model, trim, color, vin_no, user_id, customer_info_id } =
+    req.body;
+  console.log(req.body);
+  console.log(typeof req.body);
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     if (typeof verify === "string") {
@@ -29,20 +30,10 @@ export default async function handler(
     }
 
     const transaction = await connection.beginTransaction();
-    const [CheckVinResult, CheckVinFields] = <RowDataPacket[]>(
-      await connection.query(
-        `SELECT * FROM customer_vehicle_info WHERE vin_id=? and is_exist=1`,
-        [vin_no]
-      )
-    );
-    if (CheckVinResult.length > 0) {
-      await connection.rollback();
-      return res.status(400).json({ code: 400, message: "Vin already exist" });
-    }
     const [customerVehicleResult, customerVehicleFields] = <RowDataPacket[]>(
       await connection.query(
-        `INSERT INTO customer_vehicle_info (year,model,trim,color,vin_id,customer_info_id) VALUES (?,?,?,?,?,?)`,
-        [year, model, trim, color, vin_no, user_id]
+        `UPDATE customer_vehicle_info SET customer_info_id = ? WHERE vin_id = ? AND customer_info_id IS NULL and is_exist=1;`,
+        [customer_info_id, vin_no]
       )
     );
     if (customerVehicleResult.affectedRows == 0) {

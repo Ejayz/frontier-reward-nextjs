@@ -823,7 +823,7 @@ export default function Page() {
   useEffect(() => {
     if (params?.get("user_id") == undefined) {
       toast.error("User ID is required");
-      nav.push("/superadmin/users");
+      nav.push("/admin/users");
     }
   }, [params?.get("user_id")]);
   const {
@@ -858,7 +858,7 @@ export default function Page() {
         return data;
       } else {
         toast.error(data.message);
-        nav.push("/superadmin/users");
+        nav.push("/admin/users");
       }
     },
     refetchOnWindowFocus: false,
@@ -952,7 +952,7 @@ export default function Page() {
       });
       if (data.code == 200) {
         toast.success(data.message);
-        nav.push("/superadmin/users");
+        nav.push("/admin/users");
       } else {
         showToast({
           status: "error",
@@ -1268,7 +1268,7 @@ export default function Page() {
           >
             Update Customer Information
           </button>{" "}
-          <Link href={"/superadmin/users"} className="btn  mx-2">
+          <Link href={"/admin/users"} className="btn  mx-2">
             Cancel
           </Link>
         </div>
