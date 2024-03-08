@@ -1895,7 +1895,7 @@ export default function Page() {
                           <button
                             onClick={() => {
                               nav.push(
-                                `/superadmin/customer/view/?user_id=${customer.customer_id}`
+                                `/admin/customer/view/?user_id=${customer.customer_id}`
                               );
                             }}
                             type="button"

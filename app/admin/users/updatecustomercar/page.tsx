@@ -38,7 +38,7 @@ export default function Page() {
   useEffect(() => {
     if (params?.get("user_id") == undefined) {
       toast.error("User ID is required");
-      nav.push("/superadmin/users");
+      nav.push("/admin/users");
     }
   }, [params?.get("user_id")]);
   const editVehicleDetail = useRef<FormikProps<any>>(null);
