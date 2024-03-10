@@ -24,9 +24,24 @@ export default async function handler(
     const verify = jwt.verify(auth, JWT_SECRET);
 
     // Extract data from the request body
-    const { id, name, description, quantity, reward_type_id, updated_at } =
-      req.body;
-
+    const {
+      id,
+      name,
+      description,
+      quantity,
+      reward_type_id,
+      updated_at,
+      points,
+    } = req.body;
+    console.log(
+      id,
+      name,
+      description,
+      quantity,
+      reward_type_id,
+      updated_at,
+      points
+    );
     // Validate that required parameters are present
     if (
       !id ||
@@ -34,7 +49,8 @@ export default async function handler(
       !description ||
       !quantity ||
       !reward_type_id ||
-      !updated_at
+      !updated_at ||
+      !points
     ) {
       return res.status(400).json({
         code: 400,
@@ -44,10 +60,17 @@ export default async function handler(
 
     // Update the action in the database
     const [UpdateActionsResult, UpdateActionsFields] = await connection.query(
-      `UPDATE reward SET name=?, description=?, quantity=?, reward_type_id=?, updated_at=current_timestamp()  WHERE id=?`,
-      [name, description, quantity, reward_type_id, id]
+      `UPDATE reward SET name=?, description=?, quantity=?, reward_type_id=?, updated_at=current_timestamp()  ,points = ? WHERE id=?`,
+      [
+        name,
+        description,
+        quantity,
+        reward_type_id,
+        parseFloat(points == "" ? 0 : points),
+        id,
+      ]
     );
-
+    console.log(UpdateActionsResult);
     // Respond with success status
     return res.status(200).json({
       code: 200,

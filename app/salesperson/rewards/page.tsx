@@ -22,6 +22,7 @@ type Element = {
   quantity: number;
   updated_at: string;
   is_exist: number;
+  points?: number;
 };
 
 export default function Page() {
@@ -44,7 +45,7 @@ export default function Page() {
     isLoading: isLoadingRewardsPagination,
     refetch: RefetchRewardsPagination,
   } = useQuery({
-    queryKey: ["getActionsPagination", page,searchTerm],
+    queryKey: ["getActionsPagination", page, searchTerm],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -172,9 +173,10 @@ export default function Page() {
     description: rowDataToEdit ? rowDataToEdit.description : "",
     quantity: rowDataToEdit ? rowDataToEdit.quantity : "",
     reward_type_id: rowDataToEdit ? rowDataToEdit.reward_type_id : "",
-    id : rowDataToEdit ? rowDataToEdit.id : 0,
+    id: rowDataToEdit ? rowDataToEdit.id : 0,
     updated_at: new Date(),
     is_exist: rowDataToEdit ? rowDataToEdit.is_exist : 0,
+    points: rowDataToEdit ? rowDataToEdit.points : 0,
     // ... add other fields as needed ...
   };
   const handleEditClick = (rowData: Element) => {
@@ -188,30 +190,29 @@ export default function Page() {
       setProcessing(true);
       setEditModalOpen(false);
       const headersList = {
-        Accept: '*/*',
-        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-        'Content-Type': 'application/json',
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
       };
-  
+
       try {
-        console.log("the values are: ",values);
+        console.log("the values are: ", values);
         const response = await fetch(`/api/private/editRewards/`, {
-          method: 'POST',
-         
-          body: JSON.stringify(values), 
+          method: "POST",
+
+          body: JSON.stringify(values),
           headers: headersList,
         });
-  
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
-  
+
         showToast({
-          status: 'success',
-          message: 'Reward Updated Successfully',
-        
+          status: "success",
+          message: "Reward Updated Successfully",
         });
         RefetchRewardsPagination();
         setProcessing(false);
@@ -219,23 +220,28 @@ export default function Page() {
         setEditModalOpen(false);
       } catch (error) {
         showToast({
-          status: 'error',
-          message: 'Something went wrong',
+          status: "error",
+          message: "Something went wrong",
         });
         setProcessing(false);
         setEditModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast,setEditModalOpen, RefetchRewardsPagination, editActionRef]
+    [
+      setProcessing,
+      showToast,
+      setEditModalOpen,
+      RefetchRewardsPagination,
+      editActionRef,
+    ]
   );
 
   const onSubmit = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleUpdateReward(values);
-    setEditModalOpen(false);  
-  };  
-
+    setEditModalOpen(false);
+  };
 
   useEffect(() => {
     console.log("Row data updated:", rowDataToEdit);
@@ -245,7 +251,6 @@ export default function Page() {
         description: rowDataToEdit.description,
         quantity: rowDataToEdit.quantity,
         reward_type_id: rowDataToEdit.reward_type_id,
-
       });
     }
   }, [rowDataToEdit]);
@@ -258,8 +263,6 @@ export default function Page() {
     createActionRef.current?.setFieldValue("reward_type_id", newValue);
   };
 
-
-  
   const RemoveinitialValues = {
     name: rowDataToEdit ? rowDataToEdit.name : "",
     description: rowDataToEdit ? rowDataToEdit.description : "",
@@ -278,29 +281,28 @@ export default function Page() {
       setProcessing(true);
       setRemoveModalOpen(false);
       const headersList = {
-        Accept: '*/*',
-        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-        'Content-Type': 'application/json',
+        Accept: "*/*",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
       };
-  
+
       try {
-        console.log("the values are: ",values);
+        console.log("the values are: ", values);
         const response = await fetch(`/api/private/removeRewards/`, {
-          method: 'POST',
-          body: JSON.stringify(values), 
+          method: "POST",
+          body: JSON.stringify(values),
           headers: headersList,
         });
-  
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
-  
+
         showToast({
-          status: 'success',
-          message: 'Reward Deleted Successfully',
-        
+          status: "success",
+          message: "Reward Deleted Successfully",
         });
         RefetchRewardsPagination();
         setProcessing(false);
@@ -308,227 +310,57 @@ export default function Page() {
         setRemoveModalOpen(false);
       } catch (error) {
         showToast({
-          status: 'error',
-          message: 'Something went wrong',
+          status: "error",
+          message: "Something went wrong",
         });
         setProcessing(false);
         setRemoveModalOpen(false);
         console.error(error);
       }
     },
-    [setProcessing, showToast,setRemoveModalOpen, RefetchRewardsPagination, editActionRef]
+    [
+      setProcessing,
+      showToast,
+      setRemoveModalOpen,
+      RefetchRewardsPagination,
+      editActionRef,
+    ]
   );
 
-  
   const onSubmitRemove = async (values: any) => {
     console.log("Edit Form submitted with values:", values);
     await handleRemoveAction(values);
-    setModalOpen(false);  
-  };  
+    setModalOpen(false);
+  };
 
   return (
     <div className="w-full h-full px-2">
-      {/* <label htmlFor="my_modal_6" className="btn btn-primary ">
-        Add Rewards
-      </label> */}
-      {/* add modal */}
-      {/* <input
-        type="checkbox"
-        id="my_modal_6"
-        className="modal-toggle"
-        checked={isModalOpen}
-        onChange={() => setModalOpen(!isModalOpen)}
-      />
-      <div className="modal" role="dialog">
-        <div className="modal-box">
-          <form method="dialog">
-            <label
-              htmlFor="my_modal_6"
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
-            >
-              ✕
-            </label>
-          </form>
-          <h3 className="font-bold text-lg">Add Reward</h3>
-          <Formik
-            initialValues={{
-              quantity: "",
-              reward_type_id: "",
-              name: "",
-              description: "",
-              created_at: new Date(),
-            }}
-            innerRef={createActionRef}
-            validationSchema={actionValidation}
-            onSubmit={async (values, { resetForm }) => {
-              console.log("Form submitted with values:", values);
-              setProcessing(true);
-              const isDataExisting = DataActionPagination.data.some(
-                (element: Element) =>
-                  element.name === values.name && element.description === values.description
-              );
-            
-              if (isDataExisting) {
-                showToast({
-                  status: "error",
-                  message: "Action with this name and description already exists",
-                });
-            
-                setProcessing(false);
-                return;
-              }
-              resetForm();
-              const quantityAsInt = parseInt(values.quantity, 10);
-
-              let bodyContent = JSON.stringify({
-                quantity: quantityAsInt,
-                reward_type_id: values.reward_type_id,
-                name: values.name,
-                description: values.description,
-                created_at: values.created_at,
-              });
-              createActionMutation.mutate(bodyContent);
-            }}
+      <div className="w-80">
+        <label className="input input-bordered flex items-center gap-2">
+          <input
+            type="text"
+            style={{ width: 300 }}
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="text-lg font-semibold"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            className="w-4 h-4 opacity-70"
           >
-            {({ errors, touched, values, setFieldValue }) => (
-              <Form>
-                <select
-                  name="reward_type_id"
-                  className="select select-bordered w-full max-w-xs font-semibold text-base"
-                  id=""
-                  onChange={handleSelectChange}
-                  value={values.reward_type_id}
-                >
-                  <option disabled value="">
-                    Select Reward Type
-                  </option>
-                  {DataRewardTypePagination?.data.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Quantity
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Quantity"
-                  className="input input-bordered"
-                  name="quantity"
-                />
-                <ErrorMessage name="quantity" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Name
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Name"
-                  className="input input-bordered"
-                  name="name"
-                />
-                <ErrorMessage name="name" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Description
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Reward Description"
-                  className="input input-bordered"
-                  name="description"
-                />
-                <ErrorMessage name="description" className="flex">
-                  {(msg) => (
-                    <div className="text-red-600 flex">
-                      <img
-                        src="../icons/warning.svg"
-                        width={20}
-                        height={20}
-                        alt="Error Icon"
-                        className="error-icon pr-1"
-                      />
-                      {msg}
-                    </div>
-                  )}
-                </ErrorMessage>
-                <div className="m-8 " style={{ marginTop: 60 }}>
-                  <div className="absolute bottom-6 right-6">
-                    <label
-                      htmlFor="my_modal_6"
-                      className="btn btn-neutral mr-2"
-                    >
-                      Cancel
-                    </label>
-                    <button type="submit" className="btn btn-primary">
-                      Submit
-                    </button>
-                  </div>
-                </div>
-              </Form>
-            )}
-          </Formik>
-        </div>
-      </div> */}
-<div className="w-80">
-    <label className="input input-bordered flex items-center gap-2">
+            <path
+              fillRule="evenodd"
+              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </label>
+      </div>
+      {/* view modal */}
       <input
-        type="text"
-        style={{ width: 300 }}
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="text-lg font-semibold"
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        className="w-4 h-4 opacity-70"
-      >
-        <path
-          fillRule="evenodd"
-          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </label>
-  </div>
-      {/* edit modal */}
-       <input
         type="checkbox"
         id="my_modal_7"
         className="modal-toggle"
@@ -546,13 +378,14 @@ export default function Page() {
             </label>
           </form>
           <h3 className="font-bold text-lg">View Reward</h3>
-       
+
           <Formik
-initialValues={UpdateinitialValues}
-enableReinitialize={true}
-onSubmit={onSubmit}>
-   {({ errors, touched, values, setFieldValue }) => (
-           <Form>
+            initialValues={UpdateinitialValues}
+            enableReinitialize={true}
+            onSubmit={onSubmit}
+          >
+            {({ errors, touched, values, setFieldValue }) => (
+              <Form>
                 <select
                   name="reward_type_id"
                   className="select select-bordered w-full max-w-xs font-semibold text-base"
@@ -636,7 +469,7 @@ onSubmit={onSubmit}>
                   name="description"
                   readOnly
                 />
-          
+
                 <ErrorMessage name="description" className="flex">
                   {(msg) => (
                     <div className="text-red-600 flex">
@@ -651,6 +484,35 @@ onSubmit={onSubmit}>
                     </div>
                   )}
                 </ErrorMessage>
+                {values.reward_type_id == 1 ? (
+                  <>
+                    <label className="label flex place-content-start gap-2">
+                      <span className="label-text text-base font-semibold">
+                        Points
+                      </span>
+                    </label>
+                    <Field
+                      type="text"
+                      placeholder="Enter Points for Reward"
+                      className="input input-bordered"
+                      name="points"
+                    />
+                    <ErrorMessage name="points" className="flex">
+                      {(msg) => (
+                        <div className="text-red-600 flex">
+                          <img
+                            src="../icons/warning.svg"
+                            width={20}
+                            height={20}
+                            alt="Error Icon"
+                            className="error-icon pr-1"
+                          />
+                          {msg}
+                        </div>
+                      )}
+                    </ErrorMessage>
+                  </>
+                ) : null}
                 <div className="m-8 " style={{ marginTop: 60 }}>
                   <div className="absolute bottom-6 right-6">
                     <label
@@ -662,79 +524,11 @@ onSubmit={onSubmit}>
                   </div>
                 </div>
               </Form>
-    )}
-              </Formik>
-  </div>
-      </div> 
-              
-        {/* remove modal */}
-        
-{/* delete modal */}
-{/* <input type="checkbox" id="my_modal_8"
- checked={isRemoveModalOpen}
-        onChange={() => setRemoveModalOpen(!isRemoveModalOpen)}
-        className="modal-toggle" />
-      <div className="modal" role="dialog">
-        <div className="modal-box">
-          <form method="dialog">
-          </form>
-          <h3 className="font-bold text-lg">Delete Reward</h3>
-          <Formik
-            initialValues={RemoveinitialValues}
-            enableReinitialize={true}
-            onSubmit={onSubmitRemove}
-          >
-            <Form>
-              <div className="form-control bg-white">
-              <label className="label">
-    <span className="label-text text-base font-semibold">
-      Are you sure you want to delete the following data?
-    </span>
-  </label>
-  <div className="flex">
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Name:
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Action Name"
-                  className="input border-none"
-                  name="name"
-                  disabled />
-                </div>
-                <div className="flex">
-                <label className="label">
-                  <span className="label-text text-base font-semibold">
-                    Description:
-                  </span>
-                </label>
-                <Field
-                  type="text"
-                  placeholder="Enter Action Name"
-                  className="input border-none text-black"
-                  name="description"
-                  disabled />
-                </div>
-              </div>
-              <div className="m-8 " style={{ marginTop: 60 }}>
-                <div className="absolute bottom-6 right-6">
-                <label
-                      htmlFor="my_modal_8"
-                      className="btn btn-neutral mr-2"
-                    >
-                      Cancel
-                    </label>
-                  <button type="submit" className="btn btn-primary">
-                    Submit
-                  </button>
-                </div>
-              </div>
-            </Form>
+            )}
           </Formik>
         </div>
-      </div> */}
+      </div>
+
       <div className="overflow-x-auto w-full h-full mt-5 text-black">
         <table className="table place-content-center table-zebra text-base font-semibold text-center table-sm lg:table-lg">
           {/* head */}
@@ -744,6 +538,7 @@ onSubmit={onSubmit}>
               <th>Description</th>
               <th>Type</th>
               <th>QTY</th>
+              <th>Points</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -754,15 +549,18 @@ onSubmit={onSubmit}>
               </tr>
             ) : (
               filteredData.map((element: any) => {
-                const rewardType = DataRewardTypePagination?.data.find((item: any) => item.id === parseInt(element.reward_type_id));
+                const rewardType = DataRewardTypePagination?.data.find(
+                  (item: any) => item.id === parseInt(element.reward_type_id)
+                );
                 const rewardTypeName = rewardType ? rewardType.name : "Unknown"; // Use a default value if not found
-               
+
                 return (
                   <tr key={element.id}>
                     <td>{element.name}</td>
                     <td>{element.description}</td>
                     <td>{rewardTypeName}</td>
                     <td>{element.quantity}</td>
+                    <td>{element.points == 0 ? "N/A" : element.points}</td>
 
                     <td className="flex">
                       <div className="flex mx-auto">
@@ -780,7 +578,6 @@ onSubmit={onSubmit}>
                           />
                           View
                         </label>
-                       
                       </div>
                     </td>
                   </tr>

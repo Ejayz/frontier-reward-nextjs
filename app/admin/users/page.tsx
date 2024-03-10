@@ -1041,8 +1041,8 @@ export default function Page() {
   const vehicleSchema = yup.object().shape({
     vin_no: yup
       .string()
-      .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid VIN number")
-      .required("VIN number is required"),
+      .matches(/^[A-HJ-NPR-Z0-9]{17}$/i, "Please enter a valid Vehicle Identification Numner (VIN)")
+      .required("Vehicle Identification Numner (VIN) is required"),
   });
 
   const adminSchema = yup.object().shape({
@@ -1550,13 +1550,13 @@ export default function Page() {
                         <LabeledInput
                           field_name="vin_no"
                           type="text"
-                          placeholder="Enter Vehicle VIN No"
+                          placeholder="Vehicle Identification Numner (VIN)"
                           className="input input-bordered input-sm w-full max-w-xs"
                           errors={errors.vin_no}
                           touched={touched.vin_no}
                           classes="text-base"
-                          label="Vehicle VIN No"
-                          datatip="Input the vehicle VIN number for the vehicle of the account."
+                          label="Vehicle Identification Numner (VIN)"
+                          datatip="Input the Vehicle Identification Numner (VIN) for the vehicle of the account."
                         />
                       </div>
                       <div id="notif" ref={notificationContainer}></div>
