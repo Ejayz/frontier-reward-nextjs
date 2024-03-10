@@ -97,7 +97,8 @@ export default async function handler(
   } catch (error: any) {
     console.log(error);
     if (error.message === "jwt expired") {
-      return res.status(401).json({ message: "jwt expired" });
+      
+      return res.status(401).json({ message: "jwt expired"});
     } else if (error.message === "jwt malformed") {
       return res.status(401).json({ message: "jwt malformed" });
     } else if (error.message === "jwt not active") {
