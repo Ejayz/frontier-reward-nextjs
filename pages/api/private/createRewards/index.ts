@@ -9,7 +9,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "";
 const RESEND_API = process.env.RESEND_SECRET || "";
 const BASE_URL = process.env.BASE_URL || "";
 
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -20,41 +19,51 @@ export default async function handler(
   const connection = await instance.getConnection();
   const auth = new Cookies(req, res).get("auth") || "";
   try {
-  const verify = jwt.verify(auth, JWT_SECRET);
-  let current_user = 0;
-  if (typeof verify === "string") {
-    return res.status(401).json({ code: 401, message: "Invalid token" });
-  } else if (verify?.main_id) {
-    // Access the id property only if it exists in the JwtPayload
-    current_user = verify.main_id;
-    console.log("Current user ID:", current_user);
-  } else {
-    return res.status(401).json({ code: 401, message: "Invalid token format" });
-  }
- 
-  const {
-    name,
-    description,
-    quantity,
-    reward_type_id,
-    employee_id,
-  } = req.body;
+    const verify = jwt.verify(auth, JWT_SECRET);
+    let current_user = 0;
+    if (typeof verify === "string") {
+      return res.status(401).json({ code: 401, message: "Invalid token" });
+    } else if (verify?.main_id) {
+      // Access the id property only if it exists in the JwtPayload
+      current_user = verify.main_id;
+      console.log("Current user ID:", current_user);
+    } else {
+      return res
+        .status(401)
+        .json({ code: 401, message: "Invalid token format" });
+    }
 
+    const { name, description, quantity, reward_type_id, employee_id, points } =
+      req.body;
 
-  const [createRewardsResult, createRewardsFields] = <RowDataPacket[]>await connection.query( 
-    `INSERT INTO reward (name,description,quantity,reward_type_id,employee_id, is_exist) VALUES (?,?,?,?,?,?)`, 
-  [name,description,quantity,reward_type_id,current_user,1] );
+    const [createRewardsResult, createRewardsFields] = <RowDataPacket[]>(
+      await connection.query(
+        `INSERT INTO reward (name,description,quantity,reward_type_id,employee_id, is_exist,points) VALUES (?,?,?,?,?,?,?)`,
+        [
+          name,
+          description,
+          quantity,
+          reward_type_id,
+          current_user,
+          1,
+          parseFloat(points == "" ? 0 : points),
+        ]
+      )
+    );
 
-
-  if (createRewardsResult.affectedRows == 0) {
-    return res.status(500).json({code:500, message: "Something went wrong" });
-  }else{
-    return res.status(200).json({code:200, message: "Successfully created rewards" });
-  }
+    if (createRewardsResult.affectedRows == 0) {
+      return res
+        .status(500)
+        .json({ code: 500, message: "Something went wrong" });
+    } else {
+      return res
+        .status(200)
+        .json({ code: 200, message: "Successfully created rewards" });
+    }
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ error: error.message });
-  }finally{
+  } finally {
     await connection.release();
   }
 }

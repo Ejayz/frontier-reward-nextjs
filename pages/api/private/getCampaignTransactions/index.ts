@@ -30,7 +30,6 @@ export default async function handler(
         .status(401)
         .json({ code: 401, message: "User is not authenticated" });
     }
-    console.log(keyword);
     if (keyword != "") {
       [rows, fields] = <RowDataPacket[]>(
         await connection.query(
@@ -58,7 +57,6 @@ export default async function handler(
         )
       );
     }
-    console.log(rows)
     return res.status(200).json({ code: 200, message: "Success", data: rows });
   } catch (error: any) {
     console.log(error);

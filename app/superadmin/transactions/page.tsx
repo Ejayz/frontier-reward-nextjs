@@ -68,7 +68,11 @@ export default function Page() {
     isFetching: RedeemTransactionIsFetching,
     refetch: RedeemTransactionRefetch,
   } = useQuery({
-    queryKey: ["redeemtransaction", redeemPage],
+    queryKey: [
+      "redeemtransaction",
+      redeemPage,
+      searchForm.current?.values.keyword,
+    ],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
@@ -94,13 +98,17 @@ export default function Page() {
     isFetching: campaignIsFetching,
     refetch: campaignRefetch,
   } = useQuery({
-    queryKey: ["campaigns", campaignPage],
+    queryKey: [
+      "campaignTransaction",
+      campaignPage,
+      searchForm.current?.values.keyword,
+    ],
     queryFn: async () => {
       let headersList = {
         Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
       };
-      console.log(campaignPage)
+      console.log(campaignPage);
 
       let response = await fetch(
         `/api/private/getCampaignTransactions?page=${campaignPage}&keyword=${searchForm.current?.values.keyword}`,
@@ -118,9 +126,10 @@ export default function Page() {
       return data;
     },
     placeholderData: keepPreviousData,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     staleTime: 0,
   });
+
   useEffect(() => {
     console.log(CampaignData);
   }, [CampaignData]);
@@ -821,7 +830,7 @@ export default function Page() {
                           RedeemTransactionIsLoading ? (
                             <span className="loading loading-dots loading-md"></span>
                           ) : (
-                            `Page ${1}`
+                            `Page ${redeemPage + 1}`
                           )}
                         </button>
                         <button
