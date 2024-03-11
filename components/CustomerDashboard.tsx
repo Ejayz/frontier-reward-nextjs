@@ -148,7 +148,7 @@ export default function SalesPersonDashboardNav({
   });
 let countnotification =(
   DataNotifPagination?.data?.filter(
-    (item: any) => !DataNotifRecordPagination?.data?.some(record => record.notification_id === item.id)
+    (item: any) => !DataNotifRecordPagination?.data?.some((record:any) => record.notification_id === item.id)
   ) || []
 ).length;
   return (
