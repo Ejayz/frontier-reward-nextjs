@@ -22,7 +22,7 @@ export default async function handler(
   try {
     const verify = jwt.verify(auth, JWT_SECRET);
     if (typeof verify === "string") {
-      return res.status(401).json({ message: "jwt malformed" });
+      return res.status(401).json({ message: "Expired Token Login Again Please" });
     }
     const [numberOfUsers] = <RowDataPacket[]>(
       await connection.query(
@@ -91,13 +91,16 @@ export default async function handler(
       ],
     };
     console.log(DashBoardData);
+    
     return res
       .status(200)
       .json({ code: 200, message: "Success", data: DashBoardData });
+    
   } catch (error: any) {
     console.log(error);
     if (error.message === "jwt expired") {
-      return res.status(401).json({ message: "jwt expired" });
+      
+      return res.status(401).json({ message: "jwt expired"});
     } else if (error.message === "jwt malformed") {
       return res.status(401).json({ message: "jwt malformed" });
     } else if (error.message === "jwt not active") {
