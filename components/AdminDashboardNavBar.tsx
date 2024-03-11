@@ -116,7 +116,7 @@ export default function AdminDashboardNavBar({
                         Sample Campaign was added . Check it out !
                       </span>
                     </div>
-                    {/* Time and date and mins passed by container */}
+                    {/* Time and date and mins passed by container */}  
                     <div className="py-2">
                       <span className="text-sm font-bold font-mono">
                         Aug 12, 2023 12:15PM

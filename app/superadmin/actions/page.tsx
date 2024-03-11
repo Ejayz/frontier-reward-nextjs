@@ -148,7 +148,6 @@ const {
         message: "Something went wrong",
       });
       setProcessing(false);
-
       setModalOpen(false);
     },
   });

@@ -12,6 +12,8 @@ export default function SalesPersonDashboardNav({
   child: React.ReactNode;
 }>) {
   const { showToast } = useToast();
+  const [processing, setProcessing] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
   const [data, setData] = useState<any>();
   const navbarActive = usePathname();
   const logoutMutate = useMutation({
@@ -129,27 +131,26 @@ export default function SalesPersonDashboardNav({
           "User-Agent": "Thunder Client (https://www.thunderclient.com)",
           "Content-Type": "application/json",
         };
-
+        
+        
         let response = await fetch(`/api/private/createNotification/`, {
           method: "POST",
           body: values,
           headers: headersList,
         });
-        RefetchNotifPagination();
+       
         return response.json();
       } catch (error) {
         console.error("Error creating notification:", error);
         throw error;
       }
     },
-    onSuccess: async (data: any) => {
-      // ... (other success logic)
-    },
-    onError: async (error: any) => {
-      // ... (other error handling logic)
-    },
   });
-
+let countnotification =(
+  DataNotifPagination?.data?.filter(
+    (item: any) => !DataNotifRecordPagination?.data?.some(record => record.notification_id === item.id)
+  ) || []
+).length;
   return (
     <div className="drawer">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -190,9 +191,11 @@ export default function SalesPersonDashboardNav({
                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                       />
                     </svg>
-                    <span className="badge badge-xs badge-primary indicator-item">
-                      15
-                    </span>
+                    {countnotification !== 0 && (
+  <span className="badge badge-xs badge-primary indicator-item">
+    {countnotification}
+  </span>
+)}
                   </div>
                 </button>
               </div>
@@ -201,7 +204,7 @@ export default function SalesPersonDashboardNav({
                 className="mt-2 z-[1] card card-compact h-auto dropdown-content w-96 bg-white text-black shadow-md shadow-black"
               >
                 <div className="card-body h-64 overflow-y-auto">
-                  {isFetchingNotifPagination ? (
+                  {isLoadingNotifPagination ? (
                     <div>Loading...</div>
                   ) : (
                     <>
@@ -212,30 +215,56 @@ export default function SalesPersonDashboardNav({
                           DataNotifRecordPagination?.data?.find(
                             (item: any) => item.notification_id === element.id
                           );
-                        const handleClick = () => {
-                          // Function to handle click and print element.id
-                          console.log(
-                            `Clicked on element with id: ${element.id}`
-                          );
-                          notification_id = element.id;
-                          const values = JSON.stringify({
-                            notification_id: notification_id,
-                          });
-                          createActionMutation.mutate(values);
-
-                          RefetchNotifPagination();
-                        };
-
+                          const notifRecordCount = DataNotifRecordPagination?.data?.length || 0;
+                          const handleClick = async () => {
+                            setModalOpen(true);
+                            console.log(`Clicked on element with id: ${element.id}`);
+                            notification_id = element.id;
+                        
+                            const isNotificationRecordExists = DataNotifRecordPagination?.data?.some(
+                              (item: any) => item.notification_id === notification_id
+                            );
+                        
+                            if (isNotificationRecordExists) {
+                              return;
+                            }
+                            const values = JSON.stringify({
+                              notification_id: notification_id,
+                            });
+                            await createActionMutation.mutate(values);
+                            await RefetchNotifPagination();
+                            await RefetchNotifRecordPagination();
+                          };
+                          
                         // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
                         const isNewNotification = notifrecordID === undefined;
+   {/* The button to open modal */}
+   <label htmlFor="my_modal_6" className="btn" onClick={handleClick}>
+   Open modal
+ </label>
 
+ {/* Put this part before </body> tag */}
+ <input type="checkbox" id="my_modal_6" className="modal-toggle" />
+ {isModalOpen && (
+   <div className="modal" role="dialog">
+     <div className="modal-box">
+       <h3 className="font-bold text-lg">Hello!</h3>
+       <p className="py-4">This modal works with a hidden checkbox!</p>
+       <div className="modal-action">
+         <label htmlFor="my_modal_6" className="btn" onClick={() => setModalOpen(false)}>
+           Close!
+         </label>
+       </div>
+     </div>
+   </div>
+ )}
                         return (
                           <Link
                             key={element.id}
                             href={""}
                             className={`w-full h-auto px-2 bg-base-200 rounded-md block shadow-md shadow-black ${
                               isNewNotification ? "relative" : ""
-                            }`}
+                            }` }
                             onClick={handleClick}
                           >
                             {isNewNotification && (
@@ -266,6 +295,7 @@ export default function SalesPersonDashboardNav({
                 </div>
               </div>
             </div>
+
             <div className="dropdown hidden lg:block dropdown-end">
               <div
                 tabIndex={0}
