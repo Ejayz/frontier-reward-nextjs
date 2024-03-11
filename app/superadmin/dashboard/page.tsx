@@ -46,6 +46,8 @@ export default function Page() {
         ...CampaignTransactions,
         series: data.campaign,
       });
+      
+      error && console.error(error);
       return data;
     },
   });
@@ -130,7 +132,7 @@ export default function Page() {
       <div className="inline place-content-center lg:place-content-start lg:flex lg:mt-10">
           <Chart
             options={RedeemTransactions.options}
-            series={isLoading || isFetching ? [0, 0, 0] : data.data.redeem}
+            series={isLoading || isFetching ? [0, 0, 0] : data?.data?.redeem}
             type="pie"
             width={400}
             height={400}
@@ -138,7 +140,7 @@ export default function Page() {
           />
           <Chart
             options={CampaignTransactions.options}
-            series={isLoading || isFetching ? [0, 0, 0] : data.data.campaign}
+            series={isLoading || isFetching ? [0, 0, 0] : data?.data?.campaign}
             type="pie"
             width={400}
             height={400}
@@ -150,7 +152,7 @@ export default function Page() {
             <div className="stat">
               <div className="stat-title">Active Campaign</div>
               <div className="stat-value">
-                {isLoading || isFetching ? "..." : data.data.total_campaign}
+                {isLoading || isFetching ? "..." : data?.data?.total_campaign}
               </div>
             </div>
           </div>
@@ -158,7 +160,7 @@ export default function Page() {
             <div className="stat">
               <div className="stat-title">Active Actions</div>
               <div className="stat-value">
-                {isLoading || isFetching ? "..." : data.data.total_action}
+                {isLoading || isFetching ? "..." : data?.data?.total_action}
               </div>
             </div>
           </div>
@@ -166,7 +168,7 @@ export default function Page() {
             <div className="stat">
               <div className="stat-title">Users</div>
               <div className="stat-value">
-                {isLoading || isFetching ? "..." : data.data.total_users}
+                {isLoading || isFetching ? "..." : data?.data?.total_users}
               </div>
             </div>
           </div>
@@ -174,7 +176,7 @@ export default function Page() {
             <div className="stat">
               <div className="stat-title">Packages</div>
               <div className="stat-value">
-                {isLoading || isFetching ? "..." : data.data.total_package}
+                {isLoading || isFetching ? "..." : data?.data?.total_package}
               </div>
             </div>
           </div>
