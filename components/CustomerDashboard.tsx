@@ -220,6 +220,14 @@ let countnotification =(
                             setModalOpen(true);
                             console.log(`Clicked on element with id: ${element.id}`);
                             notification_id = element.id;
+                            const notificationDescription =
+                            element.redeem_id !== null
+                              ? "New Redeem was added. Check it out!"
+                              : element.campaign_id !== null
+                              ? "New Campaign was added. Check it out!"
+                              : null;
+                        
+                          alert(`Description:\n\n${notificationDescription}`);
                         
                             const isNotificationRecordExists = DataNotifRecordPagination?.data?.some(
                               (item: any) => item.notification_id === notification_id
@@ -228,6 +236,7 @@ let countnotification =(
                             if (isNotificationRecordExists) {
                               return;
                             }
+                    
                             const values = JSON.stringify({
                               notification_id: notification_id,
                             });
@@ -239,25 +248,6 @@ let countnotification =(
                         // Check if notifrecordID is undefined to determine whether element.id exists in DataNotifRecordPagination.data
                         const isNewNotification = notifrecordID === undefined;
    {/* The button to open modal */}
-   <label htmlFor="my_modal_6" className="btn" onClick={handleClick}>
-   Open modal
- </label>
-
- {/* Put this part before </body> tag */}
- <input type="checkbox" id="my_modal_6" className="modal-toggle" />
- {isModalOpen && (
-   <div className="modal" role="dialog">
-     <div className="modal-box">
-       <h3 className="font-bold text-lg">Hello!</h3>
-       <p className="py-4">This modal works with a hidden checkbox!</p>
-       <div className="modal-action">
-         <label htmlFor="my_modal_6" className="btn" onClick={() => setModalOpen(false)}>
-           Close!
-         </label>
-       </div>
-     </div>
-   </div>
- )}
                         return (
                           <Link
                             key={element.id}
