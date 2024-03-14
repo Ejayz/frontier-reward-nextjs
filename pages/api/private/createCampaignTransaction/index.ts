@@ -42,9 +42,11 @@ export default async function handler(
     );
     if (checkExistingTransaction.length > 0) {
       connection.rollback();
-      return res
-        .status(400)
-        .json({ code: 400, message: "You have pending transaction with this campaign . Please go to our nearest branch and do the actions to claim your rewards." });
+      return res.status(400).json({
+        code: 400,
+        message:
+          "You have pending transaction with this campaign . Please go to our nearest branch and do the actions to claim your rewards.",
+      });
     }
     for (x = 0; x < 1; x++) {
       transactionNumber = generate({
@@ -75,6 +77,22 @@ export default async function handler(
     );
 
     if (insertTransaction.affectedRows == 0) {
+      connection.rollback();
+      return res
+        .status(400)
+        .json({ code: 400, message: "Something went wrong" });
+    }
+    const message =
+      "A new campaign transaction has been created. Transaction Number: " +
+      transactionNumber +
+      ". Please check transaction module for more details.";
+    const [insertNotification] = <RowDataPacket[]>(
+      await connection.query(
+        `INSERT INTO notification_admin (notification_details) VALUES (?)`,
+        [message]
+      )
+    );
+    if (insertNotification.affectedRows == 0) {
       connection.rollback();
       return res
         .status(400)

@@ -73,10 +73,12 @@ export default function Page() {
         toast.success("Transaction created successfully");
         showConfirmModal.current?.showModal();
       } else {
+        dialogShowData.current?.close();
         toast.error(data.message);
       }
     },
     onError: (error) => {
+      dialogShowData.current?.close();
       toast.error("Something went wrong");
     },
   });
@@ -172,8 +174,8 @@ export default function Page() {
             ? ""
             : data.data.length == 0
             ? "flex flex-col"
-            : "grid grid-cols-5 gap-x-2 gap-y-4"
-        } w-full h-3/4`}
+            : "grid sm:grid-rows-5 md:grid-rows-5 lg:grid-cols-5 gap-x-2 gap-y-4 sm:overflow-y-auto"
+        } w-full h-screen`}
       >
         {isLoading || isFetching ? (
           <Loading></Loading>
@@ -253,40 +255,40 @@ export default function Page() {
             );
           })
         )}
-      </div>
-      <div className="w-full flex ">
-        {" "}
-        {isLoading || isFetching ? (
-          <></>
-        ) : data.data.length == 0 ? (
-          <></>
-        ) : (
-          <div className="join mx-auto mt-6">
-            <button
-              onClick={() => {
-                const newPage = page - 1;
-                if (page != 0) {
-                  setPage(newPage);
-                }
-              }}
-              className="join-item btn"
-            >
-              «
-            </button>
-            <button className="join-item btn">Page {page + 1}</button>
-            <button
-              onClick={() => {
-                const newPage = page + 1;
-                if (data.data.length == 10) {
-                  setPage(newPage);
-                }
-              }}
-              className="join-item btn"
-            >
-              »
-            </button>
-          </div>
-        )}
+        <div className="w-full flex ">
+          {" "}
+          {isLoading || isFetching ? (
+            <></>
+          ) : data.data.length == 0 ? (
+            <></>
+          ) : (
+            <div className="join mx-auto mt-4 mb-36">
+              <button
+                onClick={() => {
+                  const newPage = page - 1;
+                  if (page != 0) {
+                    setPage(newPage);
+                  }
+                }}
+                className="join-item btn"
+              >
+                «
+              </button>
+              <button className="join-item btn">Page {page + 1}</button>
+              <button
+                onClick={() => {
+                  const newPage = page + 1;
+                  if (data.data.length == 10) {
+                    setPage(newPage);
+                  }
+                }}
+                className="join-item btn"
+              >
+                »
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -9,8 +9,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-international-phone/style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { pages } from "next/dist/build/templates/app-page";
-import AdminDashboardNavBar from "@/components/AdminDashboardNavBar";
+import AdminDashboardNavBar from "@/components/AdminsDashboardNavBar";
 
 const queryClient = new QueryClient();
 
