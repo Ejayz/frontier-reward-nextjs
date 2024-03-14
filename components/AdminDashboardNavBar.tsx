@@ -1,10 +1,13 @@
+//Correct Super Admin Dashboard Navbar
 "use client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { DateTime } from "luxon";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import NotificationComponentAdmins from "./NotificationComponentAdmins";
 
 export default function AdminDashboardNavBar({
   child,
@@ -49,7 +52,23 @@ export default function AdminDashboardNavBar({
       console.error("Error making ThunderClient request:", error);
     }
   };
-
+  const {
+    data: NotificationData,
+    error: NotificationError,
+    isLoading: NotificationIsLoading,
+    isError: NotificationIsError,
+    isFetching: NotificationIsFetching,
+    refetch: NotificationRefetch,
+  } = useQuery({
+    queryKey: ["notification"],
+    queryFn: async () => {
+      const response = await fetch("/api/private/getAdminNotifications/", {
+        method: "GET",
+      });
+      const data = await response.json();
+      return data;
+    },
+  });
   // Use the useEffect hook to trigger the ThunderClient request when the page loads
   useEffect(() => {
     makeThunderClientRequest();
@@ -74,67 +93,7 @@ export default function AdminDashboardNavBar({
           </div>
           <div className="flex-none ">
             <div className="dropdown hidden lg:block dropdown-end">
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-ghost btn-circle"
-              >
-                <button className="btn btn-ghost btn-circle">
-                  <div className="indicator">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                      />
-                    </svg>
-                    <span className="badge badge-xs badge-primary indicator-item">
-                      15
-                    </span>
-                  </div>
-                </button>
-              </div>
-              <div
-                tabIndex={0}
-                className="mt-2 z-[1] card card-compact   h-64 dropdown-content w-96 bg-white text-black shadow-2xl shadow-black"
-              >
-                <div className="card-body h-64 overflow-y-auto">
-                  <Link
-                    href={""}
-                    className="w-full h-auto px-2 bg-base-200 shadow-xl rounded-md"
-                  >
-                    {/* Message container */}
-                    <div className="w-full">
-                      <span className="text-base p-2 ">
-                        Sample Campaign was added . Check it out !
-                      </span>
-                    </div>
-                    {/* Time and date and mins passed by container */}  
-                    <div className="py-2">
-                      <span className="text-sm font-bold font-mono">
-                        Aug 12, 2023 12:15PM
-                      </span>
-                      |
-                      <span className="text-sm font-bold font-mono">
-                        10m ago
-                      </span>
-                    </div>
-                  </Link>
-                  
-                </div>
-                <div className="card-actions">
-                  <button className="btn p-4 btn-primary btn-block">
-                    View Notifications
-                  </button>
-                </div>
-              </div>
+              <NotificationComponentAdmins user={"superadmin"}></NotificationComponentAdmins>
             </div>
 
             <div className="dropdown hidden lg:block dropdown-end">

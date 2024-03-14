@@ -726,7 +726,7 @@ export default function Page() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (CampaignData.data.length >= 10) {
+                              if (CampaignData.data.length >= 5) {
                                 const newPage = campaignPage + 1;
                                 setCampaignPage(newPage);
                               } else {
@@ -824,12 +824,12 @@ export default function Page() {
                           RedeemTransactionIsLoading ? (
                             <span className="loading loading-dots loading-md"></span>
                           ) : (
-                            `Page ${1}`
+                            `Page ${redeemPage + 1}`
                           )}
                         </button>
                         <button
                           onClick={() => {
-                            if (RedeemTransaction?.data?.length >= 10) {
+                            if (RedeemTransaction?.data?.length >= 5) {
                               const newPage = redeemPage + 1;
                               setRedeemPage(newPage);
                             } else {

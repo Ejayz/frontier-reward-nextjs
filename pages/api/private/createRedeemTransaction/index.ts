@@ -146,6 +146,22 @@ export default async function handler(
         .status(400)
         .json({ code: 400, message: "Something went wrong" });
     }
+    const message =
+      "A new redeem transaction has been created. Transaction Number: " +
+      transactionNumber +
+      ". Please check transaction module for more details.";
+    const [insertNotification] = <RowDataPacket[]>(
+      await connection.query(
+        `INSERT INTO notification_admin (notification_details) VALUES (?)`,
+        [message]
+      )
+    );
+    if (insertNotification.affectedRows == 0) {
+      connection.rollback();
+      return res
+        .status(400)
+        .json({ code: 400, message: "Something went wrong" });
+    }
     connection.commit();
     return res.status(200).json({
       code: 200,
